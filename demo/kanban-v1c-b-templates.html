@@ -1,0 +1,1906 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>컬럼 템플릿 — 치과 Kanban v1c-b</title>
+
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.min.css" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Pretendard Variable', 'ui-sans-serif', 'system-ui', 'sans-serif'],
+          },
+          borderRadius: {
+            lg: 'var(--radius)',
+            md: 'calc(var(--radius) - 2px)',
+            sm: 'calc(var(--radius) - 4px)',
+            xl: 'calc(var(--radius) + 4px)',
+            '2xl': 'calc(var(--radius) + 8px)',
+            '3xl': 'calc(var(--radius) + 12px)',
+            '4xl': 'calc(var(--radius) + 16px)',
+          },
+          colors: {
+            background: 'var(--background)',
+            foreground: 'var(--foreground)',
+            card: { DEFAULT: 'var(--card)', foreground: 'var(--card-foreground)' },
+            popover: { DEFAULT: 'var(--popover)', foreground: 'var(--popover-foreground)' },
+            primary: { DEFAULT: 'var(--primary)', foreground: 'var(--primary-foreground)' },
+            secondary: { DEFAULT: 'var(--secondary)', foreground: 'var(--secondary-foreground)' },
+            muted: { DEFAULT: 'var(--muted)', foreground: 'var(--muted-foreground)' },
+            accent: { DEFAULT: 'var(--accent)', foreground: 'var(--accent-foreground)' },
+            destructive: { DEFAULT: 'var(--destructive)' },
+            border: 'var(--border)',
+            input: 'var(--input)',
+            ring: 'var(--ring)',
+            chart: {
+              1: 'var(--chart-1)',
+              2: 'var(--chart-2)',
+              3: 'var(--chart-3)',
+              4: 'var(--chart-4)',
+              5: 'var(--chart-5)',
+            },
+            sidebar: {
+              DEFAULT: 'var(--sidebar)',
+              foreground: 'var(--sidebar-foreground)',
+              primary: 'var(--sidebar-primary)',
+              'primary-foreground': 'var(--sidebar-primary-foreground)',
+              accent: 'var(--sidebar-accent)',
+              'accent-foreground': 'var(--sidebar-accent-foreground)',
+              border: 'var(--sidebar-border)',
+              ring: 'var(--sidebar-ring)',
+            },
+          },
+        },
+      },
+    }
+  </script>
+  <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+
+  <style>
+    :root {
+      --font-sans: "Pretendard Variable", ui-sans-serif, system-ui, sans-serif;
+      --radius: 0.625rem;
+
+      --background: oklch(1 0 0);
+      --foreground: oklch(0.145 0 0);
+      --card: oklch(1 0 0);
+      --card-foreground: oklch(0.145 0 0);
+      --popover: oklch(1 0 0);
+      --popover-foreground: oklch(0.145 0 0);
+      --primary: oklch(0.205 0 0);
+      --primary-foreground: oklch(0.985 0 0);
+      --secondary: oklch(0.97 0 0);
+      --secondary-foreground: oklch(0.205 0 0);
+      --muted: oklch(0.97 0 0);
+      --muted-foreground: oklch(0.556 0 0);
+      --accent: oklch(0.97 0 0);
+      --accent-foreground: oklch(0.205 0 0);
+      --destructive: oklch(0.577 0.245 27.325);
+      --border: oklch(0.922 0 0);
+      --input: oklch(0.922 0 0);
+      --ring: oklch(0.708 0 0);
+      --chart-1: oklch(0.646 0.222 41.116);
+      --chart-2: oklch(0.6 0.118 184.704);
+      --chart-3: oklch(0.398 0.07 227.392);
+      --chart-4: oklch(0.828 0.189 84.429);
+      --chart-5: oklch(0.769 0.188 70.08);
+      --sidebar: oklch(0.985 0 0);
+      --sidebar-foreground: oklch(0.145 0 0);
+      --sidebar-primary: oklch(0.205 0 0);
+      --sidebar-primary-foreground: oklch(0.985 0 0);
+      --sidebar-accent: oklch(0.97 0 0);
+      --sidebar-accent-foreground: oklch(0.205 0 0);
+      --sidebar-border: oklch(0.922 0 0);
+      --sidebar-ring: oklch(0.708 0 0);
+    }
+
+    .dark {
+      --background: oklch(0.145 0 0);
+      --foreground: oklch(0.985 0 0);
+      --card: oklch(0.205 0 0);
+      --card-foreground: oklch(0.985 0 0);
+      --popover: oklch(0.205 0 0);
+      --popover-foreground: oklch(0.985 0 0);
+      --primary: oklch(0.922 0 0);
+      --primary-foreground: oklch(0.205 0 0);
+      --secondary: oklch(0.269 0 0);
+      --secondary-foreground: oklch(0.985 0 0);
+      --muted: oklch(0.269 0 0);
+      --muted-foreground: oklch(0.708 0 0);
+      --accent: oklch(0.269 0 0);
+      --accent-foreground: oklch(0.985 0 0);
+      --destructive: oklch(0.704 0.191 22.216);
+      --border: oklch(1 0 0 / 10%);
+      --input: oklch(1 0 0 / 15%);
+      --ring: oklch(0.556 0 0);
+      --chart-1: oklch(0.488 0.243 264.376);
+      --chart-2: oklch(0.696 0.17 162.48);
+      --chart-3: oklch(0.769 0.188 70.08);
+      --chart-4: oklch(0.627 0.265 303.9);
+      --chart-5: oklch(0.645 0.246 16.439);
+      --sidebar: oklch(0.205 0 0);
+      --sidebar-foreground: oklch(0.985 0 0);
+      --sidebar-primary: oklch(0.488 0.243 264.376);
+      --sidebar-primary-foreground: oklch(0.985 0 0);
+      --sidebar-accent: oklch(0.269 0 0);
+      --sidebar-accent-foreground: oklch(0.985 0 0);
+      --sidebar-border: oklch(1 0 0 / 10%);
+      --sidebar-ring: oklch(0.556 0 0);
+    }
+
+    * { border-color: var(--border); outline-color: color-mix(in oklch, var(--ring) 50%, transparent); }
+    body {
+      font-family: var(--font-sans);
+      background-color: var(--background);
+      color: var(--foreground);
+    }
+
+    /* Dialog overlay (shared pattern with v1c-b) */
+    .dlg-overlay {
+      position: fixed; inset: 0; background: rgba(0,0,0,0.5);
+      display: none; align-items: center; justify-content: center;
+      z-index: 100;
+      animation: dlg-fade 150ms ease-out;
+    }
+    .dlg-overlay.open { display: flex; }
+    .dlg {
+      background: var(--background);
+      color: var(--foreground);
+      border: 1px solid var(--border);
+      border-radius: calc(var(--radius) + 2px);
+      box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+      width: min(460px, calc(100vw - 2rem));
+      padding: 20px;
+      animation: dlg-pop 150ms ease-out;
+    }
+    .dlg h2 { font-size: 15px; font-weight: 600; margin-bottom: 4px; }
+    .dlg p.dlg-desc { font-size: 12.5px; color: var(--muted-foreground); margin-bottom: 16px; line-height: 1.5; }
+    .dlg-field { display: flex; flex-direction: column; gap: 6px; margin-bottom: 12px; }
+    .dlg-field label { font-size: 12px; font-weight: 500; }
+    .dlg-field select, .dlg-field input {
+      height: 34px; padding: 0 10px;
+      border: 1px solid var(--border); border-radius: var(--radius);
+      background: var(--background); color: var(--foreground);
+      font-size: 13px; outline: none;
+    }
+    .dlg-field select:focus, .dlg-field input:focus { box-shadow: 0 0 0 2px color-mix(in oklch, var(--ring) 50%, transparent); }
+    .dlg-error { font-size: 11.5px; color: #dc2626; margin-top: 4px; min-height: 14px; }
+    .dlg-actions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 16px; }
+    .dlg-btn {
+      height: 34px; padding: 0 14px; border-radius: var(--radius);
+      font-size: 13px; font-weight: 500; cursor: pointer; border: 1px solid var(--border);
+      background: var(--background); color: var(--foreground);
+      transition: background 120ms;
+    }
+    .dlg-btn:hover { background: var(--accent); }
+    .dlg-btn-primary { background: var(--primary); color: var(--primary-foreground); border-color: var(--primary); }
+    .dlg-btn-primary:hover { background: color-mix(in oklch, var(--primary) 88%, #fff); }
+    .dlg-btn-destructive { background: #dc2626; color: #fff; border-color: #dc2626; }
+    .dlg-btn-destructive:hover { background: #b91c1c; }
+    @keyframes dlg-fade { from { opacity: 0; } to { opacity: 1; } }
+    @keyframes dlg-pop { from { opacity: 0; transform: scale(0.96) translateY(4px); } to { opacity: 1; transform: scale(1) translateY(0); } }
+
+    /* Toast (bottom-right) */
+    .toast-wrap { position: fixed; bottom: 20px; right: 20px; display: flex; flex-direction: column; gap: 8px; z-index: 120; pointer-events: none; }
+    .toast {
+      background: var(--background); color: var(--foreground);
+      border: 1px solid var(--border); border-radius: var(--radius);
+      padding: 10px 14px; font-size: 13px;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.12);
+      pointer-events: auto;
+      animation: toast-in 180ms ease-out;
+      max-width: 320px;
+    }
+    .toast-error { border-left: 3px solid #dc2626; }
+    .toast-success { border-left: 3px solid #10b981; }
+    @keyframes toast-in { from { opacity: 0; transform: translateX(20px); } to { opacity: 1; transform: translateX(0); } }
+
+    /* Template card */
+    .tpl-card {
+      border: 1px solid var(--border);
+      border-radius: calc(var(--radius) + 2px);
+      padding: 14px 16px;
+      background: var(--card);
+      color: var(--card-foreground);
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      transition: border-color 120ms, box-shadow 120ms;
+    }
+    .tpl-card:hover {
+      border-color: color-mix(in oklch, var(--foreground) 20%, var(--border));
+      box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+    }
+    .tpl-card-head {
+      display: flex; align-items: center; justify-content: space-between; gap: 12px;
+    }
+    .tpl-card-title {
+      font-size: 14px; font-weight: 600;
+      cursor: text;
+      padding: 2px 4px;
+      border-radius: 4px;
+      border: 1px solid transparent;
+      min-width: 0;
+    }
+    .tpl-card-title:hover { background: var(--accent); }
+    .tpl-card-title-input {
+      font-size: 14px; font-weight: 600;
+      padding: 2px 6px;
+      border: 1px solid var(--ring);
+      border-radius: 4px;
+      background: var(--background);
+      color: var(--foreground);
+      outline: none;
+      font-family: inherit;
+      box-shadow: 0 0 0 2px color-mix(in oklch, var(--ring) 40%, transparent);
+      min-width: 120px;
+    }
+    .tpl-meta {
+      font-size: 11.5px;
+      color: var(--muted-foreground);
+      display: flex; flex-wrap: wrap; gap: 10px; align-items: center;
+    }
+    .tpl-preview {
+      font-size: 11.5px;
+      color: var(--foreground);
+      background: color-mix(in oklch, var(--muted) 60%, var(--background));
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 8px 10px;
+      line-height: 1.5;
+      max-height: 160px;
+      overflow-y: auto;
+    }
+    .tpl-preview-line { display: block; }
+    .tpl-preview-group { font-weight: 600; }
+    .tpl-preview-sep { color: var(--muted-foreground); margin: 0 2px; }
+    .tpl-actions { display: flex; gap: 6px; flex-wrap: wrap; }
+    .tpl-btn {
+      height: 30px; padding: 0 10px;
+      border: 1px solid var(--border);
+      border-radius: calc(var(--radius) - 2px);
+      background: var(--background);
+      color: var(--foreground);
+      font-size: 12px;
+      cursor: pointer;
+      display: inline-flex; align-items: center; gap: 4px;
+      transition: background 120ms, border-color 120ms;
+    }
+    .tpl-btn:hover { background: var(--accent); }
+    .tpl-btn-primary {
+      background: var(--primary);
+      color: var(--primary-foreground);
+      border-color: var(--primary);
+    }
+    .tpl-btn-primary:hover { background: color-mix(in oklch, var(--primary) 88%, #fff); }
+    .tpl-btn-destructive {
+      color: #dc2626;
+      border-color: color-mix(in oklch, #dc2626 30%, var(--border));
+    }
+    .tpl-btn-destructive:hover {
+      background: color-mix(in oklch, #dc2626 10%, transparent);
+      border-color: #dc2626;
+    }
+    .tpl-btn i, .tpl-btn svg { width: 13px; height: 13px; }
+
+    /* ---------- Detail edit view ---------- */
+    .edit-header {
+      display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
+      padding-bottom: 14px;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 18px;
+    }
+    .edit-back {
+      height: 32px; padding: 0 10px;
+      display: inline-flex; align-items: center; gap: 4px;
+      border: 1px solid var(--border);
+      border-radius: calc(var(--radius) - 2px);
+      background: var(--background);
+      color: var(--foreground);
+      font-size: 13px; cursor: pointer;
+      transition: background 120ms;
+    }
+    .edit-back:hover { background: var(--accent); }
+    .edit-title {
+      flex: 1; min-width: 160px;
+      font-size: 18px; font-weight: 700;
+      cursor: text;
+      padding: 3px 6px;
+      border-radius: 4px;
+      border: 1px solid transparent;
+    }
+    .edit-title:hover { background: var(--accent); }
+    .edit-title-input {
+      flex: 1; min-width: 160px;
+      font-size: 18px; font-weight: 700;
+      padding: 3px 6px;
+      border: 1px solid var(--ring);
+      border-radius: 4px;
+      background: var(--background);
+      color: var(--foreground);
+      outline: none;
+      font-family: inherit;
+      box-shadow: 0 0 0 2px color-mix(in oklch, var(--ring) 40%, transparent);
+    }
+    .edit-actions { display: flex; gap: 6px; flex-wrap: wrap; }
+
+    /* Row1 section */
+    .r1-section {
+      border: 1px solid var(--border);
+      border-radius: calc(var(--radius) + 4px);
+      padding: 14px 16px;
+      background: var(--card);
+      color: var(--card-foreground);
+      margin-bottom: 12px;
+      transition: border-color 120ms, box-shadow 120ms, opacity 120ms;
+    }
+    .r1-section.dragging { opacity: 0.4; }
+    .r1-section.drop-before { box-shadow: 0 -3px 0 0 var(--primary) inset, 0 0 0 0 transparent; border-top-color: var(--primary); }
+    .r1-section.drop-after { box-shadow: 0 3px 0 0 var(--primary) inset, 0 0 0 0 transparent; border-bottom-color: var(--primary); }
+    .r1-section.leaf-drop-target {
+      outline: 2px dashed var(--primary);
+      outline-offset: -2px;
+    }
+    .r1-head {
+      display: flex; align-items: center; justify-content: space-between; gap: 10px;
+      margin-bottom: 10px;
+    }
+    .r1-head-left {
+      display: flex; align-items: center; gap: 6px; flex: 1; min-width: 0;
+    }
+    .r1-drag-handle {
+      display: inline-flex; align-items: center; justify-content: center;
+      width: 22px; height: 22px;
+      color: var(--muted-foreground);
+      cursor: grab;
+      border-radius: 4px;
+    }
+    .r1-drag-handle:hover { background: var(--accent); color: var(--foreground); }
+    .r1-drag-handle:active { cursor: grabbing; }
+    .r1-drag-handle svg { width: 14px; height: 14px; }
+    .r1-title {
+      font-size: 14px; font-weight: 600;
+      cursor: text;
+      padding: 2px 6px;
+      border-radius: 4px;
+      border: 1px solid transparent;
+    }
+    .r1-title:hover { background: var(--accent); }
+    .r1-title-input {
+      font-size: 14px; font-weight: 600;
+      padding: 2px 6px;
+      border: 1px solid var(--ring);
+      border-radius: 4px;
+      background: var(--background);
+      color: var(--foreground);
+      outline: none;
+      font-family: inherit;
+      box-shadow: 0 0 0 2px color-mix(in oklch, var(--ring) 40%, transparent);
+      min-width: 120px;
+    }
+    .r1-menu-wrap { position: relative; }
+    .r1-menu-btn {
+      width: 28px; height: 28px;
+      display: inline-flex; align-items: center; justify-content: center;
+      border: 1px solid transparent;
+      border-radius: calc(var(--radius) - 2px);
+      background: transparent;
+      color: var(--muted-foreground);
+      cursor: pointer;
+    }
+    .r1-menu-btn:hover { background: var(--accent); color: var(--foreground); }
+    .r1-menu-btn svg { width: 16px; height: 16px; }
+    .r1-menu {
+      position: absolute; top: calc(100% + 4px); right: 0;
+      min-width: 140px;
+      background: var(--popover);
+      color: var(--popover-foreground);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      box-shadow: 0 8px 20px rgba(0,0,0,0.12);
+      padding: 4px;
+      z-index: 20;
+      display: none;
+    }
+    .r1-menu.open { display: block; }
+    .r1-menu-item {
+      width: 100%; text-align: left;
+      padding: 7px 10px; font-size: 13px;
+      border: none; background: transparent;
+      border-radius: calc(var(--radius) - 2px);
+      cursor: pointer;
+      display: flex; align-items: center; gap: 6px;
+      color: inherit;
+    }
+    .r1-menu-item:hover { background: var(--accent); }
+    .r1-menu-item.destructive { color: #dc2626; }
+    .r1-menu-item.destructive:hover { background: color-mix(in oklch, #dc2626 10%, transparent); }
+    .r1-menu-item svg { width: 13px; height: 13px; }
+
+    /* Row2 leaves container */
+    .r1-leaves {
+      display: flex; flex-wrap: wrap; gap: 6px;
+      min-height: 32px;
+    }
+    .leaf-tag {
+      display: inline-flex; align-items: center; gap: 2px;
+      height: 28px; padding: 0 4px 0 10px;
+      border-radius: 9999px;
+      background: var(--muted);
+      color: var(--foreground);
+      font-size: 13px;
+      cursor: grab;
+      transition: background 120ms, opacity 120ms;
+      user-select: none;
+      position: relative;
+    }
+    .leaf-tag:active { cursor: grabbing; }
+    .leaf-tag:hover { background: var(--accent); }
+    .leaf-tag.dragging { opacity: 0.4; }
+    .leaf-tag.drop-before { box-shadow: -2px 0 0 0 var(--primary); }
+    .leaf-tag.drop-after { box-shadow: 2px 0 0 0 var(--primary); }
+    .leaf-label {
+      padding: 0 2px;
+      line-height: 28px;
+    }
+    .leaf-label-input {
+      font-size: 13px;
+      height: 22px;
+      padding: 0 6px;
+      border: 1px solid var(--ring);
+      border-radius: 9999px;
+      background: var(--background);
+      color: var(--foreground);
+      outline: none;
+      font-family: inherit;
+      box-shadow: 0 0 0 2px color-mix(in oklch, var(--ring) 40%, transparent);
+      min-width: 80px;
+      width: 100px;
+    }
+    .leaf-remove {
+      width: 18px; height: 18px;
+      display: inline-flex; align-items: center; justify-content: center;
+      border: none;
+      border-radius: 9999px;
+      background: transparent;
+      color: var(--muted-foreground);
+      cursor: pointer;
+      opacity: 0;
+      transition: opacity 120ms, background 120ms;
+      padding: 0;
+    }
+    .leaf-tag:hover .leaf-remove { opacity: 1; }
+    .leaf-remove:hover { background: color-mix(in oklch, var(--foreground) 10%, transparent); color: var(--foreground); }
+    .leaf-remove svg { width: 12px; height: 12px; }
+    .leaf-add {
+      display: inline-flex; align-items: center; justify-content: center;
+      width: 28px; height: 28px;
+      border: 1px dashed var(--border);
+      border-radius: 9999px;
+      background: transparent;
+      color: var(--muted-foreground);
+      cursor: pointer;
+      transition: background 120ms, border-color 120ms, color 120ms;
+    }
+    .leaf-add:hover {
+      background: var(--accent);
+      color: var(--foreground);
+      border-color: color-mix(in oklch, var(--foreground) 30%, var(--border));
+    }
+    .leaf-add svg { width: 14px; height: 14px; }
+
+    .add-r1-btn {
+      width: 100%;
+      padding: 14px;
+      border: 2px dashed var(--border);
+      border-radius: calc(var(--radius) + 4px);
+      background: transparent;
+      color: var(--muted-foreground);
+      font-size: 13px;
+      font-weight: 500;
+      cursor: pointer;
+      display: flex; align-items: center; justify-content: center; gap: 6px;
+      transition: background 120ms, border-color 120ms, color 120ms;
+    }
+    .add-r1-btn:hover {
+      background: color-mix(in oklch, var(--accent) 50%, transparent);
+      color: var(--foreground);
+      border-color: color-mix(in oklch, var(--foreground) 30%, var(--border));
+    }
+    .add-r1-btn svg { width: 14px; height: 14px; }
+
+    .edit-meta {
+      font-size: 11.5px; color: var(--muted-foreground);
+      margin-top: 14px; padding-top: 12px;
+      border-top: 1px solid var(--border);
+    }
+  </style>
+</head>
+<body class="min-h-screen bg-background text-foreground">
+  <header class="border-b border-border bg-background/95 backdrop-blur sticky top-0 z-40">
+    <div class="max-w-3xl mx-auto px-6 py-3 flex items-center justify-between gap-4">
+      <a href="kanban-v1c-b.html" class="inline-flex items-center gap-1.5 text-sm h-8 px-2 rounded-md border border-border hover:bg-accent" title="칸반으로 돌아가기">
+        <i data-lucide="arrow-left" class="w-4 h-4"></i>
+        <span>돌아가기</span>
+      </a>
+      <h1 class="text-base font-semibold">컬럼 템플릿 관리</h1>
+      <button id="darkToggle" class="h-8 w-8 inline-flex items-center justify-center rounded-md border border-border hover:bg-accent" title="다크모드 토글">
+        <i data-lucide="moon" class="w-4 h-4"></i>
+      </button>
+    </div>
+  </header>
+
+  <main class="max-w-3xl mx-auto px-6 py-8">
+    <!-- LIST VIEW -->
+    <section id="listView">
+      <div class="flex items-center justify-between mb-5">
+        <div class="text-sm text-muted-foreground" id="tplSummary">템플릿 0개</div>
+        <button id="newTplBtn" class="h-9 px-3 inline-flex items-center gap-1.5 rounded-md bg-primary text-primary-foreground text-sm font-medium hover:opacity-90">
+          <i data-lucide="plus" class="w-4 h-4"></i>
+          <span>새 템플릿</span>
+        </button>
+      </div>
+      <div id="tplList" class="flex flex-col gap-3"></div>
+      <div id="tplEmpty" class="hidden text-sm text-muted-foreground border border-dashed border-border rounded-lg p-10 text-center">
+        저장된 템플릿이 없습니다. 우측 상단 "새 템플릿" 버튼으로 현재 칸반의 컬럼 구조를 저장하세요.
+      </div>
+    </section>
+
+    <!-- DETAIL EDIT VIEW -->
+    <section id="editView" class="hidden">
+      <div class="edit-header">
+        <button type="button" class="edit-back" id="editBackBtn" title="목록으로">
+          <i data-lucide="arrow-left"></i>
+          <span>목록으로</span>
+        </button>
+        <div class="edit-title" id="editTitle" title="클릭하여 이름 변경"></div>
+        <div class="edit-actions">
+          <button type="button" class="tpl-btn" id="editDuplicateBtn"><i data-lucide="copy"></i><span>복제</span></button>
+          <button type="button" class="tpl-btn tpl-btn-primary" id="editApplyBtn"><i data-lucide="check"></i><span>적용</span></button>
+          <button type="button" class="tpl-btn tpl-btn-destructive" id="editDeleteBtn"><i data-lucide="trash-2"></i><span>삭제</span></button>
+        </div>
+      </div>
+      <div id="editBody"></div>
+      <button type="button" class="add-r1-btn" id="addR1Btn">
+        <i data-lucide="plus"></i>
+        <span>대분류 추가</span>
+      </button>
+      <div class="edit-meta" id="editMeta"></div>
+    </section>
+  </main>
+
+  <!-- New Template Dialog -->
+  <div class="dlg-overlay" id="newTplDialog" role="dialog" aria-modal="true" aria-labelledby="newTplTitle">
+    <div class="dlg">
+      <h2 id="newTplTitle">새 템플릿 만들기</h2>
+      <p class="dlg-desc">
+        현재 v1c-b 칸반에서 <b id="newTplSourceLabel">가장 최근에 편집한 날짜</b>의 컬럼 구조(카드 제외)를 스냅샷으로 저장합니다.
+      </p>
+      <div class="dlg-field">
+        <label for="newTplName">템플릿 이름</label>
+        <input type="text" id="newTplName" placeholder="예: 월요일 치과, 야간 상담" autocomplete="off" maxlength="40" />
+        <div class="dlg-error" id="newTplError"></div>
+      </div>
+      <div class="dlg-actions">
+        <button type="button" class="dlg-btn" data-dlg-cancel="newTplDialog">취소</button>
+        <button type="button" class="dlg-btn dlg-btn-primary" id="newTplSave">저장</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Apply Confirm Dialog -->
+  <div class="dlg-overlay" id="applyTplDialog" role="dialog" aria-modal="true" aria-labelledby="applyTplTitle">
+    <div class="dlg">
+      <h2 id="applyTplTitle">템플릿 적용</h2>
+      <p class="dlg-desc" id="applyTplDesc">
+        현재 날짜의 컬럼과 카드 데이터가 모두 초기화되고 템플릿이 적용됩니다. 계속하시겠습니까?
+      </p>
+      <div class="dlg-actions">
+        <button type="button" class="dlg-btn" data-dlg-cancel="applyTplDialog">취소</button>
+        <button type="button" class="dlg-btn dlg-btn-destructive" id="applyTplConfirm">적용</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Delete Confirm Dialog -->
+  <div class="dlg-overlay" id="deleteTplDialog" role="dialog" aria-modal="true" aria-labelledby="deleteTplTitle">
+    <div class="dlg">
+      <h2 id="deleteTplTitle">템플릿 삭제</h2>
+      <p class="dlg-desc" id="deleteTplDesc">이 템플릿을 삭제합니다. 복구할 수 없습니다.</p>
+      <div class="dlg-actions">
+        <button type="button" class="dlg-btn" data-dlg-cancel="deleteTplDialog">취소</button>
+        <button type="button" class="dlg-btn dlg-btn-destructive" id="deleteTplConfirm">삭제</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Delete Row1 Confirm Dialog -->
+  <div class="dlg-overlay" id="deleteR1Dialog" role="dialog" aria-modal="true" aria-labelledby="deleteR1Title">
+    <div class="dlg">
+      <h2 id="deleteR1Title">대분류 삭제</h2>
+      <p class="dlg-desc" id="deleteR1Desc"></p>
+      <div class="dlg-actions">
+        <button type="button" class="dlg-btn" data-dlg-cancel="deleteR1Dialog">취소</button>
+        <button type="button" class="dlg-btn dlg-btn-destructive" id="deleteR1Confirm">삭제</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="toast-wrap" id="toastWrap"></div>
+
+  <script>
+    // Dark mode toggle
+    (function() {
+      const btn = document.getElementById('darkToggle');
+      btn.addEventListener('click', () => {
+        document.documentElement.classList.toggle('dark');
+        const icon = btn.querySelector('i');
+        const isDark = document.documentElement.classList.contains('dark');
+        icon.setAttribute('data-lucide', isDark ? 'sun' : 'moon');
+        lucide.createIcons();
+      });
+    })();
+
+    (function() {
+      // ---------- Storage keys (match v1c-b) ----------
+      const TEMPLATES_KEY = 'kanban-v1c-b-templates';
+      const APPLY_TEMPLATE_KEY = 'kanban-v1c-b-apply-template';
+      const COLUMNS_KEY_BASE = 'kanban-v1c-b-columns';
+
+      // ---------- Default columns (mirror of v1c-b DEFAULT_COLUMNS) ----------
+      const DEFAULT_COLUMNS = {
+        row1: [
+          { id: 'r1_구환', label: '구환상담' },
+          { id: 'r1_신환', label: '신환상담' },
+          { id: 'r1_예진', label: '예진현황' },
+          { id: 'r1_임플', label: '임플상담' },
+          { id: 'r1_일반', label: '일반상담' },
+          { id: 'r1_전화', label: '전화상담' },
+        ],
+        row2: [
+          { id: 'r2_구환_김수지', row1Id: 'r1_구환', label: '김수지' },
+          { id: 'r2_구환_라근주', row1Id: 'r1_구환', label: '라근주' },
+          { id: 'r2_구환_유소연', row1Id: 'r1_구환', label: '유소연' },
+          { id: 'r2_신환_김수지', row1Id: 'r1_신환', label: '김수지' },
+          { id: 'r2_신환_라근주', row1Id: 'r1_신환', label: '라근주' },
+          { id: 'r2_신환_유소연', row1Id: 'r1_신환', label: '유소연' },
+          { id: 'r2_예진_예진완', row1Id: 'r1_예진', label: '예진완' },
+          { id: 'r2_예진_예진실', row1Id: 'r1_예진', label: '예진실' },
+          { id: 'r2_예진_사진완', row1Id: 'r1_예진', label: '사진완' },
+          { id: 'r2_예진_신환접', row1Id: 'r1_예진', label: '신환접' },
+          { id: 'r2_임플_아웃',     row1Id: 'r1_임플', label: '아웃' },
+          { id: 'r2_임플_소개',     row1Id: 'r1_임플', label: '소개' },
+          { id: 'r2_임플_제휴',     row1Id: 'r1_임플', label: '제휴' },
+          { id: 'r2_임플_그외',     row1Id: 'r1_임플', label: '그외' },
+          { id: 'r2_임플_재방문',   row1Id: 'r1_임플', label: '재방문' },
+          { id: 'r2_임플_임플불가', row1Id: 'r1_임플', label: '임플불가' },
+          { id: 'r2_임플_날변이탈', row1Id: 'r1_임플', label: '날변·이탈' },
+          { id: 'r2_임플_상담거부', row1Id: 'r1_임플', label: '상담거부' },
+          { id: 'r2_일반_아웃',     row1Id: 'r1_일반', label: '아웃' },
+          { id: 'r2_일반_소개',     row1Id: 'r1_일반', label: '소개' },
+          { id: 'r2_일반_제휴',     row1Id: 'r1_일반', label: '제휴' },
+          { id: 'r2_일반_그외',     row1Id: 'r1_일반', label: '그외' },
+          { id: 'r2_일반_재방문',   row1Id: 'r1_일반', label: '재방문' },
+          { id: 'r2_전화_김수지', row1Id: 'r1_전화', label: '김수지' },
+          { id: 'r2_전화_라근주', row1Id: 'r1_전화', label: '라근주' },
+          { id: 'r2_전화_유소연', row1Id: 'r1_전화', label: '유소연' },
+        ],
+      };
+
+      // ---------- Utilities ----------
+      function escapeHtml(s) {
+        return String(s).replace(/[&<>"']/g, c => ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[c]));
+      }
+      function formatDate(iso) {
+        if (!iso) return '';
+        const d = new Date(iso);
+        if (isNaN(d.getTime())) return '';
+        const y = d.getFullYear();
+        const m = String(d.getMonth() + 1).padStart(2, '0');
+        const dd = String(d.getDate()).padStart(2, '0');
+        const hh = String(d.getHours()).padStart(2, '0');
+        const mm = String(d.getMinutes()).padStart(2, '0');
+        return `${y}-${m}-${dd} ${hh}:${mm}`;
+      }
+
+      // ---------- Templates storage ----------
+      function loadAll() {
+        return JSON.parse(localStorage.getItem(TEMPLATES_KEY) || '{}');
+      }
+      function saveAll(all) {
+        localStorage.setItem(TEMPLATES_KEY, JSON.stringify(all));
+      }
+
+      // Reconstruct merged rows from a columnsKey snapshot, same semantics as v1c-b loadColumnsForDate.
+      function mergeColumnsSnapshot(saved) {
+        const merged = {
+          row1: DEFAULT_COLUMNS.row1.map(n => ({ id: n.id, label: n.label })),
+          row2: DEFAULT_COLUMNS.row2.map(n => ({ id: n.id, row1Id: n.row1Id, label: n.label })),
+        };
+        if (!saved) return merged;
+        if (saved.renames) {
+          for (const row of ['row1','row2']) {
+            const renames = saved.renames[row] || {};
+            for (const n of merged[row]) {
+              if (renames[n.id] !== undefined) n.label = renames[n.id];
+            }
+          }
+        }
+        for (const row of ['row1','row2']) {
+          const userNodes = (saved[row] || []);
+          for (const n of userNodes) {
+            const entry = { id: n.id, label: n.label };
+            if (row === 'row2') entry.row1Id = n.row1Id;
+            merged[row].push(entry);
+          }
+        }
+        return merged;
+      }
+
+      // Find most recent v1c-b column snapshot in storage. Returns { date, merged } or null.
+      function findLatestColumnsSnapshot() {
+        const prefix = COLUMNS_KEY_BASE + '-';
+        const dates = [];
+        for (let i = 0; i < localStorage.length; i++) {
+          const k = localStorage.key(i);
+          if (!k || !k.startsWith(prefix)) continue;
+          const d = k.slice(prefix.length);
+          if (/^\d{4}-\d{2}-\d{2}$/.test(d)) dates.push(d);
+        }
+        if (dates.length === 0) return null;
+        dates.sort();
+        const latest = dates[dates.length - 1];
+        const saved = JSON.parse(localStorage.getItem(prefix + latest) || 'null');
+        return { date: latest, merged: mergeColumnsSnapshot(saved) };
+      }
+
+      // Ensure default template exists on first visit.
+      (function ensureDefaultTemplate() {
+        const all = loadAll();
+        if (Object.keys(all).length > 0) return;
+        const snap = findLatestColumnsSnapshot();
+        const merged = snap ? snap.merged : mergeColumnsSnapshot(null);
+        const tpl = {
+          id: 'tpl-default',
+          name: '기본 치과',
+          createdAt: new Date().toISOString(),
+          row1: merged.row1,
+          row2: merged.row2,
+        };
+        saveAll({ [tpl.id]: tpl });
+      })();
+
+      // ---------- Dialog helpers ----------
+      function openDialog(id) {
+        const overlay = document.getElementById(id);
+        if (!overlay) return;
+        overlay.classList.add('open');
+        const firstField = overlay.querySelector('input, select, button.dlg-btn-primary, button.dlg-btn-destructive');
+        if (firstField) setTimeout(() => { firstField.focus(); if (firstField.select) firstField.select(); }, 0);
+      }
+      function closeDialog(id) {
+        const overlay = document.getElementById(id);
+        if (!overlay) return;
+        overlay.classList.remove('open');
+        const err = overlay.querySelector('.dlg-error');
+        if (err) err.textContent = '';
+      }
+      function closeAllDialogs() {
+        document.querySelectorAll('.dlg-overlay.open').forEach(el => closeDialog(el.id));
+      }
+      document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') closeAllDialogs();
+      });
+      document.querySelectorAll('.dlg-overlay').forEach(overlay => {
+        overlay.addEventListener('click', (e) => {
+          if (e.target === overlay) closeDialog(overlay.id);
+        });
+      });
+      document.querySelectorAll('[data-dlg-cancel]').forEach(btn => {
+        btn.addEventListener('click', () => closeDialog(btn.dataset.dlgCancel));
+      });
+
+      function showToast(msg, type) {
+        const wrap = document.getElementById('toastWrap');
+        if (!wrap) return;
+        const t = document.createElement('div');
+        t.className = 'toast' + (type === 'error' ? ' toast-error' : type === 'success' ? ' toast-success' : '');
+        t.textContent = msg;
+        wrap.appendChild(t);
+        setTimeout(() => {
+          t.style.transition = 'opacity 200ms ease';
+          t.style.opacity = '0';
+          setTimeout(() => t.remove(), 220);
+        }, 3000);
+      }
+
+      // ---------- Render ----------
+      const listEl = document.getElementById('tplList');
+      const emptyEl = document.getElementById('tplEmpty');
+      const summaryEl = document.getElementById('tplSummary');
+
+      function buildPreviewHtml(tpl) {
+        // Group row2 leaves by row1 in row1 order.
+        const byR1 = new Map();
+        for (const r1 of tpl.row1 || []) byR1.set(r1.id, []);
+        for (const r2 of tpl.row2 || []) {
+          if (byR1.has(r2.row1Id)) byR1.get(r2.row1Id).push(r2.label);
+        }
+        const lines = [];
+        for (const r1 of tpl.row1 || []) {
+          const leaves = byR1.get(r1.id) || [];
+          const leavesHtml = leaves.length
+            ? leaves.map(l => escapeHtml(l)).join(', ')
+            : '<span class="tpl-preview-sep">(컬럼 없음)</span>';
+          lines.push(
+            `<span class="tpl-preview-line"><span class="tpl-preview-group">${escapeHtml(r1.label)}:</span> ${leavesHtml}</span>`
+          );
+        }
+        return lines.join('');
+      }
+
+      function render() {
+        const all = loadAll();
+        const ids = Object.keys(all);
+        // Sort: default first, then by createdAt ascending.
+        ids.sort((a, b) => {
+          if (a === 'tpl-default' && b !== 'tpl-default') return -1;
+          if (b === 'tpl-default' && a !== 'tpl-default') return 1;
+          const ca = all[a].createdAt || '';
+          const cb = all[b].createdAt || '';
+          return ca < cb ? -1 : ca > cb ? 1 : 0;
+        });
+
+        summaryEl.textContent = `템플릿 ${ids.length}개`;
+        if (ids.length === 0) {
+          emptyEl.classList.remove('hidden');
+          listEl.innerHTML = '';
+          return;
+        }
+        emptyEl.classList.add('hidden');
+
+        listEl.innerHTML = ids.map(id => {
+          const t = all[id];
+          const r1Count = (t.row1 || []).length;
+          const r2Count = (t.row2 || []).length;
+          const isDefault = id === 'tpl-default';
+          return `
+            <article class="tpl-card" data-tpl-id="${escapeHtml(id)}">
+              <div class="tpl-card-head">
+                <div class="tpl-card-title" data-role="title" title="더블클릭으로 이름 변경">${escapeHtml(t.name || '(이름 없음)')}${isDefault ? ' <span class="text-[11px] text-muted-foreground font-normal">· 기본</span>' : ''}</div>
+                <div class="tpl-actions">
+                  <button type="button" class="tpl-btn tpl-btn-primary" data-action="apply"><i data-lucide="check"></i><span>적용</span></button>
+                  <button type="button" class="tpl-btn" data-action="edit"><i data-lucide="pencil"></i><span>편집</span></button>
+                  <button type="button" class="tpl-btn tpl-btn-destructive" data-action="delete"><i data-lucide="trash-2"></i><span>삭제</span></button>
+                </div>
+              </div>
+              <div class="tpl-meta">
+                <span>생성: ${escapeHtml(formatDate(t.createdAt))}</span>
+                <span>·</span>
+                <span>대분류 ${r1Count}개 / 컬럼 ${r2Count}개</span>
+              </div>
+              <div class="tpl-preview">${buildPreviewHtml(t)}</div>
+            </article>
+          `;
+        }).join('');
+
+        lucide.createIcons();
+        bindRowEvents();
+      }
+
+      function bindRowEvents() {
+        listEl.querySelectorAll('.tpl-card').forEach(card => {
+          const id = card.dataset.tplId;
+          const titleEl = card.querySelector('[data-role="title"]');
+          titleEl.addEventListener('dblclick', (e) => {
+            e.stopPropagation();
+            startRename(card, id);
+          });
+          card.querySelector('[data-action="apply"]').addEventListener('click', (e) => {
+            e.stopPropagation();
+            askApply(id);
+          });
+          card.querySelector('[data-action="edit"]').addEventListener('click', (e) => {
+            e.stopPropagation();
+            openEditView(id);
+          });
+          card.querySelector('[data-action="delete"]').addEventListener('click', (e) => {
+            e.stopPropagation();
+            askDelete(id);
+          });
+          // Click card body (not buttons) to open edit view
+          card.addEventListener('click', (e) => {
+            if (e.target.closest('.tpl-actions')) return;
+            if (e.target.closest('.tpl-card-title-input')) return;
+            if (card.querySelector('.tpl-card-title-input')) return;
+            openEditView(id);
+          });
+          card.style.cursor = 'pointer';
+        });
+      }
+
+      // ---------- Rename (inline) ----------
+      function startRename(card, id) {
+        const all = loadAll();
+        const tpl = all[id];
+        if (!tpl) return;
+        const titleEl = card.querySelector('[data-role="title"]');
+        if (!titleEl || card.querySelector('.tpl-card-title-input')) return;
+
+        const input = document.createElement('input');
+        input.type = 'text';
+        input.className = 'tpl-card-title-input';
+        input.value = tpl.name || '';
+        input.maxLength = 40;
+        titleEl.replaceWith(input);
+        input.focus();
+        input.select();
+
+        let committed = false;
+        const commit = () => {
+          if (committed) return;
+          committed = true;
+          const name = input.value.trim();
+          if (!name) {
+            showToast('이름을 입력해주세요.', 'error');
+            render();
+            return;
+          }
+          const all2 = loadAll();
+          if (all2[id]) {
+            all2[id].name = name;
+            saveAll(all2);
+            showToast('이름이 변경되었습니다.', 'success');
+          }
+          render();
+        };
+        const cancel = () => {
+          if (committed) return;
+          committed = true;
+          render();
+        };
+        input.addEventListener('keydown', (e) => {
+          if (e.key === 'Enter') { e.preventDefault(); commit(); }
+          else if (e.key === 'Escape') { e.preventDefault(); cancel(); }
+        });
+        input.addEventListener('blur', commit);
+      }
+
+      // ---------- New Template ----------
+      const newBtn = document.getElementById('newTplBtn');
+      const newDlg = document.getElementById('newTplDialog');
+      const newName = document.getElementById('newTplName');
+      const newError = document.getElementById('newTplError');
+      const newSaveBtn = document.getElementById('newTplSave');
+      const newSourceLabel = document.getElementById('newTplSourceLabel');
+
+      newBtn.addEventListener('click', () => {
+        const snap = findLatestColumnsSnapshot();
+        if (snap) {
+          newSourceLabel.textContent = `${snap.date} 날짜`;
+        } else {
+          newSourceLabel.textContent = '기본 컬럼(저장된 날짜 없음)';
+        }
+        newName.value = '';
+        newError.textContent = '';
+        openDialog('newTplDialog');
+      });
+
+      function saveNew() {
+        const name = newName.value.trim();
+        if (!name) {
+          newError.textContent = '이름을 입력해주세요.';
+          newName.focus();
+          return;
+        }
+        const snap = findLatestColumnsSnapshot();
+        const merged = snap ? snap.merged : mergeColumnsSnapshot(null);
+        const id = 'tpl-' + Date.now().toString(36) + '-' + Math.floor(Math.random() * 1000).toString(36);
+        const all = loadAll();
+        all[id] = {
+          id,
+          name,
+          createdAt: new Date().toISOString(),
+          row1: merged.row1,
+          row2: merged.row2,
+        };
+        saveAll(all);
+        closeDialog('newTplDialog');
+        render();
+        showToast(`'${name}' 템플릿이 저장되었습니다.`, 'success');
+      }
+      newSaveBtn.addEventListener('click', saveNew);
+      newName.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') { e.preventDefault(); saveNew(); }
+      });
+
+      // ---------- Apply ----------
+      let pendingApplyId = null;
+      const applyDlg = document.getElementById('applyTplDialog');
+      const applyDesc = document.getElementById('applyTplDesc');
+      const applyConfirmBtn = document.getElementById('applyTplConfirm');
+
+      function askApply(id) {
+        const all = loadAll();
+        const tpl = all[id];
+        if (!tpl) return;
+        pendingApplyId = id;
+        applyDesc.textContent = `현재 날짜의 컬럼과 카드 데이터가 모두 초기화되고 '${tpl.name}' 템플릿이 적용됩니다. 계속하시겠습니까?`;
+        openDialog('applyTplDialog');
+      }
+      applyConfirmBtn.addEventListener('click', () => {
+        if (!pendingApplyId) { closeDialog('applyTplDialog'); return; }
+        localStorage.setItem(APPLY_TEMPLATE_KEY, pendingApplyId);
+        // Hand off to v1c-b which will detect the flag and apply on load.
+        window.location.href = 'kanban-v1c-b.html';
+      });
+
+      // ---------- Delete ----------
+      let pendingDeleteId = null;
+      let pendingDeleteFromEdit = false;
+      const delDlg = document.getElementById('deleteTplDialog');
+      const delDesc = document.getElementById('deleteTplDesc');
+      const delConfirmBtn = document.getElementById('deleteTplConfirm');
+
+      function askDelete(id) {
+        const all = loadAll();
+        const tpl = all[id];
+        if (!tpl) return;
+        pendingDeleteId = id;
+        pendingDeleteFromEdit = false;
+        delDesc.textContent = `'${tpl.name}' 템플릿을 삭제합니다. 복구할 수 없습니다.`;
+        openDialog('deleteTplDialog');
+      }
+      delConfirmBtn.addEventListener('click', () => {
+        if (!pendingDeleteId) { closeDialog('deleteTplDialog'); return; }
+        const all = loadAll();
+        const name = all[pendingDeleteId] ? all[pendingDeleteId].name : '';
+        delete all[pendingDeleteId];
+        saveAll(all);
+        const fromEdit = pendingDeleteFromEdit;
+        pendingDeleteId = null;
+        pendingDeleteFromEdit = false;
+        closeDialog('deleteTplDialog');
+        if (fromEdit) {
+          closeEditView();
+        } else {
+          render();
+        }
+        showToast(`'${name}' 템플릿이 삭제되었습니다.`, 'success');
+      });
+
+      // ========================================================================
+      // DETAIL EDIT VIEW
+      // ========================================================================
+      const listView = document.getElementById('listView');
+      const editView = document.getElementById('editView');
+      const editTitle = document.getElementById('editTitle');
+      const editBody = document.getElementById('editBody');
+      const editMeta = document.getElementById('editMeta');
+      const editBackBtn = document.getElementById('editBackBtn');
+      const editDuplicateBtn = document.getElementById('editDuplicateBtn');
+      const editApplyBtn = document.getElementById('editApplyBtn');
+      const editDeleteBtn = document.getElementById('editDeleteBtn');
+      const addR1Btn = document.getElementById('addR1Btn');
+
+      let currentEditId = null;
+
+      function genId(prefix) {
+        return prefix + '-' + Date.now().toString(36) + '-' + Math.floor(Math.random() * 10000).toString(36);
+      }
+
+      function getCurrentTpl() {
+        if (!currentEditId) return null;
+        const all = loadAll();
+        return all[currentEditId] || null;
+      }
+
+      function saveCurrentTpl(tpl) {
+        const all = loadAll();
+        all[currentEditId] = tpl;
+        saveAll(all);
+      }
+
+      function openEditView(id) {
+        const all = loadAll();
+        const tpl = all[id];
+        if (!tpl) return;
+        currentEditId = id;
+        listView.classList.add('hidden');
+        editView.classList.remove('hidden');
+        renderEditView();
+      }
+
+      function closeEditView() {
+        currentEditId = null;
+        editView.classList.add('hidden');
+        listView.classList.remove('hidden');
+        render();
+      }
+
+      editBackBtn.addEventListener('click', closeEditView);
+
+      function renderEditView() {
+        const tpl = getCurrentTpl();
+        if (!tpl) { closeEditView(); return; }
+        const isDefault = currentEditId === 'tpl-default';
+
+        // Title
+        editTitle.innerHTML = `${escapeHtml(tpl.name || '(이름 없음)')}${isDefault ? ' <span style="font-size:11px;color:var(--muted-foreground);font-weight:400">· 기본</span>' : ''}`;
+
+        // Body - group row2 by row1
+        const byR1 = new Map();
+        for (const r1 of tpl.row1 || []) byR1.set(r1.id, []);
+        for (const r2 of tpl.row2 || []) {
+          if (byR1.has(r2.row1Id)) byR1.get(r2.row1Id).push(r2);
+        }
+
+        editBody.innerHTML = (tpl.row1 || []).map(r1 => {
+          const leaves = byR1.get(r1.id) || [];
+          const leavesHtml = leaves.map(l => `
+            <span class="leaf-tag" draggable="true" data-leaf-id="${escapeHtml(l.id)}" data-r1-id="${escapeHtml(r1.id)}" title="더블클릭으로 이름 변경, 드래그로 이동">
+              <span class="leaf-label">${escapeHtml(l.label)}</span>
+              <button type="button" class="leaf-remove" data-role="leaf-remove" title="삭제">
+                <i data-lucide="x"></i>
+              </button>
+            </span>
+          `).join('');
+          return `
+            <div class="r1-section" data-r1-id="${escapeHtml(r1.id)}" draggable="false">
+              <div class="r1-head">
+                <div class="r1-head-left">
+                  <span class="r1-drag-handle" data-role="r1-drag-handle" title="드래그로 순서 변경" draggable="true">
+                    <i data-lucide="grip-vertical"></i>
+                  </span>
+                  <span class="r1-title" data-role="r1-title" title="더블클릭으로 이름 변경">${escapeHtml(r1.label)}</span>
+                </div>
+                <div class="r1-menu-wrap">
+                  <button type="button" class="r1-menu-btn" data-role="r1-menu-btn" title="메뉴"><i data-lucide="more-horizontal"></i></button>
+                  <div class="r1-menu" data-role="r1-menu">
+                    <button type="button" class="r1-menu-item" data-role="r1-rename">
+                      <i data-lucide="pencil"></i>
+                      <span>이름 변경</span>
+                    </button>
+                    <button type="button" class="r1-menu-item destructive" data-role="r1-delete">
+                      <i data-lucide="trash-2"></i>
+                      <span>삭제</span>
+                    </button>
+                  </div>
+                </div>
+              </div>
+              <div class="r1-leaves" data-role="r1-leaves">
+                ${leavesHtml}
+                <button type="button" class="leaf-add" data-role="leaf-add" title="컬럼 추가">
+                  <i data-lucide="plus"></i>
+                </button>
+              </div>
+            </div>
+          `;
+        }).join('');
+
+        // Meta
+        const r1n = (tpl.row1 || []).length;
+        const r2n = (tpl.row2 || []).length;
+        editMeta.textContent = `생성: ${formatDate(tpl.createdAt)} · 대분류 ${r1n}개 / 컬럼 ${r2n}개`;
+
+        lucide.createIcons();
+        bindEditEvents();
+      }
+
+      function bindEditEvents() {
+        // Title: click/dblclick to rename
+        editTitle.onclick = () => startEditTitleRename();
+        editTitle.ondblclick = () => startEditTitleRename();
+
+        // R1 sections
+        editBody.querySelectorAll('.r1-section').forEach(section => {
+          const r1Id = section.dataset.r1Id;
+
+          // Title rename
+          const titleEl = section.querySelector('[data-role="r1-title"]');
+          if (titleEl) {
+            titleEl.addEventListener('dblclick', () => startR1Rename(section, r1Id));
+          }
+
+          // Menu toggle
+          const menuBtn = section.querySelector('[data-role="r1-menu-btn"]');
+          const menu = section.querySelector('[data-role="r1-menu"]');
+          if (menuBtn && menu) {
+            menuBtn.addEventListener('click', (e) => {
+              e.stopPropagation();
+              closeAllR1Menus(menu);
+              menu.classList.toggle('open');
+            });
+            const renameItem = menu.querySelector('[data-role="r1-rename"]');
+            if (renameItem) {
+              renameItem.addEventListener('click', (e) => {
+                e.stopPropagation();
+                menu.classList.remove('open');
+                startR1Rename(section, r1Id);
+              });
+            }
+            const deleteItem = menu.querySelector('[data-role="r1-delete"]');
+            if (deleteItem) {
+              deleteItem.addEventListener('click', (e) => {
+                e.stopPropagation();
+                menu.classList.remove('open');
+                askDeleteR1(r1Id);
+              });
+            }
+          }
+
+          // R1 drag handle
+          const handle = section.querySelector('[data-role="r1-drag-handle"]');
+          if (handle) {
+            handle.addEventListener('dragstart', (e) => onR1DragStart(e, section, r1Id));
+            handle.addEventListener('dragend', (e) => onR1DragEnd(e, section));
+          }
+
+          // R1 section as drop target for R1 reorder AND leaf inter-row1 drop
+          section.addEventListener('dragover', (e) => onSectionDragOver(e, section));
+          section.addEventListener('dragleave', (e) => onSectionDragLeave(e, section));
+          section.addEventListener('drop', (e) => onSectionDrop(e, section, r1Id));
+
+          // Leaves
+          section.querySelectorAll('.leaf-tag').forEach(leaf => {
+            const leafId = leaf.dataset.leafId;
+            // Rename on dblclick
+            leaf.addEventListener('dblclick', (e) => {
+              e.stopPropagation();
+              startLeafRename(leaf, leafId);
+            });
+            // Remove button
+            const removeBtn = leaf.querySelector('[data-role="leaf-remove"]');
+            if (removeBtn) {
+              removeBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                deleteLeaf(leafId);
+              });
+              removeBtn.addEventListener('dragstart', (e) => e.preventDefault());
+            }
+            // Leaf drag
+            leaf.addEventListener('dragstart', (e) => onLeafDragStart(e, leaf, leafId));
+            leaf.addEventListener('dragend', (e) => onLeafDragEnd(e, leaf));
+            leaf.addEventListener('dragover', (e) => onLeafDragOver(e, leaf));
+            leaf.addEventListener('dragleave', (e) => onLeafDragLeave(e, leaf));
+            leaf.addEventListener('drop', (e) => onLeafDrop(e, leaf));
+          });
+
+          // Add leaf button
+          const addLeaf = section.querySelector('[data-role="leaf-add"]');
+          if (addLeaf) {
+            addLeaf.addEventListener('click', () => addNewLeaf(r1Id));
+          }
+        });
+      }
+
+      function closeAllR1Menus(exceptMenu) {
+        document.querySelectorAll('.r1-menu.open').forEach(m => {
+          if (m !== exceptMenu) m.classList.remove('open');
+        });
+      }
+      document.addEventListener('click', () => closeAllR1Menus(null));
+
+      // ---------- Title rename (detail view) ----------
+      function startEditTitleRename() {
+        const tpl = getCurrentTpl();
+        if (!tpl) return;
+        if (editTitle.querySelector('input') || document.querySelector('.edit-title-input')) return;
+
+        const input = document.createElement('input');
+        input.type = 'text';
+        input.className = 'edit-title-input';
+        input.value = tpl.name || '';
+        input.maxLength = 40;
+        editTitle.replaceWith(input);
+        input.focus();
+        input.select();
+
+        let committed = false;
+        const commit = () => {
+          if (committed) return;
+          committed = true;
+          const name = input.value.trim();
+          if (!name) {
+            showToast('이름을 입력해주세요.', 'error');
+            renderEditView();
+            return;
+          }
+          const t = getCurrentTpl();
+          if (t) { t.name = name; saveCurrentTpl(t); }
+          renderEditView();
+        };
+        const cancel = () => {
+          if (committed) return;
+          committed = true;
+          renderEditView();
+        };
+        input.addEventListener('keydown', (e) => {
+          if (e.key === 'Enter') { e.preventDefault(); commit(); }
+          else if (e.key === 'Escape') { e.preventDefault(); cancel(); }
+        });
+        input.addEventListener('blur', commit);
+      }
+
+      // ---------- Row1 rename ----------
+      function startR1Rename(section, r1Id) {
+        const tpl = getCurrentTpl();
+        if (!tpl) return;
+        const r1 = (tpl.row1 || []).find(r => r.id === r1Id);
+        if (!r1) return;
+        const titleEl = section.querySelector('[data-role="r1-title"]');
+        if (!titleEl || section.querySelector('.r1-title-input')) return;
+
+        const input = document.createElement('input');
+        input.type = 'text';
+        input.className = 'r1-title-input';
+        input.value = r1.label || '';
+        input.maxLength = 20;
+        titleEl.replaceWith(input);
+        input.focus();
+        input.select();
+
+        let committed = false;
+        const commit = () => {
+          if (committed) return;
+          committed = true;
+          const name = input.value.trim();
+          if (!name) {
+            showToast('이름을 입력해주세요.', 'error');
+            renderEditView();
+            return;
+          }
+          const t = getCurrentTpl();
+          if (t) {
+            const target = (t.row1 || []).find(r => r.id === r1Id);
+            if (target) { target.label = name; saveCurrentTpl(t); }
+          }
+          renderEditView();
+        };
+        const cancel = () => {
+          if (committed) return;
+          committed = true;
+          renderEditView();
+        };
+        input.addEventListener('keydown', (e) => {
+          if (e.key === 'Enter') { e.preventDefault(); commit(); }
+          else if (e.key === 'Escape') { e.preventDefault(); cancel(); }
+        });
+        input.addEventListener('blur', commit);
+      }
+
+      // ---------- Add Row1 ----------
+      addR1Btn.addEventListener('click', () => {
+        const tpl = getCurrentTpl();
+        if (!tpl) return;
+        const newId = genId('r1');
+        const newR1 = { id: newId, label: '새 대분류' };
+        tpl.row1 = tpl.row1 || [];
+        tpl.row1.push(newR1);
+        saveCurrentTpl(tpl);
+        renderEditView();
+
+        // Immediately enter rename mode for new R1
+        const newSection = editBody.querySelector(`.r1-section[data-r1-id="${cssEscape(newId)}"]`);
+        if (newSection) {
+          const titleEl = newSection.querySelector('[data-role="r1-title"]');
+          if (titleEl) {
+            // Custom rename with escape-removes-section behavior
+            startR1RenameForNew(newSection, newId);
+          }
+        }
+      });
+
+      function startR1RenameForNew(section, r1Id) {
+        const tpl = getCurrentTpl();
+        if (!tpl) return;
+        const r1 = (tpl.row1 || []).find(r => r.id === r1Id);
+        if (!r1) return;
+        const titleEl = section.querySelector('[data-role="r1-title"]');
+        if (!titleEl) return;
+
+        const input = document.createElement('input');
+        input.type = 'text';
+        input.className = 'r1-title-input';
+        input.value = r1.label || '';
+        input.maxLength = 20;
+        titleEl.replaceWith(input);
+        input.focus();
+        input.select();
+
+        let committed = false;
+        const commit = () => {
+          if (committed) return;
+          committed = true;
+          const name = input.value.trim();
+          if (!name) {
+            // Empty on save -> treat as cancel (remove the just-added section)
+            cancelNewR1();
+            return;
+          }
+          const t = getCurrentTpl();
+          if (t) {
+            const target = (t.row1 || []).find(r => r.id === r1Id);
+            if (target) { target.label = name; saveCurrentTpl(t); }
+          }
+          renderEditView();
+        };
+        const cancelNewR1 = () => {
+          const t = getCurrentTpl();
+          if (t) {
+            t.row1 = (t.row1 || []).filter(r => r.id !== r1Id);
+            // Any leaves under this r1Id? For a brand new one there are none, but clean up anyway.
+            t.row2 = (t.row2 || []).filter(r => r.row1Id !== r1Id);
+            saveCurrentTpl(t);
+          }
+          renderEditView();
+        };
+        input.addEventListener('keydown', (e) => {
+          if (e.key === 'Enter') { e.preventDefault(); commit(); }
+          else if (e.key === 'Escape') {
+            e.preventDefault();
+            committed = true;
+            cancelNewR1();
+          }
+        });
+        input.addEventListener('blur', commit);
+      }
+
+      // ---------- Delete Row1 ----------
+      let pendingDeleteR1Id = null;
+      const deleteR1Dlg = document.getElementById('deleteR1Dialog');
+      const deleteR1Desc = document.getElementById('deleteR1Desc');
+      const deleteR1ConfirmBtn = document.getElementById('deleteR1Confirm');
+
+      function askDeleteR1(r1Id) {
+        const tpl = getCurrentTpl();
+        if (!tpl) return;
+        const r1 = (tpl.row1 || []).find(r => r.id === r1Id);
+        if (!r1) return;
+        const leafCount = (tpl.row2 || []).filter(r => r.row1Id === r1Id).length;
+        pendingDeleteR1Id = r1Id;
+        deleteR1Desc.textContent = `'${r1.label}'과 하위 컬럼 ${leafCount}개가 모두 삭제됩니다. 계속하시겠습니까?`;
+        openDialog('deleteR1Dialog');
+      }
+      deleteR1ConfirmBtn.addEventListener('click', () => {
+        if (!pendingDeleteR1Id) { closeDialog('deleteR1Dialog'); return; }
+        const tpl = getCurrentTpl();
+        if (tpl) {
+          const r1 = (tpl.row1 || []).find(r => r.id === pendingDeleteR1Id);
+          const name = r1 ? r1.label : '';
+          tpl.row1 = (tpl.row1 || []).filter(r => r.id !== pendingDeleteR1Id);
+          tpl.row2 = (tpl.row2 || []).filter(r => r.row1Id !== pendingDeleteR1Id);
+          saveCurrentTpl(tpl);
+          showToast(`'${name}' 대분류가 삭제되었습니다.`, 'success');
+        }
+        pendingDeleteR1Id = null;
+        closeDialog('deleteR1Dialog');
+        renderEditView();
+      });
+
+      // ---------- Leaf add/rename/delete ----------
+      function addNewLeaf(r1Id) {
+        const tpl = getCurrentTpl();
+        if (!tpl) return;
+        const newId = genId('r2');
+        const newLeaf = { id: newId, row1Id: r1Id, label: '새 컬럼' };
+        tpl.row2 = tpl.row2 || [];
+        tpl.row2.push(newLeaf);
+        saveCurrentTpl(tpl);
+        renderEditView();
+
+        // Enter rename immediately
+        const leafEl = editBody.querySelector(`.leaf-tag[data-leaf-id="${cssEscape(newId)}"]`);
+        if (leafEl) startLeafRenameForNew(leafEl, newId);
+      }
+
+      function startLeafRename(leafEl, leafId) {
+        const tpl = getCurrentTpl();
+        if (!tpl) return;
+        const leaf = (tpl.row2 || []).find(r => r.id === leafId);
+        if (!leaf) return;
+        const labelEl = leafEl.querySelector('.leaf-label');
+        if (!labelEl || leafEl.querySelector('.leaf-label-input')) return;
+
+        // Temporarily disable dragging
+        leafEl.setAttribute('draggable', 'false');
+
+        const input = document.createElement('input');
+        input.type = 'text';
+        input.className = 'leaf-label-input';
+        input.value = leaf.label || '';
+        input.maxLength = 20;
+        labelEl.replaceWith(input);
+        input.focus();
+        input.select();
+
+        let committed = false;
+        const commit = () => {
+          if (committed) return;
+          committed = true;
+          const name = input.value.trim();
+          if (!name) {
+            showToast('이름을 입력해주세요.', 'error');
+            renderEditView();
+            return;
+          }
+          const t = getCurrentTpl();
+          if (t) {
+            const target = (t.row2 || []).find(r => r.id === leafId);
+            if (target) { target.label = name; saveCurrentTpl(t); }
+          }
+          renderEditView();
+        };
+        const cancel = () => {
+          if (committed) return;
+          committed = true;
+          renderEditView();
+        };
+        input.addEventListener('keydown', (e) => {
+          if (e.key === 'Enter') { e.preventDefault(); commit(); }
+          else if (e.key === 'Escape') { e.preventDefault(); cancel(); }
+        });
+        input.addEventListener('blur', commit);
+      }
+
+      function startLeafRenameForNew(leafEl, leafId) {
+        const tpl = getCurrentTpl();
+        if (!tpl) return;
+        const leaf = (tpl.row2 || []).find(r => r.id === leafId);
+        if (!leaf) return;
+        const labelEl = leafEl.querySelector('.leaf-label');
+        if (!labelEl) return;
+
+        leafEl.setAttribute('draggable', 'false');
+
+        const input = document.createElement('input');
+        input.type = 'text';
+        input.className = 'leaf-label-input';
+        input.value = leaf.label || '';
+        input.maxLength = 20;
+        labelEl.replaceWith(input);
+        input.focus();
+        input.select();
+
+        let committed = false;
+        const commit = () => {
+          if (committed) return;
+          committed = true;
+          const name = input.value.trim();
+          if (!name) {
+            cancelNewLeaf();
+            return;
+          }
+          const t = getCurrentTpl();
+          if (t) {
+            const target = (t.row2 || []).find(r => r.id === leafId);
+            if (target) { target.label = name; saveCurrentTpl(t); }
+          }
+          renderEditView();
+        };
+        const cancelNewLeaf = () => {
+          const t = getCurrentTpl();
+          if (t) {
+            t.row2 = (t.row2 || []).filter(r => r.id !== leafId);
+            saveCurrentTpl(t);
+          }
+          renderEditView();
+        };
+        input.addEventListener('keydown', (e) => {
+          if (e.key === 'Enter') { e.preventDefault(); commit(); }
+          else if (e.key === 'Escape') {
+            e.preventDefault();
+            committed = true;
+            cancelNewLeaf();
+          }
+        });
+        input.addEventListener('blur', commit);
+      }
+
+      function deleteLeaf(leafId) {
+        const tpl = getCurrentTpl();
+        if (!tpl) return;
+        const leaf = (tpl.row2 || []).find(r => r.id === leafId);
+        if (!leaf) return;
+        const name = leaf.label;
+        tpl.row2 = (tpl.row2 || []).filter(r => r.id !== leafId);
+        saveCurrentTpl(tpl);
+        renderEditView();
+        showToast(`'${name}' 컬럼이 삭제되었습니다.`, 'success');
+      }
+
+      // ---------- Drag & Drop ----------
+      // Drag state: { type: 'r1'|'leaf', id: '...', fromR1Id?: '...' }
+      let dragState = null;
+
+      function clearAllDropIndicators() {
+        editBody.querySelectorAll('.r1-section').forEach(s => {
+          s.classList.remove('drop-before', 'drop-after', 'leaf-drop-target');
+        });
+        editBody.querySelectorAll('.leaf-tag').forEach(l => {
+          l.classList.remove('drop-before', 'drop-after');
+        });
+      }
+
+      // --- Row1 drag ---
+      function onR1DragStart(e, section, r1Id) {
+        dragState = { type: 'r1', id: r1Id };
+        section.classList.add('dragging');
+        try {
+          e.dataTransfer.effectAllowed = 'move';
+          e.dataTransfer.setData('text/plain', 'r1:' + r1Id);
+          e.dataTransfer.setDragImage(section, 10, 10);
+        } catch (_) {}
+      }
+      function onR1DragEnd(e, section) {
+        section.classList.remove('dragging');
+        clearAllDropIndicators();
+        dragState = null;
+      }
+
+      // Section dragover: decide if we're doing R1 reorder or leaf-into-this-row1 drop
+      function onSectionDragOver(e, section) {
+        if (!dragState) return;
+        e.preventDefault();
+        try { e.dataTransfer.dropEffect = 'move'; } catch (_) {}
+
+        if (dragState.type === 'r1') {
+          // Skip self
+          if (dragState.id === section.dataset.r1Id) {
+            section.classList.remove('drop-before', 'drop-after');
+            return;
+          }
+          const rect = section.getBoundingClientRect();
+          const midY = rect.top + rect.height / 2;
+          if (e.clientY < midY) {
+            section.classList.add('drop-before');
+            section.classList.remove('drop-after');
+          } else {
+            section.classList.add('drop-after');
+            section.classList.remove('drop-before');
+          }
+        } else if (dragState.type === 'leaf') {
+          // Only highlight if target is a different row1 OR we're dropping into empty area
+          // If hovering over a specific leaf, the leaf handlers deal with it.
+          // Indicate the section as drop target when not hovering any leaf.
+          const overLeaf = e.target && e.target.closest && e.target.closest('.leaf-tag');
+          if (!overLeaf) {
+            section.classList.add('leaf-drop-target');
+          } else {
+            section.classList.remove('leaf-drop-target');
+          }
+        }
+      }
+      function onSectionDragLeave(e, section) {
+        // Only clear if leaving the section entirely
+        if (!section.contains(e.relatedTarget)) {
+          section.classList.remove('drop-before', 'drop-after', 'leaf-drop-target');
+        }
+      }
+      function onSectionDrop(e, section, r1Id) {
+        if (!dragState) return;
+        e.preventDefault();
+        e.stopPropagation();
+
+        if (dragState.type === 'r1') {
+          if (dragState.id === r1Id) {
+            clearAllDropIndicators();
+            return;
+          }
+          const rect = section.getBoundingClientRect();
+          const midY = rect.top + rect.height / 2;
+          const before = e.clientY < midY;
+          reorderR1(dragState.id, r1Id, before);
+        } else if (dragState.type === 'leaf') {
+          // If dropped on a leaf, leaf handler fires first (stopPropagation handles).
+          // Otherwise, append the leaf to this section's end, changing row1Id if needed.
+          const overLeaf = e.target && e.target.closest && e.target.closest('.leaf-tag');
+          if (overLeaf) { clearAllDropIndicators(); return; }
+          moveLeafToEndOfR1(dragState.id, r1Id);
+        }
+
+        clearAllDropIndicators();
+        dragState = null;
+      }
+
+      function reorderR1(draggedId, targetId, before) {
+        const tpl = getCurrentTpl();
+        if (!tpl) return;
+        const arr = tpl.row1 || [];
+        const draggedIdx = arr.findIndex(r => r.id === draggedId);
+        if (draggedIdx < 0) return;
+        const [dragged] = arr.splice(draggedIdx, 1);
+        let targetIdx = arr.findIndex(r => r.id === targetId);
+        if (targetIdx < 0) {
+          // Shouldn't happen but safe fallback: push to end
+          arr.push(dragged);
+        } else {
+          if (!before) targetIdx += 1;
+          arr.splice(targetIdx, 0, dragged);
+        }
+        tpl.row1 = arr;
+        saveCurrentTpl(tpl);
+        renderEditView();
+      }
+
+      // --- Leaf drag ---
+      function onLeafDragStart(e, leaf, leafId) {
+        // Ignore if remove button / label input currently focused
+        if (leaf.querySelector('.leaf-label-input')) { e.preventDefault(); return; }
+        e.stopPropagation();
+        dragState = { type: 'leaf', id: leafId, fromR1Id: leaf.dataset.r1Id };
+        leaf.classList.add('dragging');
+        try {
+          e.dataTransfer.effectAllowed = 'move';
+          e.dataTransfer.setData('text/plain', 'leaf:' + leafId);
+        } catch (_) {}
+      }
+      function onLeafDragEnd(e, leaf) {
+        leaf.classList.remove('dragging');
+        clearAllDropIndicators();
+        dragState = null;
+      }
+      function onLeafDragOver(e, leaf) {
+        if (!dragState || dragState.type !== 'leaf') return;
+        e.preventDefault();
+        e.stopPropagation();
+        try { e.dataTransfer.dropEffect = 'move'; } catch (_) {}
+        if (dragState.id === leaf.dataset.leafId) return;
+
+        const rect = leaf.getBoundingClientRect();
+        const midX = rect.left + rect.width / 2;
+        if (e.clientX < midX) {
+          leaf.classList.add('drop-before');
+          leaf.classList.remove('drop-after');
+        } else {
+          leaf.classList.add('drop-after');
+          leaf.classList.remove('drop-before');
+        }
+        // Remove section-level highlight while over a specific leaf
+        const section = leaf.closest('.r1-section');
+        if (section) section.classList.remove('leaf-drop-target');
+      }
+      function onLeafDragLeave(e, leaf) {
+        leaf.classList.remove('drop-before', 'drop-after');
+      }
+      function onLeafDrop(e, leaf) {
+        if (!dragState || dragState.type !== 'leaf') return;
+        e.preventDefault();
+        e.stopPropagation();
+
+        const draggedId = dragState.id;
+        const targetLeafId = leaf.dataset.leafId;
+        const targetR1Id = leaf.dataset.r1Id;
+        if (draggedId === targetLeafId) {
+          clearAllDropIndicators();
+          return;
+        }
+        const rect = leaf.getBoundingClientRect();
+        const midX = rect.left + rect.width / 2;
+        const before = e.clientX < midX;
+
+        moveLeafRelativeToLeaf(draggedId, targetLeafId, targetR1Id, before);
+
+        clearAllDropIndicators();
+        dragState = null;
+      }
+
+      function moveLeafRelativeToLeaf(draggedId, targetLeafId, targetR1Id, before) {
+        const tpl = getCurrentTpl();
+        if (!tpl) return;
+        const arr = tpl.row2 || [];
+        const draggedIdx = arr.findIndex(r => r.id === draggedId);
+        if (draggedIdx < 0) return;
+        const [dragged] = arr.splice(draggedIdx, 1);
+        // Update row1Id if changing groups
+        dragged.row1Id = targetR1Id;
+        let targetIdx = arr.findIndex(r => r.id === targetLeafId);
+        if (targetIdx < 0) {
+          arr.push(dragged);
+        } else {
+          if (!before) targetIdx += 1;
+          arr.splice(targetIdx, 0, dragged);
+        }
+        tpl.row2 = arr;
+        saveCurrentTpl(tpl);
+        renderEditView();
+      }
+
+      function moveLeafToEndOfR1(draggedId, targetR1Id) {
+        const tpl = getCurrentTpl();
+        if (!tpl) return;
+        const arr = tpl.row2 || [];
+        const draggedIdx = arr.findIndex(r => r.id === draggedId);
+        if (draggedIdx < 0) return;
+        const [dragged] = arr.splice(draggedIdx, 1);
+        dragged.row1Id = targetR1Id;
+        // Find last index of any leaf in targetR1Id to place after; otherwise push.
+        let lastIdx = -1;
+        for (let i = 0; i < arr.length; i++) {
+          if (arr[i].row1Id === targetR1Id) lastIdx = i;
+        }
+        if (lastIdx < 0) {
+          arr.push(dragged);
+        } else {
+          arr.splice(lastIdx + 1, 0, dragged);
+        }
+        tpl.row2 = arr;
+        saveCurrentTpl(tpl);
+        renderEditView();
+      }
+
+      // ---------- Detail view: Apply / Delete / Duplicate ----------
+      editApplyBtn.addEventListener('click', () => {
+        if (!currentEditId) return;
+        askApply(currentEditId);
+      });
+
+      editDeleteBtn.addEventListener('click', () => {
+        if (!currentEditId) return;
+        askDeleteFromEdit(currentEditId);
+      });
+
+      function askDeleteFromEdit(id) {
+        // Reuse the existing delete dialog but override the confirm behavior
+        const all = loadAll();
+        const tpl = all[id];
+        if (!tpl) return;
+        pendingDeleteId = id;
+        pendingDeleteFromEdit = true;
+        delDesc.textContent = `'${tpl.name}' 템플릿을 삭제합니다. 복구할 수 없습니다.`;
+        openDialog('deleteTplDialog');
+      }
+
+      editDuplicateBtn.addEventListener('click', () => {
+        if (!currentEditId) return;
+        const all = loadAll();
+        const src = all[currentEditId];
+        if (!src) return;
+
+        const newId = genId('tpl');
+        const deepR1 = (src.row1 || []).map(r => ({ id: genId('r1'), label: r.label, _srcId: r.id }));
+        const idMap = new Map();
+        deepR1.forEach(r => { idMap.set(r._srcId, r.id); delete r._srcId; });
+        // Rebuild by iterating original to preserve labels ordering inside idMap
+        const row1Out = (src.row1 || []).map(r => ({ id: idMap.get(r.id), label: r.label }));
+        const row2Out = (src.row2 || []).map(r => ({
+          id: genId('r2'),
+          row1Id: idMap.get(r.row1Id) || r.row1Id,
+          label: r.label,
+        }));
+
+        const newTpl = {
+          id: newId,
+          name: `${src.name} 사본`,
+          createdAt: new Date().toISOString(),
+          row1: row1Out,
+          row2: row2Out,
+        };
+        all[newId] = newTpl;
+        saveAll(all);
+        showToast(`'${newTpl.name}' 템플릿이 생성되었습니다.`, 'success');
+
+        // Switch to the new template's edit view
+        currentEditId = newId;
+        renderEditView();
+      });
+
+      // CSS.escape polyfill-lite for attribute selectors
+      function cssEscape(s) {
+        if (window.CSS && CSS.escape) return CSS.escape(s);
+        return String(s).replace(/[^a-zA-Z0-9_\-]/g, '\\$&');
+      }
+
+      // ---------- Init ----------
+      render();
+    })();
+
+    lucide.createIcons();
+  </script>
+</body>
+</html>

@@ -1,0 +1,2300 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>v1c-a — 치과 상담 예약 Kanban (모든 계층 + · 빈 계층 허용)</title>
+
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.min.css" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Pretendard Variable', 'ui-sans-serif', 'system-ui', 'sans-serif'],
+          },
+          borderRadius: {
+            lg: 'var(--radius)',
+            md: 'calc(var(--radius) - 2px)',
+            sm: 'calc(var(--radius) - 4px)',
+            xl: 'calc(var(--radius) + 4px)',
+            '2xl': 'calc(var(--radius) + 8px)',
+            '3xl': 'calc(var(--radius) + 12px)',
+            '4xl': 'calc(var(--radius) + 16px)',
+          },
+          colors: {
+            background: 'var(--background)',
+            foreground: 'var(--foreground)',
+            card: { DEFAULT: 'var(--card)', foreground: 'var(--card-foreground)' },
+            popover: { DEFAULT: 'var(--popover)', foreground: 'var(--popover-foreground)' },
+            primary: { DEFAULT: 'var(--primary)', foreground: 'var(--primary-foreground)' },
+            secondary: { DEFAULT: 'var(--secondary)', foreground: 'var(--secondary-foreground)' },
+            muted: { DEFAULT: 'var(--muted)', foreground: 'var(--muted-foreground)' },
+            accent: { DEFAULT: 'var(--accent)', foreground: 'var(--accent-foreground)' },
+            destructive: { DEFAULT: 'var(--destructive)' },
+            border: 'var(--border)',
+            input: 'var(--input)',
+            ring: 'var(--ring)',
+            chart: {
+              1: 'var(--chart-1)',
+              2: 'var(--chart-2)',
+              3: 'var(--chart-3)',
+              4: 'var(--chart-4)',
+              5: 'var(--chart-5)',
+            },
+            sidebar: {
+              DEFAULT: 'var(--sidebar)',
+              foreground: 'var(--sidebar-foreground)',
+              primary: 'var(--sidebar-primary)',
+              'primary-foreground': 'var(--sidebar-primary-foreground)',
+              accent: 'var(--sidebar-accent)',
+              'accent-foreground': 'var(--sidebar-accent-foreground)',
+              border: 'var(--sidebar-border)',
+              ring: 'var(--sidebar-ring)',
+            },
+          },
+        },
+      },
+    }
+  </script>
+  <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+
+  <style>
+    :root {
+      --font-sans: "Pretendard Variable", ui-sans-serif, system-ui, sans-serif;
+      --radius: 0.625rem;
+
+      --background: oklch(1 0 0);
+      --foreground: oklch(0.145 0 0);
+      --card: oklch(1 0 0);
+      --card-foreground: oklch(0.145 0 0);
+      --popover: oklch(1 0 0);
+      --popover-foreground: oklch(0.145 0 0);
+      --primary: oklch(0.205 0 0);
+      --primary-foreground: oklch(0.985 0 0);
+      --secondary: oklch(0.97 0 0);
+      --secondary-foreground: oklch(0.205 0 0);
+      --muted: oklch(0.97 0 0);
+      --muted-foreground: oklch(0.556 0 0);
+      --accent: oklch(0.97 0 0);
+      --accent-foreground: oklch(0.205 0 0);
+      --destructive: oklch(0.577 0.245 27.325);
+      --border: oklch(0.922 0 0);
+      --input: oklch(0.922 0 0);
+      --ring: oklch(0.708 0 0);
+      --chart-1: oklch(0.646 0.222 41.116);
+      --chart-2: oklch(0.6 0.118 184.704);
+      --chart-3: oklch(0.398 0.07 227.392);
+      --chart-4: oklch(0.828 0.189 84.429);
+      --chart-5: oklch(0.769 0.188 70.08);
+      --sidebar: oklch(0.985 0 0);
+      --sidebar-foreground: oklch(0.145 0 0);
+      --sidebar-primary: oklch(0.205 0 0);
+      --sidebar-primary-foreground: oklch(0.985 0 0);
+      --sidebar-accent: oklch(0.97 0 0);
+      --sidebar-accent-foreground: oklch(0.205 0 0);
+      --sidebar-border: oklch(0.922 0 0);
+      --sidebar-ring: oklch(0.708 0 0);
+    }
+
+    .dark {
+      --background: oklch(0.145 0 0);
+      --foreground: oklch(0.985 0 0);
+      --card: oklch(0.205 0 0);
+      --card-foreground: oklch(0.985 0 0);
+      --popover: oklch(0.205 0 0);
+      --popover-foreground: oklch(0.985 0 0);
+      --primary: oklch(0.922 0 0);
+      --primary-foreground: oklch(0.205 0 0);
+      --secondary: oklch(0.269 0 0);
+      --secondary-foreground: oklch(0.985 0 0);
+      --muted: oklch(0.269 0 0);
+      --muted-foreground: oklch(0.708 0 0);
+      --accent: oklch(0.269 0 0);
+      --accent-foreground: oklch(0.985 0 0);
+      --destructive: oklch(0.704 0.191 22.216);
+      --border: oklch(1 0 0 / 10%);
+      --input: oklch(1 0 0 / 15%);
+      --ring: oklch(0.556 0 0);
+      --chart-1: oklch(0.488 0.243 264.376);
+      --chart-2: oklch(0.696 0.17 162.48);
+      --chart-3: oklch(0.769 0.188 70.08);
+      --chart-4: oklch(0.627 0.265 303.9);
+      --chart-5: oklch(0.645 0.246 16.439);
+      --sidebar: oklch(0.205 0 0);
+      --sidebar-foreground: oklch(0.985 0 0);
+      --sidebar-primary: oklch(0.488 0.243 264.376);
+      --sidebar-primary-foreground: oklch(0.985 0 0);
+      --sidebar-accent: oklch(0.269 0 0);
+      --sidebar-accent-foreground: oklch(0.985 0 0);
+      --sidebar-border: oklch(1 0 0 / 10%);
+      --sidebar-ring: oklch(0.556 0 0);
+    }
+
+    * { border-color: var(--border); outline-color: color-mix(in oklch, var(--ring) 50%, transparent); }
+    body {
+      font-family: var(--font-sans);
+      background-color: var(--background);
+      color: var(--foreground);
+    }
+
+    /* v1c-a: Dense grid — initial: 1 time + (3 구환 leaves + row3-add + row2-add) + ... + row1-add = 40 cols.
+       JS rebuilds grid-template-columns on mount and whenever columns are added/removed. */
+    .kanban-grid {
+      display: grid;
+      grid-template-columns:
+        64px
+        88px 88px 88px 30px 30px
+        88px 88px 88px 30px 30px
+        56px 56px 56px 56px 30px 30px
+        52px 52px 52px 52px 52px 52px 52px 52px 30px 30px
+        52px 52px 52px 52px 52px 30px 30px
+        76px 76px 76px 30px 30px
+        30px;
+      min-width: max-content;
+    }
+
+    .cell {
+      border-right: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
+      min-height: 44px;
+      padding: 2px;
+      position: relative;
+      background: var(--background);
+    }
+
+    .cell-empty:hover {
+      background: color-mix(in oklch, var(--accent) 60%, transparent);
+    }
+
+    .hdr {
+      background: var(--secondary);
+      color: var(--secondary-foreground);
+      border-right: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 11px;
+      font-weight: 600;
+      padding: 4px 2px;
+      text-align: center;
+    }
+
+    .hdr-row1 { position: sticky; top: 0; z-index: 30; height: 28px; }
+    .hdr-row2 { position: sticky; top: 28px; z-index: 29; height: 28px; }
+    .hdr-row3 { position: sticky; top: 56px; z-index: 28; height: 32px; }
+
+    .time-cell {
+      position: sticky;
+      left: 0;
+      z-index: 20;
+      background: var(--secondary);
+      color: var(--muted-foreground);
+      border-right: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 11px;
+      font-weight: 500;
+      min-height: 44px;
+    }
+
+    .time-cell-hdr {
+      position: sticky;
+      left: 0;
+      z-index: 31;
+    }
+
+    /* Group color accents for header row1 */
+    .grp-addon { background: color-mix(in oklch, var(--chart-2) 15%, var(--secondary)); }
+    .grp-consult { background: color-mix(in oklch, var(--chart-1) 15%, var(--secondary)); }
+    .grp-yejin { background: color-mix(in oklch, var(--chart-4) 18%, var(--secondary)); }
+    .grp-implant { background: color-mix(in oklch, var(--chart-5) 15%, var(--secondary)); }
+    .grp-general { background: color-mix(in oklch, var(--chart-3) 15%, var(--secondary)); }
+    .grp-phone { background: color-mix(in oklch, var(--chart-2) 20%, var(--secondary)); }
+
+    /* Subtle column group separators */
+    .col-sep-l { border-left: 2px solid color-mix(in oklch, var(--foreground) 15%, transparent); }
+
+    /* Card chip */
+    .chip {
+      border-radius: 3px;
+      border: 1px solid var(--border);
+      border-left-width: 3px;
+      padding: 2px 4px;
+      font-size: 10px;
+      line-height: 1.2;
+      cursor: grab;
+      transition: all 120ms ease;
+    }
+    .chip:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+    }
+
+    .chip-success { background: #ecfdf5; border-left-color: #10b981; color: #064e3b; }
+    .chip-cancel  { background: #fff7ed; border-left-color: #f97316; color: #7c2d12; }
+    .chip-wait    { background: #f4f4f5; border-left-color: #a1a1aa; color: #3f3f46; }
+    .chip-xres    { background: #fdf4ff; border-left-color: #d946ef; color: #701a75; }
+    .chip-base    { background: var(--background); border-left-color: transparent; color: var(--foreground); }
+
+    .dark .chip-success { background: rgba(16,185,129,0.12); color: #a7f3d0; }
+    .dark .chip-cancel  { background: rgba(249,115,22,0.12); color: #fed7aa; }
+    .dark .chip-wait    { background: rgba(161,161,170,0.15); color: #d4d4d8; }
+    .dark .chip-xres    { background: rgba(217,70,239,0.14); color: #f5d0fe; }
+
+    /* Scrollbar polish */
+    .kanban-scroll::-webkit-scrollbar { height: 10px; width: 10px; }
+    .kanban-scroll::-webkit-scrollbar-thumb { background: var(--border); border-radius: 6px; }
+    .kanban-scroll::-webkit-scrollbar-track { background: transparent; }
+
+    /* Status legend dots */
+    .dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; margin-right: 6px; vertical-align: middle; }
+
+    /* Dialog overlay (shadcn-style) */
+    .dlg-overlay {
+      position: fixed; inset: 0; background: rgba(0,0,0,0.5);
+      display: none; align-items: center; justify-content: center;
+      z-index: 100;
+      animation: dlg-fade 150ms ease-out;
+    }
+    .dlg-overlay.open { display: flex; }
+    .dlg {
+      background: var(--background);
+      color: var(--foreground);
+      border: 1px solid var(--border);
+      border-radius: calc(var(--radius) + 2px);
+      box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+      width: min(420px, calc(100vw - 2rem));
+      padding: 20px;
+      animation: dlg-pop 150ms ease-out;
+    }
+    .dlg h2 { font-size: 15px; font-weight: 600; margin-bottom: 4px; }
+    .dlg p.dlg-desc { font-size: 12.5px; color: var(--muted-foreground); margin-bottom: 16px; }
+    .dlg-field { display: flex; flex-direction: column; gap: 6px; margin-bottom: 12px; }
+    .dlg-field label { font-size: 12px; font-weight: 500; }
+    .dlg-field select, .dlg-field input {
+      height: 34px; padding: 0 10px;
+      border: 1px solid var(--border); border-radius: var(--radius);
+      background: var(--background); color: var(--foreground);
+      font-size: 13px; outline: none;
+    }
+    .dlg-field select:focus, .dlg-field input:focus { box-shadow: 0 0 0 2px color-mix(in oklch, var(--ring) 50%, transparent); }
+    .dlg-error { font-size: 11.5px; color: #dc2626; margin-top: 4px; min-height: 14px; }
+    .dlg-actions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 16px; }
+    .dlg-btn {
+      height: 34px; padding: 0 14px; border-radius: var(--radius);
+      font-size: 13px; font-weight: 500; cursor: pointer; border: 1px solid var(--border);
+      background: var(--background); color: var(--foreground);
+      transition: background 120ms;
+    }
+    .dlg-btn:hover { background: var(--accent); }
+    .dlg-btn-primary { background: var(--primary); color: var(--primary-foreground); border-color: var(--primary); }
+    .dlg-btn-primary:hover { background: color-mix(in oklch, var(--primary) 88%, #fff); }
+    .dlg-btn-destructive { background: #dc2626; color: #fff; border-color: #dc2626; }
+    .dlg-btn-destructive:hover { background: #b91c1c; }
+    @keyframes dlg-fade { from { opacity: 0; } to { opacity: 1; } }
+    @keyframes dlg-pop { from { opacity: 0; transform: scale(0.96) translateY(4px); } to { opacity: 1; transform: scale(1) translateY(0); } }
+
+    /* v1c-a: Group-end "+" cells per layer */
+    .hdr-row3.hdr-add,
+    .hdr-row2.hdr-add,
+    .hdr-row1.hdr-add {
+      background: var(--muted);
+      color: var(--muted-foreground);
+      cursor: pointer;
+      padding: 0;
+      transition: background 120ms, color 120ms;
+    }
+    .hdr-row3.hdr-add:hover,
+    .hdr-row2.hdr-add:hover,
+    .hdr-row1.hdr-add:hover {
+      background: var(--accent);
+      color: var(--accent-foreground);
+    }
+    .hdr-row3.hdr-add i,
+    .hdr-row3.hdr-add svg,
+    .hdr-row2.hdr-add i,
+    .hdr-row2.hdr-add svg,
+    .hdr-row1.hdr-add i,
+    .hdr-row1.hdr-add svg { width: 14px; height: 14px; }
+
+    /* v1c-a: inline editable row1/row2 header */
+    .hdr-row1-edit, .hdr-row2-edit {
+      padding: 0 2px;
+      background: var(--background);
+    }
+    .hdr-row1-edit input, .hdr-row2-edit input {
+      width: 100%;
+      height: 22px;
+      padding: 0 4px;
+      font-size: 11px;
+      font-weight: 600;
+      text-align: center;
+      border: 1px solid var(--ring);
+      border-radius: 3px;
+      background: var(--background);
+      color: var(--foreground);
+      outline: none;
+      box-shadow: 0 0 0 2px color-mix(in oklch, var(--ring) 40%, transparent);
+    }
+
+    /* v1c-a: delete icon for user-added row1/row2 */
+    .hdr-row1[data-user-added="true"], .hdr-row2[data-user-added="true"] { position: relative; }
+    .hdr-row1-del, .hdr-row2-del {
+      position: absolute;
+      top: 2px; right: 2px;
+      width: 14px; height: 14px;
+      display: none;
+      align-items: center; justify-content: center;
+      border-radius: 3px;
+      cursor: pointer;
+      color: var(--muted-foreground);
+    }
+    .hdr-row1-del:hover, .hdr-row2-del:hover {
+      background: color-mix(in oklch, var(--destructive) 20%, transparent);
+      color: var(--destructive);
+    }
+    .hdr-row1-del i, .hdr-row2-del i { width: 11px; height: 11px; }
+    .hdr-row1[data-user-added="true"]:hover .hdr-row1-del,
+    .hdr-row2[data-user-added="true"]:hover .hdr-row2-del { display: inline-flex; }
+
+    /* Data-row placeholder column (non-interactive, just visual) */
+    .cell-add-placeholder {
+      border-right: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
+      background: color-mix(in oklch, var(--muted) 50%, var(--background));
+      min-height: 44px;
+    }
+
+    /* v1c: inline editable row3 header */
+    .hdr-row3-edit {
+      padding: 0 2px;
+      background: var(--background);
+    }
+    .hdr-row3-edit input {
+      width: 100%;
+      height: 24px;
+      padding: 0 4px;
+      font-size: 11px;
+      font-weight: 600;
+      text-align: center;
+      border: 1px solid var(--ring);
+      border-radius: 3px;
+      background: var(--background);
+      color: var(--foreground);
+      outline: none;
+      box-shadow: 0 0 0 2px color-mix(in oklch, var(--ring) 40%, transparent);
+    }
+
+    /* v1c: delete icon overlay for user-added row3 */
+    .hdr-row3[data-user-added="true"] { position: relative; }
+    .hdr-row3-del {
+      position: absolute;
+      top: 2px; right: 2px;
+      width: 14px; height: 14px;
+      display: none;
+      align-items: center; justify-content: center;
+      border-radius: 3px;
+      cursor: pointer;
+      color: var(--muted-foreground);
+    }
+    .hdr-row3-del:hover {
+      background: color-mix(in oklch, var(--destructive) 20%, transparent);
+      color: var(--destructive);
+    }
+    .hdr-row3-del i { width: 11px; height: 11px; }
+    .hdr-row3[data-user-added="true"]:hover .hdr-row3-del { display: inline-flex; }
+
+    /* Toast (bottom-right) */
+    .toast-wrap { position: fixed; bottom: 20px; right: 20px; display: flex; flex-direction: column; gap: 8px; z-index: 120; pointer-events: none; }
+    .toast {
+      background: var(--background); color: var(--foreground);
+      border: 1px solid var(--border); border-radius: var(--radius);
+      padding: 10px 14px; font-size: 13px;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.12);
+      pointer-events: auto;
+      animation: toast-in 180ms ease-out;
+      max-width: 320px;
+    }
+    .toast-error { border-left: 3px solid #dc2626; }
+    .toast-success { border-left: 3px solid #10b981; }
+    @keyframes toast-in { from { opacity: 0; transform: translateX(20px); } to { opacity: 1; transform: translateX(0); } }
+  </style>
+</head>
+<body class="bg-background text-foreground">
+
+  <!-- Top Bar -->
+  <header class="sticky top-0 z-50 h-14 border-b border-border bg-background/95 backdrop-blur flex items-center px-4 gap-3">
+    <div class="flex items-center gap-2 min-w-[260px]">
+      <div class="w-8 h-8 rounded-md bg-primary text-primary-foreground flex items-center justify-center">
+        <i data-lucide="stethoscope" class="w-4 h-4"></i>
+      </div>
+      <div class="flex flex-col leading-tight">
+        <span class="text-sm font-semibold">치과 상담 <span class="text-muted-foreground font-normal">v1c-a 모든 계층 +</span></span>
+        <span class="text-[11px] text-muted-foreground">예약 대시보드</span>
+      </div>
+    </div>
+
+    <!-- Date navigation center -->
+    <div class="flex-1 flex items-center justify-center gap-1.5">
+      <button class="h-8 w-8 inline-flex items-center justify-center rounded-md border border-border hover:bg-accent">
+        <i data-lucide="chevron-left" class="w-4 h-4"></i>
+      </button>
+      <div class="h-8 px-3 inline-flex items-center gap-2 rounded-md border border-border bg-background text-sm font-medium">
+        <i data-lucide="calendar" class="w-3.5 h-3.5 text-muted-foreground"></i>
+        2026-04-01 (수)
+      </div>
+      <button class="h-8 w-8 inline-flex items-center justify-center rounded-md border border-border hover:bg-accent">
+        <i data-lucide="chevron-right" class="w-4 h-4"></i>
+      </button>
+      <button class="h-8 px-3 inline-flex items-center rounded-md border border-border text-xs font-medium hover:bg-accent">오늘</button>
+      <button class="h-8 w-8 inline-flex items-center justify-center rounded-md border border-border hover:bg-accent">
+        <i data-lucide="calendar-days" class="w-4 h-4"></i>
+      </button>
+    </div>
+
+    <!-- Right side -->
+    <div class="flex items-center gap-2">
+      <div class="relative">
+        <select id="counselorFilter" class="h-8 pl-2.5 pr-7 rounded-md border border-border bg-background text-xs appearance-none">
+          <option value="all">상담사: 전체</option>
+          <option value="김수지">김수지</option>
+          <option value="라근주">라근주</option>
+          <option value="유소연">유소연</option>
+        </select>
+        <i data-lucide="chevron-down" class="w-3 h-3 absolute right-2 top-1/2 -translate-y-1/2 text-muted-foreground pointer-events-none"></i>
+      </div>
+
+      <div class="relative">
+        <select id="statusFilter" class="h-8 pl-2.5 pr-7 rounded-md border border-border bg-background text-xs appearance-none">
+          <option value="all">상태: 전체</option>
+          <option value="success">성공</option>
+          <option value="cancel">취소</option>
+          <option value="wait">대기</option>
+          <option value="noreserve">예약x</option>
+          <option value="default">기본</option>
+        </select>
+        <i data-lucide="chevron-down" class="w-3 h-3 absolute right-2 top-1/2 -translate-y-1/2 text-muted-foreground pointer-events-none"></i>
+      </div>
+
+      <div class="relative">
+        <i data-lucide="search" class="w-3.5 h-3.5 absolute left-2 top-1/2 -translate-y-1/2 text-muted-foreground"></i>
+        <input type="text" placeholder="환자명·차트번호" class="h-8 w-44 pl-7 pr-2 rounded-md border border-border bg-background text-xs placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring/40" />
+      </div>
+
+      <div class="flex items-center gap-1 h-8 px-2.5 rounded-md border border-border bg-secondary text-[11px] font-medium">
+        <span>총</span><span id="summaryTotal" class="text-foreground font-bold">0</span>
+        <span class="mx-1 text-border">|</span>
+        <span class="text-emerald-600">성공 <span id="summarySuccess">0</span></span>
+        <span class="mx-1 text-border">|</span>
+        <span class="text-orange-600">취소 <span id="summaryCancel">0</span></span>
+        <span class="mx-1 text-border">|</span>
+        <span class="text-zinc-500">대기 <span id="summaryWait">0</span></span>
+      </div>
+
+      <button id="resetBtn" class="h-8 px-2 inline-flex items-center gap-1 rounded-md border border-border text-xs text-muted-foreground hover:text-foreground hover:bg-accent" title="카드 위치 초기화">
+        <i data-lucide="rotate-ccw" class="w-3.5 h-3.5"></i>
+        <span>초기화</span>
+      </button>
+
+      <button id="darkToggle" class="h-8 w-8 inline-flex items-center justify-center rounded-md border border-border hover:bg-accent" title="다크모드 토글">
+        <i data-lucide="moon" class="w-4 h-4"></i>
+      </button>
+    </div>
+  </header>
+
+  <!-- Main scroll area -->
+  <main class="kanban-scroll overflow-auto" style="height: calc(100vh - 3.5rem - 2.5rem);">
+    <div class="kanban-grid">
+
+      <!-- ============ HEADER ROW 1 : Top groups (span includes row2-add cells) + Row1 add ============ -->
+      <div class="hdr hdr-row1 time-cell-hdr" style="background: var(--secondary);">
+        <i data-lucide="clock" class="w-3.5 h-3.5 text-muted-foreground"></i>
+      </div>
+      <!-- 추가상담: row2=구환(4) + row2-add(1) = 5 -->
+      <div class="hdr hdr-row1 grp-addon col-sep-l" data-row1-key="추가상담" style="grid-column: span 5;">추가상담</div>
+      <!-- 상담: row2=신환(4) + row2-add(1) = 5 -->
+      <div class="hdr hdr-row1 grp-consult col-sep-l" data-row1-key="상담" style="grid-column: span 5;">상담</div>
+      <!-- 예진현황: row2=예진(5) + row2-add(1) = 6 -->
+      <div class="hdr hdr-row1 grp-yejin col-sep-l" data-row1-key="예진현황" style="grid-column: span 6;">예진현황</div>
+      <!-- 임플상담: row2=임플(9) + row2-add(1) = 10 -->
+      <div class="hdr hdr-row1 grp-implant col-sep-l" data-row1-key="임플상담" style="grid-column: span 10;">임플상담</div>
+      <!-- 일반상담: row2=일반(6) + row2-add(1) = 7 -->
+      <div class="hdr hdr-row1 grp-general col-sep-l" data-row1-key="일반상담" style="grid-column: span 7;">일반상담</div>
+      <!-- 전화상담: row2=전화(4) + row2-add(1) = 5 -->
+      <div class="hdr hdr-row1 grp-phone col-sep-l" data-row1-key="전화상담" style="grid-column: span 5;">전화상담</div>
+      <!-- Row1 add "+" cell -->
+      <div class="hdr hdr-row1 hdr-add col-sep-l" data-row1-add="true" title="대분류 추가" style="grid-column: span 1;"><i data-lucide="plus"></i></div>
+
+      <!-- ============ HEADER ROW 2 : Sub-groups per row1 + row2-add "+" cells ============ -->
+      <div class="hdr hdr-row2 time-cell-hdr" style="background: var(--secondary);"></div>
+      <!-- under 추가상담 -->
+      <div class="hdr hdr-row2 col-sep-l" data-row2-key="구환" data-row1-key="추가상담" style="grid-column: span 4;">구환상담 <span class="row2-count">(3)</span></div>
+      <div class="hdr hdr-row2 hdr-add" data-row2-add="true" data-row1-key="추가상담" title="추가상담 중분류 추가" style="grid-column: span 1;"><i data-lucide="plus"></i></div>
+      <!-- under 상담 -->
+      <div class="hdr hdr-row2 col-sep-l" data-row2-key="신환" data-row1-key="상담" style="grid-column: span 4;">신환상담 <span class="row2-count">(3)</span></div>
+      <div class="hdr hdr-row2 hdr-add" data-row2-add="true" data-row1-key="상담" title="상담 중분류 추가" style="grid-column: span 1;"><i data-lucide="plus"></i></div>
+      <!-- under 예진현황 -->
+      <div class="hdr hdr-row2 col-sep-l" data-row2-key="예진" data-row1-key="예진현황" style="grid-column: span 5;">예진 <span class="row2-count">(4)</span></div>
+      <div class="hdr hdr-row2 hdr-add" data-row2-add="true" data-row1-key="예진현황" title="예진현황 중분류 추가" style="grid-column: span 1;"><i data-lucide="plus"></i></div>
+      <!-- under 임플상담 -->
+      <div class="hdr hdr-row2 col-sep-l" data-row2-key="임플" data-row1-key="임플상담" style="grid-column: span 9;">임플 <span class="row2-count">(8)</span></div>
+      <div class="hdr hdr-row2 hdr-add" data-row2-add="true" data-row1-key="임플상담" title="임플상담 중분류 추가" style="grid-column: span 1;"><i data-lucide="plus"></i></div>
+      <!-- under 일반상담 -->
+      <div class="hdr hdr-row2 col-sep-l" data-row2-key="일반" data-row1-key="일반상담" style="grid-column: span 6;">일반 <span class="row2-count">(5)</span></div>
+      <div class="hdr hdr-row2 hdr-add" data-row2-add="true" data-row1-key="일반상담" title="일반상담 중분류 추가" style="grid-column: span 1;"><i data-lucide="plus"></i></div>
+      <!-- under 전화상담 -->
+      <div class="hdr hdr-row2 col-sep-l" data-row2-key="전화" data-row1-key="전화상담" style="grid-column: span 4;">전화 <span class="row2-count">(3)</span></div>
+      <div class="hdr hdr-row2 hdr-add" data-row2-add="true" data-row1-key="전화상담" title="전화상담 중분류 추가" style="grid-column: span 1;"><i data-lucide="plus"></i></div>
+      <!-- Row2 placeholder under Row1-add (empty hdr) -->
+      <div class="hdr hdr-row2 col-sep-l" data-row2-placeholder-for-row1-add="true" style="grid-column: span 1; background: var(--muted); opacity: 0.4;"></div>
+
+      <!-- ============ HEADER ROW 3 : Leaf labels + end-of-group "+" cells ============ -->
+      <div class="hdr hdr-row3 time-cell-hdr" style="background: var(--secondary); font-size: 10px;">시간</div>
+      <!-- 구환 leaves (row1=추가상담) -->
+      <div class="hdr hdr-row3 col-sep-l" data-row3-group="구환" data-row1-key="추가상담">김수지</div>
+      <div class="hdr hdr-row3" data-row3-group="구환" data-row1-key="추가상담">라근주</div>
+      <div class="hdr hdr-row3" data-row3-group="구환" data-row1-key="추가상담">유소연</div>
+      <div class="hdr hdr-row3 hdr-add" data-row3-add-group="구환" data-row1-key="추가상담" title="구환 컬럼 추가"><i data-lucide="plus"></i></div>
+      <!-- row2-add placeholder under 추가상담 -->
+      <div class="hdr hdr-row3" data-row3-placeholder-for-row2-add="true" data-row1-key="추가상담" style="background: var(--muted); opacity: 0.3;"></div>
+      <!-- 신환 leaves (row1=상담) -->
+      <div class="hdr hdr-row3 col-sep-l" data-row3-group="신환" data-row1-key="상담">김수지</div>
+      <div class="hdr hdr-row3" data-row3-group="신환" data-row1-key="상담">라근주</div>
+      <div class="hdr hdr-row3" data-row3-group="신환" data-row1-key="상담">유소연</div>
+      <div class="hdr hdr-row3 hdr-add" data-row3-add-group="신환" data-row1-key="상담" title="신환 컬럼 추가"><i data-lucide="plus"></i></div>
+      <div class="hdr hdr-row3" data-row3-placeholder-for-row2-add="true" data-row1-key="상담" style="background: var(--muted); opacity: 0.3;"></div>
+      <!-- 예진 leaves (row1=예진현황) -->
+      <div class="hdr hdr-row3 col-sep-l" data-row3-group="예진" data-row1-key="예진현황">예진완</div>
+      <div class="hdr hdr-row3" data-row3-group="예진" data-row1-key="예진현황">예진실</div>
+      <div class="hdr hdr-row3" data-row3-group="예진" data-row1-key="예진현황">사진완</div>
+      <div class="hdr hdr-row3" data-row3-group="예진" data-row1-key="예진현황">신환접</div>
+      <div class="hdr hdr-row3 hdr-add" data-row3-add-group="예진" data-row1-key="예진현황" title="예진 컬럼 추가"><i data-lucide="plus"></i></div>
+      <div class="hdr hdr-row3" data-row3-placeholder-for-row2-add="true" data-row1-key="예진현황" style="background: var(--muted); opacity: 0.3;"></div>
+      <!-- 임플 leaves (row1=임플상담) -->
+      <div class="hdr hdr-row3 col-sep-l" data-row3-group="임플" data-row1-key="임플상담">김수지<br><span class="text-[9px] text-muted-foreground">아웃</span></div>
+      <div class="hdr hdr-row3" data-row3-group="임플" data-row1-key="임플상담">김수지<br><span class="text-[9px] text-muted-foreground">그외</span></div>
+      <div class="hdr hdr-row3" data-row3-group="임플" data-row1-key="임플상담">라근주<br><span class="text-[9px] text-muted-foreground">아웃</span></div>
+      <div class="hdr hdr-row3" data-row3-group="임플" data-row1-key="임플상담">라근주<br><span class="text-[9px] text-muted-foreground">그외</span></div>
+      <div class="hdr hdr-row3" data-row3-group="임플" data-row1-key="임플상담">유소연<br><span class="text-[9px] text-muted-foreground">아웃</span></div>
+      <div class="hdr hdr-row3" data-row3-group="임플" data-row1-key="임플상담">유소연<br><span class="text-[9px] text-muted-foreground">그외</span></div>
+      <div class="hdr hdr-row3" data-row3-group="임플" data-row1-key="임플상담">재방문</div>
+      <div class="hdr hdr-row3" data-row3-group="임플" data-row1-key="임플상담">기타</div>
+      <div class="hdr hdr-row3 hdr-add" data-row3-add-group="임플" data-row1-key="임플상담" title="임플 컬럼 추가"><i data-lucide="plus"></i></div>
+      <div class="hdr hdr-row3" data-row3-placeholder-for-row2-add="true" data-row1-key="임플상담" style="background: var(--muted); opacity: 0.3;"></div>
+      <!-- 일반 leaves (row1=일반상담) -->
+      <div class="hdr hdr-row3 col-sep-l" data-row3-group="일반" data-row1-key="일반상담">김수지<br><span class="text-[9px] text-muted-foreground">아웃</span></div>
+      <div class="hdr hdr-row3" data-row3-group="일반" data-row1-key="일반상담">라근주<br><span class="text-[9px] text-muted-foreground">아웃</span></div>
+      <div class="hdr hdr-row3" data-row3-group="일반" data-row1-key="일반상담">유소연<br><span class="text-[9px] text-muted-foreground">아웃</span></div>
+      <div class="hdr hdr-row3" data-row3-group="일반" data-row1-key="일반상담">그외</div>
+      <div class="hdr hdr-row3" data-row3-group="일반" data-row1-key="일반상담">재방문</div>
+      <div class="hdr hdr-row3 hdr-add" data-row3-add-group="일반" data-row1-key="일반상담" title="일반 컬럼 추가"><i data-lucide="plus"></i></div>
+      <div class="hdr hdr-row3" data-row3-placeholder-for-row2-add="true" data-row1-key="일반상담" style="background: var(--muted); opacity: 0.3;"></div>
+      <!-- 전화 leaves (row1=전화상담) -->
+      <div class="hdr hdr-row3 col-sep-l" data-row3-group="전화" data-row1-key="전화상담">김수지</div>
+      <div class="hdr hdr-row3" data-row3-group="전화" data-row1-key="전화상담">라근주</div>
+      <div class="hdr hdr-row3" data-row3-group="전화" data-row1-key="전화상담">유소연</div>
+      <div class="hdr hdr-row3 hdr-add" data-row3-add-group="전화" data-row1-key="전화상담" title="전화 컬럼 추가"><i data-lucide="plus"></i></div>
+      <div class="hdr hdr-row3" data-row3-placeholder-for-row2-add="true" data-row1-key="전화상담" style="background: var(--muted); opacity: 0.3;"></div>
+      <!-- Row3 placeholder under Row1-add -->
+      <div class="hdr hdr-row3 col-sep-l" data-row3-placeholder-for-row1-add="true" style="background: var(--muted); opacity: 0.3;"></div>
+
+      <!-- ============ DATA ROWS (24 time slots × 26 data cols) ============ -->
+      <!-- Template: time cell + 26 empty cells, then we place chips selectively -->
+
+      <!-- Row 09:00 -->
+      <div class="time-cell">09:00</div>
+      <!-- 추가 구환 김/라/유 -->
+      <div class="cell cell-empty col-sep-l" data-drop-zone="9:00-구환-김수지"></div>
+      <div class="cell cell-empty" data-drop-zone="9:00-구환-라근주"></div>
+      <div class="cell cell-empty" data-drop-zone="9:00-구환-유소연"></div>
+      <!-- 상담 신환 김/라/유 -->
+      <div class="cell cell-empty col-sep-l" data-drop-zone="9:00-신환-김수지"></div>
+      <div class="cell cell-empty" data-drop-zone="9:00-신환-라근주"></div>
+      <div class="cell cell-empty" data-drop-zone="9:00-신환-유소연"></div>
+      <!-- 예진 4 -->
+      <div class="cell cell-empty col-sep-l" data-drop-zone="9:00-예진-예진완"></div>
+      <div class="cell cell-empty" data-drop-zone="9:00-예진-예진실"></div>
+      <div class="cell cell-empty" data-drop-zone="9:00-예진-사진완"></div>
+      <div class="cell cell-empty" data-drop-zone="9:00-예진-신환접"></div>
+      <!-- 임플 8: 김수지아웃 / 김수지그외 / 라아웃 / 라그외 / 유아웃 / 유그외 / 재방문 / 기타 -->
+      <div class="cell col-sep-l" data-drop-zone="9:00-임플-김수지아웃">
+        <div class="chip chip-wait" draggable="true" data-card-id="card-17541-1" data-status="wait">
+          <div class="text-[9px] opacity-70">임플 11:08/12:00</div>
+          <div class="font-medium">박종호 17541</div>
+        </div>
+      </div>
+      <div class="cell" data-drop-zone="9:00-임플-김수지그외">
+        <div class="chip chip-success" draggable="true" data-card-id="card-17542" data-status="success">
+          <div class="text-[9px] opacity-70">임플 11:35/11:30</div>
+          <div class="font-medium">김민정 17542</div>
+        </div>
+      </div>
+      <div class="cell cell-empty" data-drop-zone="9:00-임플-라근주아웃"></div>
+      <div class="cell cell-empty" data-drop-zone="9:00-임플-라근주그외"></div>
+      <div class="cell" data-drop-zone="9:00-임플-유소연아웃">
+        <div class="chip chip-xres" draggable="true" data-card-id="card-17545" data-status="noreserve">
+          <div class="text-[9px] opacity-70">임플 2:07 예약x</div>
+          <div class="font-medium">이승재 17545</div>
+        </div>
+      </div>
+      <div class="cell cell-empty" data-drop-zone="9:00-임플-유소연그외"></div>
+      <div class="cell" data-drop-zone="9:00-임플-재방문">
+        <div class="chip chip-base" draggable="true" data-card-id="card-9595-1" data-status="default">
+          <div class="text-[9px] opacity-70">임플 9:56/10:00</div>
+          <div class="font-medium">서성욱 9595</div>
+        </div>
+      </div>
+      <div class="cell cell-empty" data-drop-zone="9:00-임플-기타"></div>
+      <!-- 일반 5: 김아웃 / 라아웃 / 유아웃 / 그외 / 재방문 -->
+      <div class="cell cell-empty col-sep-l" data-drop-zone="9:00-일반-김수지아웃"></div>
+      <div class="cell cell-empty" data-drop-zone="9:00-일반-라근주아웃"></div>
+      <div class="cell cell-empty" data-drop-zone="9:00-일반-유소연아웃"></div>
+      <div class="cell" data-drop-zone="9:00-일반-그외">
+        <div class="chip chip-cancel" draggable="true" data-card-id="card-17550" data-status="cancel">
+          <div class="text-[9px] opacity-70">일반 6:50/7:00 동행</div>
+          <div class="font-medium">손민채 17550</div>
+        </div>
+      </div>
+      <div class="cell" data-drop-zone="9:00-일반-재방문">
+        <div class="chip chip-cancel" draggable="true" data-card-id="card-17549" data-status="cancel">
+          <div class="text-[9px] opacity-70">일반 5:35/5:30 상담x</div>
+          <div class="font-medium">홍단우 17549</div>
+        </div>
+      </div>
+      <!-- 전화 3 -->
+      <div class="cell cell-empty col-sep-l" data-drop-zone="9:00-전화-김수지"></div>
+      <div class="cell cell-empty" data-drop-zone="9:00-전화-라근주"></div>
+      <div class="cell cell-empty" data-drop-zone="9:00-전화-유소연"></div>
+
+      <!-- Row 09:30 -->
+      <div class="time-cell">09:30</div>
+      <div class="cell cell-empty col-sep-l" data-drop-zone="9:30-구환-김수지"></div><div class="cell cell-empty" data-drop-zone="9:30-구환-라근주"></div><div class="cell cell-empty" data-drop-zone="9:30-구환-유소연"></div>
+      <div class="cell cell-empty col-sep-l" data-drop-zone="9:30-신환-김수지"></div><div class="cell cell-empty" data-drop-zone="9:30-신환-라근주"></div><div class="cell cell-empty" data-drop-zone="9:30-신환-유소연"></div>
+      <div class="cell cell-empty col-sep-l" data-drop-zone="9:30-예진-예진완"></div><div class="cell cell-empty" data-drop-zone="9:30-예진-예진실"></div><div class="cell cell-empty" data-drop-zone="9:30-예진-사진완"></div><div class="cell cell-empty" data-drop-zone="9:30-예진-신환접"></div>
+      <!-- 임플: 김수지아웃 -->
+      <div class="cell col-sep-l" data-drop-zone="9:30-임플-김수지아웃">
+        <div class="chip chip-wait" draggable="true" data-card-id="card-17543" data-status="wait">
+          <div class="text-[9px] opacity-70">임플 11:51/11:50</div>
+          <div class="font-medium">오희선 17543</div>
+        </div>
+      </div>
+      <div class="cell cell-empty" data-drop-zone="9:30-임플-김수지그외"></div>
+      <div class="cell cell-empty" data-drop-zone="9:30-임플-라근주아웃"></div>
+      <div class="cell cell-empty" data-drop-zone="9:30-임플-라근주그외"></div>
+      <!-- 유소연 아웃 -->
+      <div class="cell" data-drop-zone="9:30-임플-유소연아웃">
+        <div class="chip chip-wait" draggable="true" data-card-id="card-17548" data-status="wait">
+          <div class="text-[9px] opacity-70">임플 5:01/5:00</div>
+          <div class="font-medium">김화정 17548</div>
+        </div>
+      </div>
+      <div class="cell cell-empty" data-drop-zone="9:30-임플-유소연그외"></div>
+      <div class="cell cell-empty" data-drop-zone="9:30-임플-재방문"></div>
+      <div class="cell cell-empty" data-drop-zone="9:30-임플-기타"></div>
+      <!-- 일반 5 -->
+      <div class="cell cell-empty col-sep-l" data-drop-zone="9:30-일반-김수지아웃"></div><div class="cell cell-empty" data-drop-zone="9:30-일반-라근주아웃"></div><div class="cell cell-empty" data-drop-zone="9:30-일반-유소연아웃"></div><div class="cell cell-empty" data-drop-zone="9:30-일반-그외"></div><div class="cell cell-empty" data-drop-zone="9:30-일반-재방문"></div>
+      <!-- 전화 3 -->
+      <div class="cell cell-empty col-sep-l" data-drop-zone="9:30-전화-김수지"></div><div class="cell cell-empty" data-drop-zone="9:30-전화-라근주"></div><div class="cell cell-empty" data-drop-zone="9:30-전화-유소연"></div>
+
+      <!-- Row 10:00 -->
+      <div class="time-cell">10:00</div>
+      <div class="cell cell-empty col-sep-l" data-drop-zone="10:00-구환-김수지"></div><div class="cell cell-empty" data-drop-zone="10:00-구환-라근주"></div><div class="cell cell-empty" data-drop-zone="10:00-구환-유소연"></div>
+      <!-- 상담 신환 유소연 -->
+      <div class="cell cell-empty col-sep-l" data-drop-zone="10:00-신환-김수지"></div>
+      <div class="cell cell-empty" data-drop-zone="10:00-신환-라근주"></div>
+      <div class="cell" data-drop-zone="10:00-신환-유소연">
+        <div class="chip chip-base" draggable="true" data-card-id="card-9595-2" data-status="default">
+          <div class="text-[9px] opacity-70">신환 9:56/10:00</div>
+          <div class="font-medium">서성욱 9595</div>
+        </div>
+      </div>
+      <div class="cell cell-empty col-sep-l" data-drop-zone="10:00-예진-예진완"></div><div class="cell cell-empty" data-drop-zone="10:00-예진-예진실"></div><div class="cell cell-empty" data-drop-zone="10:00-예진-사진완"></div><div class="cell cell-empty" data-drop-zone="10:00-예진-신환접"></div>
+      <div class="cell cell-empty col-sep-l" data-drop-zone="10:00-임플-김수지아웃"></div><div class="cell cell-empty" data-drop-zone="10:00-임플-김수지그외"></div><div class="cell cell-empty" data-drop-zone="10:00-임플-라근주아웃"></div><div class="cell cell-empty" data-drop-zone="10:00-임플-라근주그외"></div><div class="cell cell-empty" data-drop-zone="10:00-임플-유소연아웃"></div><div class="cell cell-empty" data-drop-zone="10:00-임플-유소연그외"></div><div class="cell cell-empty" data-drop-zone="10:00-임플-재방문"></div><div class="cell cell-empty" data-drop-zone="10:00-임플-기타"></div>
+      <div class="cell cell-empty col-sep-l" data-drop-zone="10:00-일반-김수지아웃"></div><div class="cell cell-empty" data-drop-zone="10:00-일반-라근주아웃"></div><div class="cell cell-empty" data-drop-zone="10:00-일반-유소연아웃"></div><div class="cell cell-empty" data-drop-zone="10:00-일반-그외"></div><div class="cell cell-empty" data-drop-zone="10:00-일반-재방문"></div>
+      <div class="cell cell-empty col-sep-l" data-drop-zone="10:00-전화-김수지"></div><div class="cell cell-empty" data-drop-zone="10:00-전화-라근주"></div><div class="cell cell-empty" data-drop-zone="10:00-전화-유소연"></div>
+
+      <!-- Row 10:30 -->
+      <div class="time-cell">10:30</div>
+      <div class="cell cell-empty col-sep-l" data-drop-zone="10:30-구환-김수지"></div><div class="cell cell-empty" data-drop-zone="10:30-구환-라근주"></div><div class="cell cell-empty" data-drop-zone="10:30-구환-유소연"></div>
+      <div class="cell cell-empty col-sep-l" data-drop-zone="10:30-신환-김수지"></div><div class="cell cell-empty" data-drop-zone="10:30-신환-라근주"></div><div class="cell cell-empty" data-drop-zone="10:30-신환-유소연"></div>
+      <div class="cell cell-empty col-sep-l" data-drop-zone="10:30-예진-예진완"></div><div class="cell cell-empty" data-drop-zone="10:30-예진-예진실"></div><div class="cell cell-empty" data-drop-zone="10:30-예진-사진완"></div><div class="cell cell-empty" data-drop-zone="10:30-예진-신환접"></div>
+      <!-- 임플 김수지아웃 -->
+      <div class="cell col-sep-l" data-drop-zone="10:30-임플-김수지아웃">
+        <div class="chip chip-wait" draggable="true" data-card-id="card-17546" data-status="wait">
+          <div class="text-[9px] opacity-70">임플 4:03/4:00</div>
+          <div class="font-medium">이현순 17546</div>
+        </div>
+      </div>
+      <div class="cell cell-empty" data-drop-zone="10:30-임플-김수지그외"></div><div class="cell cell-empty" data-drop-zone="10:30-임플-라근주아웃"></div><div class="cell cell-empty" data-drop-zone="10:30-임플-라근주그외"></div><div class="cell cell-empty" data-drop-zone="10:30-임플-유소연아웃"></div><div class="cell cell-empty" data-drop-zone="10:30-임플-유소연그외"></div><div class="cell cell-empty" data-drop-zone="10:30-임플-재방문"></div><div class="cell cell-empty" data-drop-zone="10:30-임플-기타"></div>
+      <div class="cell cell-empty col-sep-l" data-drop-zone="10:30-일반-김수지아웃"></div><div class="cell cell-empty" data-drop-zone="10:30-일반-라근주아웃"></div><div class="cell cell-empty" data-drop-zone="10:30-일반-유소연아웃"></div><div class="cell cell-empty" data-drop-zone="10:30-일반-그외"></div><div class="cell cell-empty" data-drop-zone="10:30-일반-재방문"></div>
+      <div class="cell cell-empty col-sep-l" data-drop-zone="10:30-전화-김수지"></div><div class="cell cell-empty" data-drop-zone="10:30-전화-라근주"></div><div class="cell cell-empty" data-drop-zone="10:30-전화-유소연"></div>
+
+      <!-- Row 11:00 -->
+      <div class="time-cell">11:00</div>
+      <div class="cell cell-empty col-sep-l" data-drop-zone="11:00-구환-김수지"></div><div class="cell cell-empty" data-drop-zone="11:00-구환-라근주"></div><div class="cell cell-empty" data-drop-zone="11:00-구환-유소연"></div>
+      <div class="cell cell-empty col-sep-l" data-drop-zone="11:00-신환-김수지"></div><div class="cell cell-empty" data-drop-zone="11:00-신환-라근주"></div><div class="cell cell-empty" data-drop-zone="11:00-신환-유소연"></div>
+      <div class="cell cell-empty col-sep-l" data-drop-zone="11:00-예진-예진완"></div><div class="cell cell-empty" data-drop-zone="11:00-예진-예진실"></div><div class="cell cell-empty" data-drop-zone="11:00-예진-사진완"></div><div class="cell cell-empty" data-drop-zone="11:00-예진-신환접"></div>
+      <div class="cell col-sep-l" data-drop-zone="11:00-임플-김수지아웃">
+        <div class="chip chip-wait" draggable="true" data-card-id="card-17547" data-status="wait">
+          <div class="text-[9px] opacity-70">임플 4:13/4:30</div>
+          <div class="font-medium">이해룡 17547</div>
+        </div>
+      </div>
+      <div class="cell cell-empty" data-drop-zone="11:00-임플-김수지그외"></div><div class="cell cell-empty" data-drop-zone="11:00-임플-라근주아웃"></div><div class="cell cell-empty" data-drop-zone="11:00-임플-라근주그외"></div><div class="cell cell-empty" data-drop-zone="11:00-임플-유소연아웃"></div><div class="cell cell-empty" data-drop-zone="11:00-임플-유소연그외"></div><div class="cell cell-empty" data-drop-zone="11:00-임플-재방문"></div><div class="cell cell-empty" data-drop-zone="11:00-임플-기타"></div>
+      <div class="cell cell-empty col-sep-l" data-drop-zone="11:00-일반-김수지아웃"></div><div class="cell cell-empty" data-drop-zone="11:00-일반-라근주아웃"></div><div class="cell cell-empty" data-drop-zone="11:00-일반-유소연아웃"></div><div class="cell cell-empty" data-drop-zone="11:00-일반-그외"></div><div class="cell cell-empty" data-drop-zone="11:00-일반-재방문"></div>
+      <div class="cell cell-empty col-sep-l" data-drop-zone="11:00-전화-김수지"></div><div class="cell cell-empty" data-drop-zone="11:00-전화-라근주"></div><div class="cell cell-empty" data-drop-zone="11:00-전화-유소연"></div>
+
+      <!-- Row 11:30 -->
+      <div class="time-cell">11:30</div>
+      <div class="cell cell-empty col-sep-l" data-drop-zone="11:30-구환-김수지"></div><div class="cell cell-empty" data-drop-zone="11:30-구환-라근주"></div><div class="cell cell-empty" data-drop-zone="11:30-구환-유소연"></div>
+      <!-- 상담 신환 김수지 -->
+      <div class="cell col-sep-l" data-drop-zone="11:30-신환-김수지">
+        <div class="chip chip-wait" draggable="true" data-card-id="card-17541-2" data-status="wait">
+          <div class="text-[9px] opacity-70">신환 11:08/12:00</div>
+          <div class="font-medium">박종호 17541</div>
+        </div>
+      </div>
+      <div class="cell cell-empty" data-drop-zone="11:30-신환-라근주"></div><div class="cell cell-empty" data-drop-zone="11:30-신환-유소연"></div>
+      <div class="cell cell-empty col-sep-l" data-drop-zone="11:30-예진-예진완"></div><div class="cell cell-empty" data-drop-zone="11:30-예진-예진실"></div><div class="cell cell-empty" data-drop-zone="11:30-예진-사진완"></div><div class="cell cell-empty" data-drop-zone="11:30-예진-신환접"></div>
+      <div class="cell cell-empty col-sep-l" data-drop-zone="11:30-임플-김수지아웃"></div><div class="cell cell-empty" data-drop-zone="11:30-임플-김수지그외"></div><div class="cell cell-empty" data-drop-zone="11:30-임플-라근주아웃"></div><div class="cell cell-empty" data-drop-zone="11:30-임플-라근주그외"></div><div class="cell cell-empty" data-drop-zone="11:30-임플-유소연아웃"></div><div class="cell cell-empty" data-drop-zone="11:30-임플-유소연그외"></div><div class="cell cell-empty" data-drop-zone="11:30-임플-재방문"></div><div class="cell cell-empty" data-drop-zone="11:30-임플-기타"></div>
+      <div class="cell cell-empty col-sep-l" data-drop-zone="11:30-일반-김수지아웃"></div><div class="cell cell-empty" data-drop-zone="11:30-일반-라근주아웃"></div><div class="cell cell-empty" data-drop-zone="11:30-일반-유소연아웃"></div><div class="cell cell-empty" data-drop-zone="11:30-일반-그외"></div><div class="cell cell-empty" data-drop-zone="11:30-일반-재방문"></div>
+      <div class="cell cell-empty col-sep-l" data-drop-zone="11:30-전화-김수지"></div><div class="cell cell-empty" data-drop-zone="11:30-전화-라근주"></div><div class="cell cell-empty" data-drop-zone="11:30-전화-유소연"></div>
+
+      <!-- Row 12:00 -->
+      <div class="time-cell">12:00</div>
+      <!-- 구환 유소연 -->
+      <div class="cell cell-empty col-sep-l" data-drop-zone="12:00-구환-김수지"></div>
+      <div class="cell cell-empty" data-drop-zone="12:00-구환-라근주"></div>
+      <div class="cell" data-drop-zone="12:00-구환-유소연">
+        <div class="chip chip-xres" draggable="true" data-card-id="card-474" data-status="noreserve">
+          <div class="text-[9px] opacity-70">구환 11:20 예약x</div>
+          <div class="font-medium">서예진 474</div>
+        </div>
+      </div>
+      <div class="cell cell-empty col-sep-l" data-drop-zone="12:00-신환-김수지"></div><div class="cell cell-empty" data-drop-zone="12:00-신환-라근주"></div><div class="cell cell-empty" data-drop-zone="12:00-신환-유소연"></div>
+      <div class="cell cell-empty col-sep-l" data-drop-zone="12:00-예진-예진완"></div><div class="cell cell-empty" data-drop-zone="12:00-예진-예진실"></div><div class="cell cell-empty" data-drop-zone="12:00-예진-사진완"></div><div class="cell cell-empty" data-drop-zone="12:00-예진-신환접"></div>
+      <div class="cell cell-empty col-sep-l" data-drop-zone="12:00-임플-김수지아웃"></div><div class="cell cell-empty" data-drop-zone="12:00-임플-김수지그외"></div><div class="cell cell-empty" data-drop-zone="12:00-임플-라근주아웃"></div><div class="cell cell-empty" data-drop-zone="12:00-임플-라근주그외"></div><div class="cell cell-empty" data-drop-zone="12:00-임플-유소연아웃"></div><div class="cell cell-empty" data-drop-zone="12:00-임플-유소연그외"></div><div class="cell cell-empty" data-drop-zone="12:00-임플-재방문"></div><div class="cell cell-empty" data-drop-zone="12:00-임플-기타"></div>
+      <div class="cell cell-empty col-sep-l" data-drop-zone="12:00-일반-김수지아웃"></div><div class="cell cell-empty" data-drop-zone="12:00-일반-라근주아웃"></div><div class="cell cell-empty" data-drop-zone="12:00-일반-유소연아웃"></div><div class="cell cell-empty" data-drop-zone="12:00-일반-그외"></div><div class="cell cell-empty" data-drop-zone="12:00-일반-재방문"></div>
+      <div class="cell cell-empty col-sep-l" data-drop-zone="12:00-전화-김수지"></div><div class="cell cell-empty" data-drop-zone="12:00-전화-라근주"></div><div class="cell cell-empty" data-drop-zone="12:00-전화-유소연"></div>
+
+      <!-- Row 12:30 (empty) -->
+      <div class="time-cell">12:30</div>
+      <div class="cell cell-empty col-sep-l" data-drop-zone="12:30-구환-김수지"></div><div class="cell cell-empty" data-drop-zone="12:30-구환-라근주"></div><div class="cell cell-empty" data-drop-zone="12:30-구환-유소연"></div>
+      <div class="cell cell-empty col-sep-l" data-drop-zone="12:30-신환-김수지"></div><div class="cell cell-empty" data-drop-zone="12:30-신환-라근주"></div><div class="cell cell-empty" data-drop-zone="12:30-신환-유소연"></div>
+      <div class="cell cell-empty col-sep-l" data-drop-zone="12:30-예진-예진완"></div><div class="cell cell-empty" data-drop-zone="12:30-예진-예진실"></div><div class="cell cell-empty" data-drop-zone="12:30-예진-사진완"></div><div class="cell cell-empty" data-drop-zone="12:30-예진-신환접"></div>
+      <div class="cell cell-empty col-sep-l" data-drop-zone="12:30-임플-김수지아웃"></div><div class="cell cell-empty" data-drop-zone="12:30-임플-김수지그외"></div><div class="cell cell-empty" data-drop-zone="12:30-임플-라근주아웃"></div><div class="cell cell-empty" data-drop-zone="12:30-임플-라근주그외"></div><div class="cell cell-empty" data-drop-zone="12:30-임플-유소연아웃"></div><div class="cell cell-empty" data-drop-zone="12:30-임플-유소연그외"></div><div class="cell cell-empty" data-drop-zone="12:30-임플-재방문"></div><div class="cell cell-empty" data-drop-zone="12:30-임플-기타"></div>
+      <div class="cell cell-empty col-sep-l" data-drop-zone="12:30-일반-김수지아웃"></div><div class="cell cell-empty" data-drop-zone="12:30-일반-라근주아웃"></div><div class="cell cell-empty" data-drop-zone="12:30-일반-유소연아웃"></div><div class="cell cell-empty" data-drop-zone="12:30-일반-그외"></div><div class="cell cell-empty" data-drop-zone="12:30-일반-재방문"></div>
+      <div class="cell cell-empty col-sep-l" data-drop-zone="12:30-전화-김수지"></div><div class="cell cell-empty" data-drop-zone="12:30-전화-라근주"></div><div class="cell cell-empty" data-drop-zone="12:30-전화-유소연"></div>
+
+      <!-- Row 13:00 -->
+      <div class="time-cell">13:00</div>
+      <div class="cell cell-empty col-sep-l" data-drop-zone="13:00-구환-김수지"></div><div class="cell cell-empty" data-drop-zone="13:00-구환-라근주"></div><div class="cell cell-empty" data-drop-zone="13:00-구환-유소연"></div>
+      <div class="cell cell-empty col-sep-l" data-drop-zone="13:00-신환-김수지"></div><div class="cell cell-empty" data-drop-zone="13:00-신환-라근주"></div><div class="cell cell-empty" data-drop-zone="13:00-신환-유소연"></div>
+      <div class="cell cell-empty col-sep-l" data-drop-zone="13:00-예진-예진완"></div><div class="cell cell-empty" data-drop-zone="13:00-예진-예진실"></div><div class="cell cell-empty" data-drop-zone="13:00-예진-사진완"></div><div class="cell cell-empty" data-drop-zone="13:00-예진-신환접"></div>
+      <div class="cell cell-empty col-sep-l" data-drop-zone="13:00-임플-김수지아웃"></div><div class="cell cell-empty" data-drop-zone="13:00-임플-김수지그외"></div><div class="cell cell-empty" data-drop-zone="13:00-임플-라근주아웃"></div><div class="cell cell-empty" data-drop-zone="13:00-임플-라근주그외"></div><div class="cell cell-empty" data-drop-zone="13:00-임플-유소연아웃"></div><div class="cell cell-empty" data-drop-zone="13:00-임플-유소연그외"></div><div class="cell cell-empty" data-drop-zone="13:00-임플-재방문"></div><div class="cell cell-empty" data-drop-zone="13:00-임플-기타"></div>
+      <div class="cell cell-empty col-sep-l" data-drop-zone="13:00-일반-김수지아웃"></div><div class="cell cell-empty" data-drop-zone="13:00-일반-라근주아웃"></div><div class="cell cell-empty" data-drop-zone="13:00-일반-유소연아웃"></div><div class="cell cell-empty" data-drop-zone="13:00-일반-그외"></div><div class="cell cell-empty" data-drop-zone="13:00-일반-재방문"></div>
+      <div class="cell cell-empty col-sep-l" data-drop-zone="13:00-전화-김수지"></div><div class="cell cell-empty" data-drop-zone="13:00-전화-라근주"></div><div class="cell cell-empty" data-drop-zone="13:00-전화-유소연"></div>
+
+      <!-- Row 13:30 -->
+      <div class="time-cell">13:30</div>
+      <div class="cell cell-empty col-sep-l" data-drop-zone="13:30-구환-김수지"></div><div class="cell cell-empty" data-drop-zone="13:30-구환-라근주"></div><div class="cell cell-empty" data-drop-zone="13:30-구환-유소연"></div>
+      <div class="cell cell-empty col-sep-l" data-drop-zone="13:30-신환-김수지"></div><div class="cell cell-empty" data-drop-zone="13:30-신환-라근주"></div><div class="cell cell-empty" data-drop-zone="13:30-신환-유소연"></div>
+      <div class="cell cell-empty col-sep-l" data-drop-zone="13:30-예진-예진완"></div><div class="cell cell-empty" data-drop-zone="13:30-예진-예진실"></div><div class="cell cell-empty" data-drop-zone="13:30-예진-사진완"></div><div class="cell cell-empty" data-drop-zone="13:30-예진-신환접"></div>
+      <div class="cell cell-empty col-sep-l" data-drop-zone="13:30-임플-김수지아웃"></div><div class="cell cell-empty" data-drop-zone="13:30-임플-김수지그외"></div><div class="cell cell-empty" data-drop-zone="13:30-임플-라근주아웃"></div><div class="cell cell-empty" data-drop-zone="13:30-임플-라근주그외"></div><div class="cell cell-empty" data-drop-zone="13:30-임플-유소연아웃"></div><div class="cell cell-empty" data-drop-zone="13:30-임플-유소연그외"></div><div class="cell cell-empty" data-drop-zone="13:30-임플-재방문"></div><div class="cell cell-empty" data-drop-zone="13:30-임플-기타"></div>
+      <div class="cell cell-empty col-sep-l" data-drop-zone="13:30-일반-김수지아웃"></div><div class="cell cell-empty" data-drop-zone="13:30-일반-라근주아웃"></div><div class="cell cell-empty" data-drop-zone="13:30-일반-유소연아웃"></div><div class="cell cell-empty" data-drop-zone="13:30-일반-그외"></div><div class="cell cell-empty" data-drop-zone="13:30-일반-재방문"></div>
+      <div class="cell cell-empty col-sep-l" data-drop-zone="13:30-전화-김수지"></div><div class="cell cell-empty" data-drop-zone="13:30-전화-라근주"></div><div class="cell cell-empty" data-drop-zone="13:30-전화-유소연"></div>
+
+      <!-- Row 14:00 -->
+      <div class="time-cell">14:00</div>
+      <div class="cell cell-empty col-sep-l" data-drop-zone="14:00-구환-김수지"></div><div class="cell cell-empty" data-drop-zone="14:00-구환-라근주"></div><div class="cell cell-empty" data-drop-zone="14:00-구환-유소연"></div>
+      <div class="cell cell-empty col-sep-l" data-drop-zone="14:00-신환-김수지"></div><div class="cell cell-empty" data-drop-zone="14:00-신환-라근주"></div><div class="cell cell-empty" data-drop-zone="14:00-신환-유소연"></div>
+      <!-- 예진: 신환접 (4번째) -->
+      <div class="cell cell-empty col-sep-l" data-drop-zone="14:00-예진-예진완"></div><div class="cell cell-empty" data-drop-zone="14:00-예진-예진실"></div><div class="cell cell-empty" data-drop-zone="14:00-예진-사진완"></div>
+      <div class="cell" data-drop-zone="14:00-예진-신환접">
+        <div class="chip chip-base" draggable="true" data-card-id="card-17544" data-status="default">
+          <div class="text-[9px] opacity-70">신환접 2:02/2:00 소연</div>
+          <div class="font-medium">최남숙 17544</div>
+        </div>
+      </div>
+      <div class="cell cell-empty col-sep-l" data-drop-zone="14:00-임플-김수지아웃"></div><div class="cell cell-empty" data-drop-zone="14:00-임플-김수지그외"></div><div class="cell cell-empty" data-drop-zone="14:00-임플-라근주아웃"></div><div class="cell cell-empty" data-drop-zone="14:00-임플-라근주그외"></div><div class="cell cell-empty" data-drop-zone="14:00-임플-유소연아웃"></div><div class="cell cell-empty" data-drop-zone="14:00-임플-유소연그외"></div><div class="cell cell-empty" data-drop-zone="14:00-임플-재방문"></div><div class="cell cell-empty" data-drop-zone="14:00-임플-기타"></div>
+      <div class="cell cell-empty col-sep-l" data-drop-zone="14:00-일반-김수지아웃"></div><div class="cell cell-empty" data-drop-zone="14:00-일반-라근주아웃"></div><div class="cell cell-empty" data-drop-zone="14:00-일반-유소연아웃"></div><div class="cell cell-empty" data-drop-zone="14:00-일반-그외"></div><div class="cell cell-empty" data-drop-zone="14:00-일반-재방문"></div>
+      <div class="cell cell-empty col-sep-l" data-drop-zone="14:00-전화-김수지"></div><div class="cell cell-empty" data-drop-zone="14:00-전화-라근주"></div><div class="cell cell-empty" data-drop-zone="14:00-전화-유소연"></div>
+
+      <!-- Row 14:30 -->
+      <div class="time-cell">14:30</div>
+      <div class="cell cell-empty col-sep-l" data-drop-zone="14:30-구환-김수지"></div><div class="cell cell-empty" data-drop-zone="14:30-구환-라근주"></div><div class="cell cell-empty" data-drop-zone="14:30-구환-유소연"></div>
+      <div class="cell cell-empty col-sep-l" data-drop-zone="14:30-신환-김수지"></div><div class="cell cell-empty" data-drop-zone="14:30-신환-라근주"></div><div class="cell cell-empty" data-drop-zone="14:30-신환-유소연"></div>
+      <div class="cell cell-empty col-sep-l" data-drop-zone="14:30-예진-예진완"></div><div class="cell cell-empty" data-drop-zone="14:30-예진-예진실"></div><div class="cell cell-empty" data-drop-zone="14:30-예진-사진완"></div><div class="cell cell-empty" data-drop-zone="14:30-예진-신환접"></div>
+      <div class="cell cell-empty col-sep-l" data-drop-zone="14:30-임플-김수지아웃"></div><div class="cell cell-empty" data-drop-zone="14:30-임플-김수지그외"></div><div class="cell cell-empty" data-drop-zone="14:30-임플-라근주아웃"></div><div class="cell cell-empty" data-drop-zone="14:30-임플-라근주그외"></div><div class="cell cell-empty" data-drop-zone="14:30-임플-유소연아웃"></div><div class="cell cell-empty" data-drop-zone="14:30-임플-유소연그외"></div><div class="cell cell-empty" data-drop-zone="14:30-임플-재방문"></div><div class="cell cell-empty" data-drop-zone="14:30-임플-기타"></div>
+      <div class="cell cell-empty col-sep-l" data-drop-zone="14:30-일반-김수지아웃"></div><div class="cell cell-empty" data-drop-zone="14:30-일반-라근주아웃"></div><div class="cell cell-empty" data-drop-zone="14:30-일반-유소연아웃"></div><div class="cell cell-empty" data-drop-zone="14:30-일반-그외"></div><div class="cell cell-empty" data-drop-zone="14:30-일반-재방문"></div>
+      <div class="cell cell-empty col-sep-l" data-drop-zone="14:30-전화-김수지"></div><div class="cell cell-empty" data-drop-zone="14:30-전화-라근주"></div><div class="cell cell-empty" data-drop-zone="14:30-전화-유소연"></div>
+
+      <!-- Row 15:00 -->
+      <div class="time-cell">15:00</div>
+      <div class="cell cell-empty col-sep-l" data-drop-zone="15:00-구환-김수지"></div><div class="cell cell-empty" data-drop-zone="15:00-구환-라근주"></div><div class="cell cell-empty" data-drop-zone="15:00-구환-유소연"></div>
+      <div class="cell cell-empty col-sep-l" data-drop-zone="15:00-신환-김수지"></div><div class="cell cell-empty" data-drop-zone="15:00-신환-라근주"></div><div class="cell cell-empty" data-drop-zone="15:00-신환-유소연"></div>
+      <div class="cell cell-empty col-sep-l" data-drop-zone="15:00-예진-예진완"></div><div class="cell cell-empty" data-drop-zone="15:00-예진-예진실"></div><div class="cell cell-empty" data-drop-zone="15:00-예진-사진완"></div><div class="cell cell-empty" data-drop-zone="15:00-예진-신환접"></div>
+      <div class="cell cell-empty col-sep-l" data-drop-zone="15:00-임플-김수지아웃"></div><div class="cell cell-empty" data-drop-zone="15:00-임플-김수지그외"></div><div class="cell cell-empty" data-drop-zone="15:00-임플-라근주아웃"></div><div class="cell cell-empty" data-drop-zone="15:00-임플-라근주그외"></div><div class="cell cell-empty" data-drop-zone="15:00-임플-유소연아웃"></div><div class="cell cell-empty" data-drop-zone="15:00-임플-유소연그외"></div><div class="cell cell-empty" data-drop-zone="15:00-임플-재방문"></div><div class="cell cell-empty" data-drop-zone="15:00-임플-기타"></div>
+      <div class="cell cell-empty col-sep-l" data-drop-zone="15:00-일반-김수지아웃"></div><div class="cell cell-empty" data-drop-zone="15:00-일반-라근주아웃"></div><div class="cell cell-empty" data-drop-zone="15:00-일반-유소연아웃"></div><div class="cell cell-empty" data-drop-zone="15:00-일반-그외"></div><div class="cell cell-empty" data-drop-zone="15:00-일반-재방문"></div>
+      <div class="cell cell-empty col-sep-l" data-drop-zone="15:00-전화-김수지"></div><div class="cell cell-empty" data-drop-zone="15:00-전화-라근주"></div><div class="cell cell-empty" data-drop-zone="15:00-전화-유소연"></div>
+
+      <!-- Row 15:30 -->
+      <div class="time-cell">15:30</div>
+      <div class="cell cell-empty col-sep-l" data-drop-zone="15:30-구환-김수지"></div><div class="cell cell-empty" data-drop-zone="15:30-구환-라근주"></div><div class="cell cell-empty" data-drop-zone="15:30-구환-유소연"></div>
+      <div class="cell cell-empty col-sep-l" data-drop-zone="15:30-신환-김수지"></div><div class="cell cell-empty" data-drop-zone="15:30-신환-라근주"></div><div class="cell cell-empty" data-drop-zone="15:30-신환-유소연"></div>
+      <div class="cell cell-empty col-sep-l" data-drop-zone="15:30-예진-예진완"></div><div class="cell cell-empty" data-drop-zone="15:30-예진-예진실"></div><div class="cell cell-empty" data-drop-zone="15:30-예진-사진완"></div><div class="cell cell-empty" data-drop-zone="15:30-예진-신환접"></div>
+      <div class="cell cell-empty col-sep-l" data-drop-zone="15:30-임플-김수지아웃"></div><div class="cell cell-empty" data-drop-zone="15:30-임플-김수지그외"></div><div class="cell cell-empty" data-drop-zone="15:30-임플-라근주아웃"></div><div class="cell cell-empty" data-drop-zone="15:30-임플-라근주그외"></div><div class="cell cell-empty" data-drop-zone="15:30-임플-유소연아웃"></div><div class="cell cell-empty" data-drop-zone="15:30-임플-유소연그외"></div><div class="cell cell-empty" data-drop-zone="15:30-임플-재방문"></div><div class="cell cell-empty" data-drop-zone="15:30-임플-기타"></div>
+      <div class="cell cell-empty col-sep-l" data-drop-zone="15:30-일반-김수지아웃"></div><div class="cell cell-empty" data-drop-zone="15:30-일반-라근주아웃"></div><div class="cell cell-empty" data-drop-zone="15:30-일반-유소연아웃"></div><div class="cell cell-empty" data-drop-zone="15:30-일반-그외"></div><div class="cell cell-empty" data-drop-zone="15:30-일반-재방문"></div>
+      <div class="cell cell-empty col-sep-l" data-drop-zone="15:30-전화-김수지"></div><div class="cell cell-empty" data-drop-zone="15:30-전화-라근주"></div><div class="cell cell-empty" data-drop-zone="15:30-전화-유소연"></div>
+
+      <!-- Row 16:00 -->
+      <div class="time-cell">16:00</div>
+      <div class="cell cell-empty col-sep-l" data-drop-zone="16:00-구환-김수지"></div><div class="cell cell-empty" data-drop-zone="16:00-구환-라근주"></div><div class="cell cell-empty" data-drop-zone="16:00-구환-유소연"></div>
+      <div class="cell cell-empty col-sep-l" data-drop-zone="16:00-신환-김수지"></div><div class="cell cell-empty" data-drop-zone="16:00-신환-라근주"></div><div class="cell cell-empty" data-drop-zone="16:00-신환-유소연"></div>
+      <div class="cell cell-empty col-sep-l" data-drop-zone="16:00-예진-예진완"></div><div class="cell cell-empty" data-drop-zone="16:00-예진-예진실"></div><div class="cell cell-empty" data-drop-zone="16:00-예진-사진완"></div><div class="cell cell-empty" data-drop-zone="16:00-예진-신환접"></div>
+      <div class="cell cell-empty col-sep-l" data-drop-zone="16:00-임플-김수지아웃"></div><div class="cell cell-empty" data-drop-zone="16:00-임플-김수지그외"></div><div class="cell cell-empty" data-drop-zone="16:00-임플-라근주아웃"></div><div class="cell cell-empty" data-drop-zone="16:00-임플-라근주그외"></div><div class="cell cell-empty" data-drop-zone="16:00-임플-유소연아웃"></div><div class="cell cell-empty" data-drop-zone="16:00-임플-유소연그외"></div><div class="cell cell-empty" data-drop-zone="16:00-임플-재방문"></div><div class="cell cell-empty" data-drop-zone="16:00-임플-기타"></div>
+      <!-- 일반 김수지 아웃 -->
+      <div class="cell col-sep-l" data-drop-zone="16:00-일반-김수지아웃">
+        <div class="chip chip-wait" draggable="true" data-card-id="card-17406" data-status="wait">
+          <div class="text-[9px] opacity-70">일반 4:13</div>
+          <div class="font-medium">박경호 17406</div>
+        </div>
+      </div>
+      <div class="cell cell-empty" data-drop-zone="16:00-일반-라근주아웃"></div><div class="cell cell-empty" data-drop-zone="16:00-일반-유소연아웃"></div><div class="cell cell-empty" data-drop-zone="16:00-일반-그외"></div><div class="cell cell-empty" data-drop-zone="16:00-일반-재방문"></div>
+      <div class="cell cell-empty col-sep-l" data-drop-zone="16:00-전화-김수지"></div><div class="cell cell-empty" data-drop-zone="16:00-전화-라근주"></div><div class="cell cell-empty" data-drop-zone="16:00-전화-유소연"></div>
+
+      <!-- Row 16:30 -->
+      <div class="time-cell">16:30</div>
+      <div class="cell cell-empty col-sep-l" data-drop-zone="16:30-구환-김수지"></div><div class="cell cell-empty" data-drop-zone="16:30-구환-라근주"></div><div class="cell cell-empty" data-drop-zone="16:30-구환-유소연"></div>
+      <div class="cell cell-empty col-sep-l" data-drop-zone="16:30-신환-김수지"></div><div class="cell cell-empty" data-drop-zone="16:30-신환-라근주"></div><div class="cell cell-empty" data-drop-zone="16:30-신환-유소연"></div>
+      <div class="cell cell-empty col-sep-l" data-drop-zone="16:30-예진-예진완"></div><div class="cell cell-empty" data-drop-zone="16:30-예진-예진실"></div><div class="cell cell-empty" data-drop-zone="16:30-예진-사진완"></div><div class="cell cell-empty" data-drop-zone="16:30-예진-신환접"></div>
+      <div class="cell cell-empty col-sep-l" data-drop-zone="16:30-임플-김수지아웃"></div><div class="cell cell-empty" data-drop-zone="16:30-임플-김수지그외"></div><div class="cell cell-empty" data-drop-zone="16:30-임플-라근주아웃"></div><div class="cell cell-empty" data-drop-zone="16:30-임플-라근주그외"></div><div class="cell cell-empty" data-drop-zone="16:30-임플-유소연아웃"></div><div class="cell cell-empty" data-drop-zone="16:30-임플-유소연그외"></div><div class="cell cell-empty" data-drop-zone="16:30-임플-재방문"></div><div class="cell cell-empty" data-drop-zone="16:30-임플-기타"></div>
+      <div class="cell cell-empty col-sep-l" data-drop-zone="16:30-일반-김수지아웃"></div><div class="cell cell-empty" data-drop-zone="16:30-일반-라근주아웃"></div><div class="cell cell-empty" data-drop-zone="16:30-일반-유소연아웃"></div><div class="cell cell-empty" data-drop-zone="16:30-일반-그외"></div><div class="cell cell-empty" data-drop-zone="16:30-일반-재방문"></div>
+      <div class="cell cell-empty col-sep-l" data-drop-zone="16:30-전화-김수지"></div><div class="cell cell-empty" data-drop-zone="16:30-전화-라근주"></div><div class="cell cell-empty" data-drop-zone="16:30-전화-유소연"></div>
+
+      <!-- Row 17:00 -->
+      <div class="time-cell">17:00</div>
+      <div class="cell cell-empty col-sep-l" data-drop-zone="17:00-구환-김수지"></div><div class="cell cell-empty" data-drop-zone="17:00-구환-라근주"></div><div class="cell cell-empty" data-drop-zone="17:00-구환-유소연"></div>
+      <div class="cell cell-empty col-sep-l" data-drop-zone="17:00-신환-김수지"></div><div class="cell cell-empty" data-drop-zone="17:00-신환-라근주"></div><div class="cell cell-empty" data-drop-zone="17:00-신환-유소연"></div>
+      <div class="cell cell-empty col-sep-l" data-drop-zone="17:00-예진-예진완"></div><div class="cell cell-empty" data-drop-zone="17:00-예진-예진실"></div><div class="cell cell-empty" data-drop-zone="17:00-예진-사진완"></div><div class="cell cell-empty" data-drop-zone="17:00-예진-신환접"></div>
+      <div class="cell cell-empty col-sep-l" data-drop-zone="17:00-임플-김수지아웃"></div><div class="cell cell-empty" data-drop-zone="17:00-임플-김수지그외"></div><div class="cell cell-empty" data-drop-zone="17:00-임플-라근주아웃"></div><div class="cell cell-empty" data-drop-zone="17:00-임플-라근주그외"></div><div class="cell cell-empty" data-drop-zone="17:00-임플-유소연아웃"></div><div class="cell cell-empty" data-drop-zone="17:00-임플-유소연그외"></div><div class="cell cell-empty" data-drop-zone="17:00-임플-재방문"></div><div class="cell cell-empty" data-drop-zone="17:00-임플-기타"></div>
+      <div class="cell cell-empty col-sep-l" data-drop-zone="17:00-일반-김수지아웃"></div><div class="cell cell-empty" data-drop-zone="17:00-일반-라근주아웃"></div><div class="cell cell-empty" data-drop-zone="17:00-일반-유소연아웃"></div><div class="cell cell-empty" data-drop-zone="17:00-일반-그외"></div><div class="cell cell-empty" data-drop-zone="17:00-일반-재방문"></div>
+      <div class="cell cell-empty col-sep-l" data-drop-zone="17:00-전화-김수지"></div><div class="cell cell-empty" data-drop-zone="17:00-전화-라근주"></div><div class="cell cell-empty" data-drop-zone="17:00-전화-유소연"></div>
+
+      <!-- Row 17:30 -->
+      <div class="time-cell">17:30</div>
+      <div class="cell cell-empty col-sep-l" data-drop-zone="17:30-구환-김수지"></div><div class="cell cell-empty" data-drop-zone="17:30-구환-라근주"></div><div class="cell cell-empty" data-drop-zone="17:30-구환-유소연"></div>
+      <div class="cell cell-empty col-sep-l" data-drop-zone="17:30-신환-김수지"></div><div class="cell cell-empty" data-drop-zone="17:30-신환-라근주"></div><div class="cell cell-empty" data-drop-zone="17:30-신환-유소연"></div>
+      <div class="cell cell-empty col-sep-l" data-drop-zone="17:30-예진-예진완"></div><div class="cell cell-empty" data-drop-zone="17:30-예진-예진실"></div><div class="cell cell-empty" data-drop-zone="17:30-예진-사진완"></div><div class="cell cell-empty" data-drop-zone="17:30-예진-신환접"></div>
+      <div class="cell cell-empty col-sep-l" data-drop-zone="17:30-임플-김수지아웃"></div><div class="cell cell-empty" data-drop-zone="17:30-임플-김수지그외"></div><div class="cell cell-empty" data-drop-zone="17:30-임플-라근주아웃"></div><div class="cell cell-empty" data-drop-zone="17:30-임플-라근주그외"></div><div class="cell cell-empty" data-drop-zone="17:30-임플-유소연아웃"></div><div class="cell cell-empty" data-drop-zone="17:30-임플-유소연그외"></div><div class="cell cell-empty" data-drop-zone="17:30-임플-재방문"></div><div class="cell cell-empty" data-drop-zone="17:30-임플-기타"></div>
+      <!-- 일반 김수지 아웃 -->
+      <div class="cell col-sep-l" data-drop-zone="17:30-일반-김수지아웃">
+        <div class="chip chip-wait" draggable="true" data-card-id="card-977" data-status="wait">
+          <div class="text-[9px] opacity-70">일반 5:13</div>
+          <div class="font-medium">김정애 977</div>
+        </div>
+      </div>
+      <div class="cell cell-empty" data-drop-zone="17:30-일반-라근주아웃"></div><div class="cell cell-empty" data-drop-zone="17:30-일반-유소연아웃"></div><div class="cell cell-empty" data-drop-zone="17:30-일반-그외"></div><div class="cell cell-empty" data-drop-zone="17:30-일반-재방문"></div>
+      <div class="cell cell-empty col-sep-l" data-drop-zone="17:30-전화-김수지"></div><div class="cell cell-empty" data-drop-zone="17:30-전화-라근주"></div><div class="cell cell-empty" data-drop-zone="17:30-전화-유소연"></div>
+
+      <!-- Row 18:00 -->
+      <div class="time-cell">18:00</div>
+      <div class="cell cell-empty col-sep-l" data-drop-zone="18:00-구환-김수지"></div><div class="cell cell-empty" data-drop-zone="18:00-구환-라근주"></div><div class="cell cell-empty" data-drop-zone="18:00-구환-유소연"></div>
+      <div class="cell cell-empty col-sep-l" data-drop-zone="18:00-신환-김수지"></div><div class="cell cell-empty" data-drop-zone="18:00-신환-라근주"></div><div class="cell cell-empty" data-drop-zone="18:00-신환-유소연"></div>
+      <div class="cell cell-empty col-sep-l" data-drop-zone="18:00-예진-예진완"></div><div class="cell cell-empty" data-drop-zone="18:00-예진-예진실"></div><div class="cell cell-empty" data-drop-zone="18:00-예진-사진완"></div><div class="cell cell-empty" data-drop-zone="18:00-예진-신환접"></div>
+      <div class="cell cell-empty col-sep-l" data-drop-zone="18:00-임플-김수지아웃"></div><div class="cell cell-empty" data-drop-zone="18:00-임플-김수지그외"></div><div class="cell cell-empty" data-drop-zone="18:00-임플-라근주아웃"></div><div class="cell cell-empty" data-drop-zone="18:00-임플-라근주그외"></div><div class="cell cell-empty" data-drop-zone="18:00-임플-유소연아웃"></div><div class="cell cell-empty" data-drop-zone="18:00-임플-유소연그외"></div><div class="cell cell-empty" data-drop-zone="18:00-임플-재방문"></div><div class="cell cell-empty" data-drop-zone="18:00-임플-기타"></div>
+      <div class="cell cell-empty col-sep-l" data-drop-zone="18:00-일반-김수지아웃"></div><div class="cell cell-empty" data-drop-zone="18:00-일반-라근주아웃"></div><div class="cell cell-empty" data-drop-zone="18:00-일반-유소연아웃"></div><div class="cell cell-empty" data-drop-zone="18:00-일반-그외"></div><div class="cell cell-empty" data-drop-zone="18:00-일반-재방문"></div>
+      <div class="cell cell-empty col-sep-l" data-drop-zone="18:00-전화-김수지"></div><div class="cell cell-empty" data-drop-zone="18:00-전화-라근주"></div><div class="cell cell-empty" data-drop-zone="18:00-전화-유소연"></div>
+
+      <!-- Row 18:30 -->
+      <div class="time-cell">18:30</div>
+      <div class="cell cell-empty col-sep-l" data-drop-zone="18:30-구환-김수지"></div><div class="cell cell-empty" data-drop-zone="18:30-구환-라근주"></div><div class="cell cell-empty" data-drop-zone="18:30-구환-유소연"></div>
+      <div class="cell cell-empty col-sep-l" data-drop-zone="18:30-신환-김수지"></div><div class="cell cell-empty" data-drop-zone="18:30-신환-라근주"></div><div class="cell cell-empty" data-drop-zone="18:30-신환-유소연"></div>
+      <div class="cell cell-empty col-sep-l" data-drop-zone="18:30-예진-예진완"></div><div class="cell cell-empty" data-drop-zone="18:30-예진-예진실"></div><div class="cell cell-empty" data-drop-zone="18:30-예진-사진완"></div><div class="cell cell-empty" data-drop-zone="18:30-예진-신환접"></div>
+      <div class="cell cell-empty col-sep-l" data-drop-zone="18:30-임플-김수지아웃"></div><div class="cell cell-empty" data-drop-zone="18:30-임플-김수지그외"></div><div class="cell cell-empty" data-drop-zone="18:30-임플-라근주아웃"></div><div class="cell cell-empty" data-drop-zone="18:30-임플-라근주그외"></div><div class="cell cell-empty" data-drop-zone="18:30-임플-유소연아웃"></div><div class="cell cell-empty" data-drop-zone="18:30-임플-유소연그외"></div><div class="cell cell-empty" data-drop-zone="18:30-임플-재방문"></div><div class="cell cell-empty" data-drop-zone="18:30-임플-기타"></div>
+      <div class="cell cell-empty col-sep-l" data-drop-zone="18:30-일반-김수지아웃"></div><div class="cell cell-empty" data-drop-zone="18:30-일반-라근주아웃"></div><div class="cell cell-empty" data-drop-zone="18:30-일반-유소연아웃"></div><div class="cell cell-empty" data-drop-zone="18:30-일반-그외"></div><div class="cell cell-empty" data-drop-zone="18:30-일반-재방문"></div>
+      <div class="cell cell-empty col-sep-l" data-drop-zone="18:30-전화-김수지"></div><div class="cell cell-empty" data-drop-zone="18:30-전화-라근주"></div><div class="cell cell-empty" data-drop-zone="18:30-전화-유소연"></div>
+
+      <!-- Row 19:00 -->
+      <div class="time-cell">19:00</div>
+      <div class="cell cell-empty col-sep-l" data-drop-zone="19:00-구환-김수지"></div><div class="cell cell-empty" data-drop-zone="19:00-구환-라근주"></div><div class="cell cell-empty" data-drop-zone="19:00-구환-유소연"></div>
+      <div class="cell cell-empty col-sep-l" data-drop-zone="19:00-신환-김수지"></div><div class="cell cell-empty" data-drop-zone="19:00-신환-라근주"></div><div class="cell cell-empty" data-drop-zone="19:00-신환-유소연"></div>
+      <div class="cell cell-empty col-sep-l" data-drop-zone="19:00-예진-예진완"></div><div class="cell cell-empty" data-drop-zone="19:00-예진-예진실"></div><div class="cell cell-empty" data-drop-zone="19:00-예진-사진완"></div><div class="cell cell-empty" data-drop-zone="19:00-예진-신환접"></div>
+      <div class="cell cell-empty col-sep-l" data-drop-zone="19:00-임플-김수지아웃"></div><div class="cell cell-empty" data-drop-zone="19:00-임플-김수지그외"></div><div class="cell cell-empty" data-drop-zone="19:00-임플-라근주아웃"></div><div class="cell cell-empty" data-drop-zone="19:00-임플-라근주그외"></div><div class="cell cell-empty" data-drop-zone="19:00-임플-유소연아웃"></div><div class="cell cell-empty" data-drop-zone="19:00-임플-유소연그외"></div><div class="cell cell-empty" data-drop-zone="19:00-임플-재방문"></div><div class="cell cell-empty" data-drop-zone="19:00-임플-기타"></div>
+      <div class="cell cell-empty col-sep-l" data-drop-zone="19:00-일반-김수지아웃"></div><div class="cell cell-empty" data-drop-zone="19:00-일반-라근주아웃"></div><div class="cell cell-empty" data-drop-zone="19:00-일반-유소연아웃"></div><div class="cell cell-empty" data-drop-zone="19:00-일반-그외"></div><div class="cell cell-empty" data-drop-zone="19:00-일반-재방문"></div>
+      <div class="cell cell-empty col-sep-l" data-drop-zone="19:00-전화-김수지"></div><div class="cell cell-empty" data-drop-zone="19:00-전화-라근주"></div><div class="cell cell-empty" data-drop-zone="19:00-전화-유소연"></div>
+
+      <!-- Row 19:30 -->
+      <div class="time-cell">19:30</div>
+      <div class="cell cell-empty col-sep-l" data-drop-zone="19:30-구환-김수지"></div><div class="cell cell-empty" data-drop-zone="19:30-구환-라근주"></div><div class="cell cell-empty" data-drop-zone="19:30-구환-유소연"></div>
+      <div class="cell cell-empty col-sep-l" data-drop-zone="19:30-신환-김수지"></div><div class="cell cell-empty" data-drop-zone="19:30-신환-라근주"></div><div class="cell cell-empty" data-drop-zone="19:30-신환-유소연"></div>
+      <div class="cell cell-empty col-sep-l" data-drop-zone="19:30-예진-예진완"></div><div class="cell cell-empty" data-drop-zone="19:30-예진-예진실"></div><div class="cell cell-empty" data-drop-zone="19:30-예진-사진완"></div><div class="cell cell-empty" data-drop-zone="19:30-예진-신환접"></div>
+      <div class="cell cell-empty col-sep-l" data-drop-zone="19:30-임플-김수지아웃"></div><div class="cell cell-empty" data-drop-zone="19:30-임플-김수지그외"></div><div class="cell cell-empty" data-drop-zone="19:30-임플-라근주아웃"></div><div class="cell cell-empty" data-drop-zone="19:30-임플-라근주그외"></div><div class="cell cell-empty" data-drop-zone="19:30-임플-유소연아웃"></div><div class="cell cell-empty" data-drop-zone="19:30-임플-유소연그외"></div><div class="cell cell-empty" data-drop-zone="19:30-임플-재방문"></div><div class="cell cell-empty" data-drop-zone="19:30-임플-기타"></div>
+      <div class="cell cell-empty col-sep-l" data-drop-zone="19:30-일반-김수지아웃"></div><div class="cell cell-empty" data-drop-zone="19:30-일반-라근주아웃"></div><div class="cell cell-empty" data-drop-zone="19:30-일반-유소연아웃"></div><div class="cell cell-empty" data-drop-zone="19:30-일반-그외"></div><div class="cell cell-empty" data-drop-zone="19:30-일반-재방문"></div>
+      <div class="cell cell-empty col-sep-l" data-drop-zone="19:30-전화-김수지"></div><div class="cell cell-empty" data-drop-zone="19:30-전화-라근주"></div><div class="cell cell-empty" data-drop-zone="19:30-전화-유소연"></div>
+
+      <!-- Row 20:00 -->
+      <div class="time-cell">20:00</div>
+      <div class="cell cell-empty col-sep-l" data-drop-zone="20:00-구환-김수지"></div><div class="cell cell-empty" data-drop-zone="20:00-구환-라근주"></div><div class="cell cell-empty" data-drop-zone="20:00-구환-유소연"></div>
+      <div class="cell cell-empty col-sep-l" data-drop-zone="20:00-신환-김수지"></div><div class="cell cell-empty" data-drop-zone="20:00-신환-라근주"></div><div class="cell cell-empty" data-drop-zone="20:00-신환-유소연"></div>
+      <div class="cell cell-empty col-sep-l" data-drop-zone="20:00-예진-예진완"></div><div class="cell cell-empty" data-drop-zone="20:00-예진-예진실"></div><div class="cell cell-empty" data-drop-zone="20:00-예진-사진완"></div><div class="cell cell-empty" data-drop-zone="20:00-예진-신환접"></div>
+      <div class="cell cell-empty col-sep-l" data-drop-zone="20:00-임플-김수지아웃"></div><div class="cell cell-empty" data-drop-zone="20:00-임플-김수지그외"></div><div class="cell cell-empty" data-drop-zone="20:00-임플-라근주아웃"></div><div class="cell cell-empty" data-drop-zone="20:00-임플-라근주그외"></div><div class="cell cell-empty" data-drop-zone="20:00-임플-유소연아웃"></div><div class="cell cell-empty" data-drop-zone="20:00-임플-유소연그외"></div><div class="cell cell-empty" data-drop-zone="20:00-임플-재방문"></div><div class="cell cell-empty" data-drop-zone="20:00-임플-기타"></div>
+      <div class="cell cell-empty col-sep-l" data-drop-zone="20:00-일반-김수지아웃"></div><div class="cell cell-empty" data-drop-zone="20:00-일반-라근주아웃"></div><div class="cell cell-empty" data-drop-zone="20:00-일반-유소연아웃"></div><div class="cell cell-empty" data-drop-zone="20:00-일반-그외"></div><div class="cell cell-empty" data-drop-zone="20:00-일반-재방문"></div>
+      <div class="cell cell-empty col-sep-l" data-drop-zone="20:00-전화-김수지"></div><div class="cell cell-empty" data-drop-zone="20:00-전화-라근주"></div><div class="cell cell-empty" data-drop-zone="20:00-전화-유소연"></div>
+
+      <!-- Row 20:30 -->
+      <div class="time-cell">20:30</div>
+      <div class="cell cell-empty col-sep-l" data-drop-zone="20:30-구환-김수지"></div><div class="cell cell-empty" data-drop-zone="20:30-구환-라근주"></div><div class="cell cell-empty" data-drop-zone="20:30-구환-유소연"></div>
+      <div class="cell cell-empty col-sep-l" data-drop-zone="20:30-신환-김수지"></div><div class="cell cell-empty" data-drop-zone="20:30-신환-라근주"></div><div class="cell cell-empty" data-drop-zone="20:30-신환-유소연"></div>
+      <div class="cell cell-empty col-sep-l" data-drop-zone="20:30-예진-예진완"></div><div class="cell cell-empty" data-drop-zone="20:30-예진-예진실"></div><div class="cell cell-empty" data-drop-zone="20:30-예진-사진완"></div><div class="cell cell-empty" data-drop-zone="20:30-예진-신환접"></div>
+      <div class="cell cell-empty col-sep-l" data-drop-zone="20:30-임플-김수지아웃"></div><div class="cell cell-empty" data-drop-zone="20:30-임플-김수지그외"></div><div class="cell cell-empty" data-drop-zone="20:30-임플-라근주아웃"></div><div class="cell cell-empty" data-drop-zone="20:30-임플-라근주그외"></div><div class="cell cell-empty" data-drop-zone="20:30-임플-유소연아웃"></div><div class="cell cell-empty" data-drop-zone="20:30-임플-유소연그외"></div><div class="cell cell-empty" data-drop-zone="20:30-임플-재방문"></div><div class="cell cell-empty" data-drop-zone="20:30-임플-기타"></div>
+      <div class="cell cell-empty col-sep-l" data-drop-zone="20:30-일반-김수지아웃"></div><div class="cell cell-empty" data-drop-zone="20:30-일반-라근주아웃"></div><div class="cell cell-empty" data-drop-zone="20:30-일반-유소연아웃"></div><div class="cell cell-empty" data-drop-zone="20:30-일반-그외"></div><div class="cell cell-empty" data-drop-zone="20:30-일반-재방문"></div>
+      <div class="cell cell-empty col-sep-l" data-drop-zone="20:30-전화-김수지"></div><div class="cell cell-empty" data-drop-zone="20:30-전화-라근주"></div><div class="cell cell-empty" data-drop-zone="20:30-전화-유소연"></div>
+
+    </div>
+
+    <!-- Cancellation records section -->
+    <section class="border-t border-border bg-secondary/30">
+      <div class="max-w-full px-4 py-3">
+        <div class="flex items-center gap-2 mb-2">
+          <i data-lucide="x-circle" class="w-4 h-4 text-orange-600"></i>
+          <h3 class="text-sm font-semibold">취소 기록</h3>
+          <span class="text-[11px] text-muted-foreground">— 4월 1일</span>
+          <span class="ml-auto text-[11px] text-muted-foreground">총 7건 · 추정 손실액 320만원</span>
+        </div>
+        <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2">
+          <div class="rounded-md border border-border bg-background px-2.5 py-1.5 text-[11px] leading-tight">
+            <div class="font-medium">임용채 <span class="text-muted-foreground font-normal">17159</span></div>
+            <div class="text-muted-foreground">타원진행 · 카드 · 10만원</div>
+          </div>
+          <div class="rounded-md border border-border bg-background px-2.5 py-1.5 text-[11px] leading-tight">
+            <div class="font-medium">주성중 <span class="text-muted-foreground font-normal">17435</span></div>
+            <div class="text-muted-foreground">기존치과 · 10만원</div>
+          </div>
+          <div class="rounded-md border border-border bg-background px-2.5 py-1.5 text-[11px] leading-tight">
+            <div class="font-medium">박종애 <span class="text-muted-foreground font-normal">17237</span></div>
+            <div class="text-muted-foreground">치료거부 · 260만원</div>
+          </div>
+          <div class="rounded-md border border-border bg-background px-2.5 py-1.5 text-[11px] leading-tight">
+            <div class="font-medium">이은선 <span class="text-muted-foreground font-normal">17342</span></div>
+            <div class="text-muted-foreground">치료보류 · 10만원</div>
+          </div>
+          <div class="rounded-md border border-border bg-background px-2.5 py-1.5 text-[11px] leading-tight">
+            <div class="font-medium">남명숙 <span class="text-muted-foreground font-normal">17488</span></div>
+            <div class="text-muted-foreground">카드취소 · 10만원</div>
+          </div>
+          <div class="rounded-md border border-border bg-background px-2.5 py-1.5 text-[11px] leading-tight">
+            <div class="font-medium">임승준 <span class="text-muted-foreground font-normal">6690</span></div>
+            <div class="text-muted-foreground">치료불가 · 20만원 계좌</div>
+          </div>
+          <div class="rounded-md border border-border bg-background px-2.5 py-1.5 text-[11px] leading-tight">
+            <div class="font-medium">이경석 <span class="text-muted-foreground font-normal">17462</span></div>
+            <div class="text-muted-foreground">발치거부 · 10만원 계좌</div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Bottom Legend Bar -->
+  <footer class="sticky bottom-0 z-40 h-10 border-t border-border bg-background/95 backdrop-blur flex items-center px-4 text-xs">
+    <span class="font-medium text-muted-foreground mr-3">상태:</span>
+    <span class="inline-flex items-center mr-4"><span class="dot" style="background:#10b981"></span>성공</span>
+    <span class="inline-flex items-center mr-4"><span class="dot" style="background:#f97316"></span>취소</span>
+    <span class="inline-flex items-center mr-4"><span class="dot" style="background:#a1a1aa"></span>대기</span>
+    <span class="inline-flex items-center mr-4"><span class="dot" style="background:#d946ef"></span>예약x</span>
+    <span class="inline-flex items-center mr-4"><span class="dot" style="background:transparent;border:1px solid var(--border)"></span>기본</span>
+
+    <span class="mx-4 text-border">|</span>
+
+    <span class="font-medium text-muted-foreground mr-3">그룹:</span>
+    <span class="inline-flex items-center mr-3"><span class="w-3 h-3 rounded-sm mr-1.5 grp-addon"></span>추가상담</span>
+    <span class="inline-flex items-center mr-3"><span class="w-3 h-3 rounded-sm mr-1.5 grp-consult"></span>상담</span>
+    <span class="inline-flex items-center mr-3"><span class="w-3 h-3 rounded-sm mr-1.5 grp-yejin"></span>예진</span>
+    <span class="inline-flex items-center mr-3"><span class="w-3 h-3 rounded-sm mr-1.5 grp-implant"></span>임플</span>
+    <span class="inline-flex items-center mr-3"><span class="w-3 h-3 rounded-sm mr-1.5 grp-general"></span>일반</span>
+    <span class="inline-flex items-center mr-3"><span class="w-3 h-3 rounded-sm mr-1.5 grp-phone"></span>전화</span>
+
+    <span class="ml-auto text-muted-foreground">v1c-a · 모든 계층 + · 빈 계층 허용</span>
+  </footer>
+
+  <!-- ================= Dialogs ================= -->
+
+  <!-- Reset dialog -->
+  <div class="dlg-overlay" id="resetDialog" role="dialog" aria-modal="true" aria-labelledby="resetDialogTitle">
+    <div class="dlg">
+      <h2 id="resetDialogTitle">카드 위치 초기화</h2>
+      <p class="dlg-desc">카드 위치를 초기 상태로 되돌릴까요? 저장된 드래그 위치가 모두 사라집니다.</p>
+      <div class="dlg-actions">
+        <button type="button" class="dlg-btn" data-dlg-cancel="resetDialog">취소</button>
+        <button type="button" class="dlg-btn dlg-btn-primary" id="resetConfirm">초기화</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Delete column dialog -->
+  <div class="dlg-overlay" id="deleteColumnDialog" role="dialog" aria-modal="true" aria-labelledby="deleteColumnDialogTitle">
+    <div class="dlg">
+      <h2 id="deleteColumnDialogTitle">컬럼 삭제</h2>
+      <p class="dlg-desc" id="deleteColumnDialogDesc">컬럼을 삭제할까요?</p>
+      <div class="dlg-actions">
+        <button type="button" class="dlg-btn" data-dlg-cancel="deleteColumnDialog">취소</button>
+        <button type="button" class="dlg-btn dlg-btn-destructive" id="deleteColumnConfirm">삭제</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Delete group dialog (row1/row2) -->
+  <div class="dlg-overlay" id="deleteGroupDialog" role="dialog" aria-modal="true" aria-labelledby="deleteGroupDialogTitle">
+    <div class="dlg">
+      <h2 id="deleteGroupDialogTitle">분류 삭제</h2>
+      <p class="dlg-desc" id="deleteGroupDialogDesc">분류를 삭제할까요?</p>
+      <div class="dlg-actions">
+        <button type="button" class="dlg-btn" data-dlg-cancel="deleteGroupDialog">취소</button>
+        <button type="button" class="dlg-btn dlg-btn-destructive" id="deleteGroupConfirm">삭제</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast container -->
+  <div class="toast-wrap" id="toastWrap"></div>
+
+  <script>
+    // Lucide icons
+    lucide.createIcons();
+
+    // Dark mode toggle
+    const darkToggle = document.getElementById('darkToggle');
+    darkToggle.addEventListener('click', () => {
+      document.documentElement.classList.toggle('dark');
+      const icon = darkToggle.querySelector('i');
+      const isDark = document.documentElement.classList.contains('dark');
+      icon.setAttribute('data-lucide', isDark ? 'sun' : 'moon');
+      lucide.createIcons();
+    });
+
+    // v1c-a: Hierarchical column add (Row1/Row2/Row3 inline "+"셀) + Drag & Drop + Filters
+    (function() {
+      const STORAGE_KEY = 'kanban-v1c-a-state';
+      const COLUMNS_KEY = 'kanban-v1c-a-columns';
+
+      // Default row1 keys in canonical DOM order. Each defaults to 1:1 with a row2.
+      const DEFAULT_ROW1_KEYS = ['추가상담', '상담', '예진현황', '임플상담', '일반상담', '전화상담'];
+      // Default row2 keys (under their respective default row1)
+      const DEFAULT_ROW2_KEYS = ['구환', '신환', '예진', '임플', '일반', '전화'];
+      const DEFAULT_ROW1_TO_ROW2 = {
+        '추가상담': ['구환'],
+        '상담': ['신환'],
+        '예진현황': ['예진'],
+        '임플상담': ['임플'],
+        '일반상담': ['일반'],
+        '전화상담': ['전화'],
+      };
+      // Width per row2 group (used for grid-template-columns). User-added row2 use default width.
+      const ROW2_WIDTH = { '구환': 88, '신환': 88, '예진': 56, '임플': 52, '일반': 52, '전화': 76 };
+      const ROW2_DEFAULT_WIDTH = 64;
+      const ADD_CELL_WIDTH = 30;
+
+      // Known counselors — used to parse drop-zone label for counselor
+      const COUNSELORS = ['김수지', '라근주', '유소연'];
+
+      const grid = document.querySelector('.kanban-grid');
+
+      // Escape a string for use inside a CSS double-quoted attribute selector value.
+      // attrEsc is designed for identifiers and over-escapes spaces. For quoted attribute
+      // values we only need to escape backslash and double-quote.
+      function attrEsc(s) {
+        return String(s).replace(/\\/g, '\\\\').replace(/"/g, '\\"');
+      }
+
+      // ---------- Dialog / Toast helpers ----------
+
+      function openDialog(id) {
+        const overlay = document.getElementById(id);
+        if (!overlay) return;
+        overlay.classList.add('open');
+        const firstField = overlay.querySelector('select, input, button.dlg-btn-primary, button.dlg-btn-destructive');
+        if (firstField) setTimeout(() => firstField.focus(), 0);
+      }
+
+      function closeDialog(id) {
+        const overlay = document.getElementById(id);
+        if (!overlay) return;
+        overlay.classList.remove('open');
+        const err = overlay.querySelector('.dlg-error');
+        if (err) err.textContent = '';
+      }
+
+      function closeAllDialogs() {
+        document.querySelectorAll('.dlg-overlay.open').forEach(el => closeDialog(el.id));
+      }
+
+      function showToast(msg, type) {
+        const wrap = document.getElementById('toastWrap');
+        if (!wrap) return;
+        const t = document.createElement('div');
+        t.className = 'toast' + (type === 'error' ? ' toast-error' : type === 'success' ? ' toast-success' : '');
+        t.textContent = msg;
+        wrap.appendChild(t);
+        setTimeout(() => {
+          t.style.transition = 'opacity 200ms ease';
+          t.style.opacity = '0';
+          setTimeout(() => t.remove(), 220);
+        }, 3000);
+      }
+
+      // ESC closes dialogs
+      document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') closeAllDialogs();
+      });
+
+      document.querySelectorAll('.dlg-overlay').forEach(overlay => {
+        overlay.addEventListener('click', (e) => {
+          if (e.target === overlay) closeDialog(overlay.id);
+        });
+      });
+
+      document.querySelectorAll('[data-dlg-cancel]').forEach(btn => {
+        btn.addEventListener('click', () => closeDialog(btn.dataset.dlgCancel));
+      });
+
+      // ---------- Helpers ----------
+
+      // Returns list of row1 keys in DOM order (excluding the Row1-add "+" cell).
+      function getRow1Order() {
+        return Array.from(grid.querySelectorAll('.hdr-row1[data-row1-key]'))
+          .map(el => el.dataset.row1Key);
+      }
+
+      // Returns list of row2 keys for a given row1 in DOM order.
+      function getRow2OrderForRow1(row1Key) {
+        return Array.from(grid.querySelectorAll(`.hdr-row2[data-row2-key][data-row1-key="${attrEsc(row1Key)}"]`))
+          .map(el => el.dataset.row2Key);
+      }
+
+      // Returns row2 DOM element for (row1Key, row2Key)
+      function getRow2El(row1Key, row2Key) {
+        return grid.querySelector(`.hdr-row2[data-row1-key="${attrEsc(row1Key)}"][data-row2-key="${attrEsc(row2Key)}"]`);
+      }
+
+      // Returns list of row3 labels for a given (row1Key, row2Key) in DOM order.
+      function getRow3LabelsFor(row1Key, row2Key) {
+        return Array.from(grid.querySelectorAll(`.hdr-row3[data-row3-group="${attrEsc(row2Key)}"][data-row1-key="${attrEsc(row1Key)}"]`))
+          .map(el => el.dataset.row3Label || el.textContent.trim().split('\n')[0].trim());
+      }
+
+      // Returns [{timeCell, cells:[...]}] for each data row.
+      // Only real data cells (has data-drop-zone) are included; placeholders skipped.
+      function getDataRows() {
+        const rows = [];
+        let current = null;
+        for (const child of grid.children) {
+          if (child.classList.contains('time-cell') && !child.classList.contains('time-cell-hdr')) {
+            if (current) rows.push(current);
+            current = { timeCell: child, cells: [] };
+          } else if (current && child.classList.contains('cell') && child.dataset.dropZone) {
+            current.cells.push(child);
+          }
+        }
+        if (current) rows.push(current);
+        return rows;
+      }
+
+      // Parse drop zone: "9:00|row1|row2|label" → { time, row1, row2, label }
+      function parseZone(zone) {
+        if (!zone) return null;
+        const parts = zone.split('|');
+        if (parts.length !== 4) return null;
+        return { time: parts[0], row1: parts[1], row2: parts[2], label: parts[3] };
+      }
+
+      function zoneFromParts(time, row1, row2, label) {
+        return `${time}|${row1}|${row2}|${label}`;
+      }
+
+      function cellRow1(cell) { const p = parseZone(cell.dataset.dropZone); return p ? p.row1 : null; }
+      function cellRow2(cell) { const p = parseZone(cell.dataset.dropZone); return p ? p.row2 : null; }
+      function cellTime(cell) { const p = parseZone(cell.dataset.dropZone); return p ? p.time : null; }
+      function cellLabel(cell) { const p = parseZone(cell.dataset.dropZone); return p ? p.label : null; }
+
+      // Width for a row2 (fallback to default if unknown user-added)
+      function row2Width(row2Key) {
+        return ROW2_WIDTH[row2Key] || ROW2_DEFAULT_WIDTH;
+      }
+
+      // Build grid-template-columns: time + for each row1: (for each row2: leaves + row3-add) + row2-add, then row1-add.
+      function rebuildGridTemplate() {
+        let s = '64px';
+        const row1s = getRow1Order();
+        for (const r1 of row1s) {
+          const row2s = getRow2OrderForRow1(r1);
+          for (const r2 of row2s) {
+            const n = getRow3LabelsFor(r1, r2).length;
+            const w = row2Width(r2);
+            for (let i = 0; i < n; i++) s += ' ' + w + 'px';
+            s += ' ' + ADD_CELL_WIDTH + 'px'; // row3-add for this row2
+          }
+          s += ' ' + ADD_CELL_WIDTH + 'px'; // row2-add for this row1
+        }
+        s += ' ' + ADD_CELL_WIDTH + 'px'; // row1-add at far right
+        grid.style.gridTemplateColumns = s;
+      }
+
+      // Recompute row1/row2 spans based on current DOM.
+      function syncHeaderSpans() {
+        const row1s = getRow1Order();
+        for (const r1 of row1s) {
+          const r1El = grid.querySelector(`.hdr-row1[data-row1-key="${attrEsc(r1)}"]`);
+          const row2s = getRow2OrderForRow1(r1);
+          let row1Span = 0;
+          for (const r2 of row2s) {
+            const n = getRow3LabelsFor(r1, r2).length;
+            const r2Span = n + 1; // leaves + row3-add
+            const r2El = getRow2El(r1, r2);
+            if (r2El) {
+              r2El.style.gridColumn = 'span ' + r2Span;
+              const counter = r2El.querySelector('.row2-count');
+              if (counter) counter.textContent = '(' + n + ')';
+            }
+            row1Span += r2Span;
+          }
+          row1Span += 1; // row2-add cell at end of row1
+          if (r1El) r1El.style.gridColumn = 'span ' + row1Span;
+        }
+      }
+
+      // Bind DnD drop listeners to a single cell (must have data-drop-zone)
+      function bindDropListeners(zone) {
+        zone.addEventListener('dragover', (e) => {
+          e.preventDefault();
+          zone.classList.add('bg-primary/10', 'ring-1', 'ring-primary', 'ring-inset');
+        });
+        zone.addEventListener('dragleave', () => {
+          zone.classList.remove('bg-primary/10', 'ring-1', 'ring-primary', 'ring-inset');
+        });
+        zone.addEventListener('drop', (e) => {
+          e.preventDefault();
+          zone.classList.remove('bg-primary/10', 'ring-1', 'ring-primary', 'ring-inset');
+          const cardId = e.dataTransfer.getData('text/plain');
+          const card = document.querySelector(`[data-card-id="${cardId}"]`);
+          if (card) {
+            zone.appendChild(card);
+            const state = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}');
+            state[cardId] = zone.dataset.dropZone;
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+          }
+        });
+      }
+
+      // ---------- Data cell initialization ----------
+      //
+      // Convert existing static data cells (using old "9:00-임플-김수지아웃" format)
+      // to the new "9:00|row1|row2|label" format with row1 prefix.
+      // Then insert placeholder cells for row3-add, row2-add per row1, and row1-add at end.
+      function upgradeAndInsertPlaceholders() {
+        // Build a map of row2Key → row1Key from current headers (defaults)
+        const row2ToRow1 = {};
+        for (const r1 of DEFAULT_ROW1_KEYS) {
+          for (const r2 of (DEFAULT_ROW1_TO_ROW2[r1] || [])) {
+            row2ToRow1[r2] = r1;
+          }
+        }
+
+        const rows = getDataRows();
+        for (const row of rows) {
+          // Upgrade existing cells to new zone format
+          for (const cell of row.cells) {
+            const z = cell.dataset.dropZone;
+            if (!z) continue;
+            // Old format: "time-row2-label" (single dash-split). New: "time|row1|row2|label".
+            if (z.includes('|')) continue; // already upgraded
+            const dashIdx1 = z.indexOf('-');
+            const dashIdx2 = z.indexOf('-', dashIdx1 + 1);
+            if (dashIdx1 < 0 || dashIdx2 < 0) continue;
+            const time = z.slice(0, dashIdx1);
+            const row2Key = z.slice(dashIdx1 + 1, dashIdx2);
+            const label = z.slice(dashIdx2 + 1);
+            const row1Key = row2ToRow1[row2Key] || row2Key;
+            cell.dataset.dropZone = zoneFromParts(time, row1Key, row2Key, label);
+          }
+
+          // For each row1 (in DOM order), for each row2, add a row3-add placeholder
+          // after the last cell of (row1, row2). Then add a row2-add placeholder after
+          // the last row2 of that row1. Finally add a row1-add placeholder at the end.
+          const row1s = getRow1Order();
+          for (const r1 of row1s) {
+            const row2s = getRow2OrderForRow1(r1);
+            for (const r2 of row2s) {
+              // Find last cell of (r1, r2) in this row
+              let lastCell = null;
+              for (const c of row.cells) {
+                if (cellRow1(c) === r1 && cellRow2(c) === r2) lastCell = c;
+              }
+              if (!lastCell) continue;
+              // row3-add placeholder
+              const ph3 = document.createElement('div');
+              ph3.className = 'cell-add-placeholder';
+              ph3.dataset.placeholderType = 'row3-add';
+              ph3.dataset.row1Key = r1;
+              ph3.dataset.row2Key = r2;
+              lastCell.after(ph3);
+            }
+            // row2-add placeholder (at end of last row2 of this row1).
+            const lastRow2 = row2s[row2s.length - 1];
+            if (!lastRow2) continue;
+            // Walk from the last cell of (r1, lastRow2) forward until we hit the row3-add placeholder we just inserted.
+            let lastCellR2 = null;
+            for (const c of row.cells) {
+              if (cellRow1(c) === r1 && cellRow2(c) === lastRow2) lastCellR2 = c;
+            }
+            if (!lastCellR2) continue;
+            let ph3Target = lastCellR2.nextElementSibling;
+            while (ph3Target && !(ph3Target.classList && ph3Target.classList.contains('cell-add-placeholder') && ph3Target.dataset.placeholderType === 'row3-add')) {
+              ph3Target = ph3Target.nextElementSibling;
+            }
+            const ph2 = document.createElement('div');
+            ph2.className = 'cell-add-placeholder';
+            ph2.dataset.placeholderType = 'row2-add';
+            ph2.dataset.row1Key = r1;
+            if (ph3Target) ph3Target.after(ph2);
+            else lastCellR2.after(ph2);
+          }
+
+          // row1-add placeholder at the very end of this row.
+          // Find the last cell/placeholder of the last row1's last row2 (row2-add placeholder).
+          // Simpler: walk to the end of this row by walking from timeCell until next time-cell or end.
+          const ph1 = document.createElement('div');
+          ph1.className = 'cell-add-placeholder';
+          ph1.dataset.placeholderType = 'row1-add';
+          // Find last real cell or placeholder in this row (walk forward from timeCell)
+          let cursor = row.timeCell.nextElementSibling;
+          let lastInRow = row.timeCell;
+          while (cursor && !(cursor.classList.contains('time-cell') && !cursor.classList.contains('time-cell-hdr'))) {
+            lastInRow = cursor;
+            cursor = cursor.nextElementSibling;
+          }
+          lastInRow.after(ph1);
+        }
+      }
+
+      // ==================== ADD ROW3 COLUMN (leaf) ====================
+      //
+      // insertRow3Column(row1Key, row2Key, label, bindDnd) → insert a new leaf inside (row1, row2).
+      function insertRow3Column(row1Key, row2Key, label, bindDnd) {
+        if (!label || !label.trim()) return { ok: false, error: '컬럼 이름을 입력하세요.' };
+        label = label.trim();
+        const existing = getRow3LabelsFor(row1Key, row2Key);
+        if (existing.includes(label)) return { ok: false, error: '같은 이름의 컬럼이 이미 있습니다: ' + label };
+
+        // 1. Row3 header: insert BEFORE the row3-add "+"cell for this (row1, row2)
+        const addCell = grid.querySelector(`.hdr-row3.hdr-add[data-row3-add-group="${attrEsc(row2Key)}"][data-row1-key="${attrEsc(row1Key)}"]`);
+        if (!addCell) return { ok: false, error: '해당 중분류의 + 셀을 찾을 수 없습니다.' };
+        const newRow3 = document.createElement('div');
+        newRow3.className = 'hdr hdr-row3';
+        newRow3.dataset.row3Group = row2Key;
+        newRow3.dataset.row1Key = row1Key;
+        newRow3.dataset.row3Label = label;
+        newRow3.dataset.userAdded = 'true';
+        newRow3.title = label;
+        newRow3.textContent = label;
+        const delBtn = document.createElement('span');
+        delBtn.className = 'hdr-row3-del';
+        delBtn.title = '컬럼 삭제';
+        delBtn.innerHTML = '<i data-lucide="x"></i>';
+        newRow3.appendChild(delBtn);
+        addCell.before(newRow3);
+
+        // 2. For each data row, insert new cell BEFORE the row3-add placeholder of this (row1, row2)
+        const rows = getDataRows();
+        for (const row of rows) {
+          // Find row3-add placeholder in this row for (row1, row2)
+          let ph = null;
+          let cursor = row.timeCell.nextElementSibling;
+          while (cursor && !(cursor.classList.contains('time-cell') && !cursor.classList.contains('time-cell-hdr'))) {
+            if (cursor.classList && cursor.classList.contains('cell-add-placeholder') &&
+                cursor.dataset.placeholderType === 'row3-add' &&
+                cursor.dataset.row1Key === row1Key &&
+                cursor.dataset.row2Key === row2Key) {
+              ph = cursor;
+              break;
+            }
+            cursor = cursor.nextElementSibling;
+          }
+          // Derive the "time" token from an existing cell in this row for consistency.
+          let time = null;
+          for (const c of row.cells) {
+            const p = parseZone(c.dataset.dropZone);
+            if (p) { time = p.time; break; }
+          }
+          if (!time) time = row.timeCell.textContent.trim();
+          const newCell = document.createElement('div');
+          newCell.className = 'cell cell-empty';
+          newCell.dataset.dropZone = zoneFromParts(time, row1Key, row2Key, label);
+          newCell.dataset.userAdded = 'true';
+          if (ph) ph.before(newCell);
+          else {
+            // No placeholder — append at end of row (shouldn't happen with proper init)
+            row.timeCell.after(newCell);
+          }
+          if (bindDnd) bindDropListeners(newCell);
+        }
+
+        rebuildGridTemplate();
+        syncHeaderSpans();
+        lucide.createIcons();
+        return { ok: true };
+      }
+
+      // ==================== ADD ROW2 GROUP (mid) ====================
+      //
+      // insertRow2Column(row1Key, label) → insert empty row2 under row1.
+      // Creates row2 header + row2-add's row3-add cell inside + placeholder cells in data rows.
+      // The row2 itself has NO row3 leaves (empty by default).
+      function insertRow2Column(row1Key, label) {
+        if (!label || !label.trim()) return { ok: false, error: '중분류 이름을 입력하세요.' };
+        label = label.trim();
+        const existing = getRow2OrderForRow1(row1Key);
+        if (existing.includes(label)) return { ok: false, error: '같은 이름의 중분류가 이미 있습니다: ' + label };
+
+        // 1. Row2 header: insert BEFORE the row2-add "+"cell for this row1
+        const row2AddCell = grid.querySelector(`.hdr-row2.hdr-add[data-row2-add="true"][data-row1-key="${attrEsc(row1Key)}"]`);
+        if (!row2AddCell) return { ok: false, error: '해당 대분류의 중분류 + 셀을 찾을 수 없습니다.' };
+        const newRow2 = document.createElement('div');
+        newRow2.className = 'hdr hdr-row2 col-sep-l';
+        newRow2.dataset.row2Key = label;
+        newRow2.dataset.row1Key = row1Key;
+        newRow2.dataset.userAdded = 'true';
+        newRow2.style.gridColumn = 'span 1'; // will be resynced by syncHeaderSpans
+        newRow2.innerHTML = label + ' <span class="row2-count">(0)</span>';
+        const r2Del = document.createElement('span');
+        r2Del.className = 'hdr-row2-del';
+        r2Del.title = '중분류 삭제';
+        r2Del.innerHTML = '<i data-lucide="x"></i>';
+        newRow2.appendChild(r2Del);
+        row2AddCell.before(newRow2);
+
+        // 2. Row3-add "+"cell for this new (row1, row2)
+        // Find existing row3 placeholder-for-row2-add hdr for this row1 (it's the hdr cell under row2-add column)
+        // We need to insert the row3-add cell for this new row2 BEFORE that placeholder.
+        const row3PhForR2Add = grid.querySelector(`.hdr-row3[data-row3-placeholder-for-row2-add="true"][data-row1-key="${attrEsc(row1Key)}"]`);
+        const newRow3Add = document.createElement('div');
+        newRow3Add.className = 'hdr hdr-row3 hdr-add';
+        newRow3Add.dataset.row3AddGroup = label;
+        newRow3Add.dataset.row1Key = row1Key;
+        newRow3Add.title = label + ' 컬럼 추가';
+        newRow3Add.innerHTML = '<i data-lucide="plus"></i>';
+        if (row3PhForR2Add) row3PhForR2Add.before(newRow3Add);
+        else grid.appendChild(newRow3Add);
+
+        // 3. For each data row, insert placeholder cells for the new (row1, row2).
+        //    Specifically: one row3-add placeholder BEFORE the existing row2-add placeholder.
+        const rows = getDataRows();
+        for (const row of rows) {
+          // Find row2-add placeholder for this row1 in this data row
+          let r2Ph = null;
+          let cursor = row.timeCell.nextElementSibling;
+          while (cursor && !(cursor.classList.contains('time-cell') && !cursor.classList.contains('time-cell-hdr'))) {
+            if (cursor.classList && cursor.classList.contains('cell-add-placeholder') &&
+                cursor.dataset.placeholderType === 'row2-add' &&
+                cursor.dataset.row1Key === row1Key) {
+              r2Ph = cursor;
+              break;
+            }
+            cursor = cursor.nextElementSibling;
+          }
+          const ph3 = document.createElement('div');
+          ph3.className = 'cell-add-placeholder';
+          ph3.dataset.placeholderType = 'row3-add';
+          ph3.dataset.row1Key = row1Key;
+          ph3.dataset.row2Key = label;
+          if (r2Ph) r2Ph.before(ph3);
+        }
+
+        rebuildGridTemplate();
+        syncHeaderSpans();
+        lucide.createIcons();
+        return { ok: true };
+      }
+
+      // ==================== ADD ROW1 GROUP (top) ====================
+      //
+      // insertRow1Column(label) → insert empty row1 at far right (before row1-add cell).
+      // Creates row1 header + row2-add "+" inside + placeholder row3 hdrs + placeholder data cells.
+      // The row1 itself has NO row2 children (empty by default).
+      function insertRow1Column(label) {
+        if (!label || !label.trim()) return { ok: false, error: '대분류 이름을 입력하세요.' };
+        label = label.trim();
+        const existing = getRow1Order();
+        if (existing.includes(label)) return { ok: false, error: '같은 이름의 대분류가 이미 있습니다: ' + label };
+
+        // 1. Row1 header: insert BEFORE the row1-add cell
+        const row1AddCell = grid.querySelector('.hdr-row1.hdr-add[data-row1-add="true"]');
+        if (!row1AddCell) return { ok: false, error: '대분류 + 셀을 찾을 수 없습니다.' };
+        const newRow1 = document.createElement('div');
+        newRow1.className = 'hdr hdr-row1 col-sep-l';
+        newRow1.dataset.row1Key = label;
+        newRow1.dataset.userAdded = 'true';
+        newRow1.style.gridColumn = 'span 1'; // resynced by syncHeaderSpans
+        newRow1.style.background = 'color-mix(in oklch, var(--chart-3) 15%, var(--secondary))';
+        newRow1.textContent = label;
+        const r1Del = document.createElement('span');
+        r1Del.className = 'hdr-row1-del';
+        r1Del.title = '대분류 삭제';
+        r1Del.innerHTML = '<i data-lucide="x"></i>';
+        newRow1.appendChild(r1Del);
+        row1AddCell.before(newRow1);
+
+        // 2. Row2-add cell for this new row1: insert BEFORE the row2-placeholder-for-row1-add cell.
+        const row2PhForR1Add = grid.querySelector('.hdr-row2[data-row2-placeholder-for-row1-add="true"]');
+        const newRow2Add = document.createElement('div');
+        newRow2Add.className = 'hdr hdr-row2 hdr-add';
+        newRow2Add.dataset.row2Add = 'true';
+        newRow2Add.dataset.row1Key = label;
+        newRow2Add.title = label + ' 중분류 추가';
+        newRow2Add.style.gridColumn = 'span 1';
+        newRow2Add.innerHTML = '<i data-lucide="plus"></i>';
+        if (row2PhForR1Add) row2PhForR1Add.before(newRow2Add);
+
+        // 3. Row3 placeholder-for-row2-add for this new row1: insert BEFORE the row3-placeholder-for-row1-add.
+        const row3PhForR1Add = grid.querySelector('.hdr-row3[data-row3-placeholder-for-row1-add="true"]');
+        const newRow3PhForR2Add = document.createElement('div');
+        newRow3PhForR2Add.className = 'hdr hdr-row3';
+        newRow3PhForR2Add.dataset.row3PlaceholderForRow2Add = 'true';
+        newRow3PhForR2Add.dataset.row1Key = label;
+        newRow3PhForR2Add.style.background = 'var(--muted)';
+        newRow3PhForR2Add.style.opacity = '0.3';
+        if (row3PhForR1Add) row3PhForR1Add.before(newRow3PhForR2Add);
+
+        // 4. For each data row, insert placeholder cells BEFORE the row1-add placeholder.
+        //    Insert: row2-add placeholder (for this new row1).
+        const rows = getDataRows();
+        for (const row of rows) {
+          let r1Ph = null;
+          let cursor = row.timeCell.nextElementSibling;
+          while (cursor && !(cursor.classList.contains('time-cell') && !cursor.classList.contains('time-cell-hdr'))) {
+            if (cursor.classList && cursor.classList.contains('cell-add-placeholder') &&
+                cursor.dataset.placeholderType === 'row1-add') {
+              r1Ph = cursor;
+              break;
+            }
+            cursor = cursor.nextElementSibling;
+          }
+          const ph2 = document.createElement('div');
+          ph2.className = 'cell-add-placeholder';
+          ph2.dataset.placeholderType = 'row2-add';
+          ph2.dataset.row1Key = label;
+          if (r1Ph) r1Ph.before(ph2);
+        }
+
+        rebuildGridTemplate();
+        syncHeaderSpans();
+        lucide.createIcons();
+        return { ok: true };
+      }
+
+      // ==================== INLINE EDIT MODES ====================
+
+      function addRow3Inline(row1Key, row2Key) {
+        let tempLabel = '새 컬럼';
+        const existing = getRow3LabelsFor(row1Key, row2Key);
+        let i = 1;
+        while (existing.includes(tempLabel)) { i += 1; tempLabel = '새 컬럼 ' + i; }
+        const result = insertRow3Column(row1Key, row2Key, tempLabel, true);
+        if (!result.ok) { showToast(result.error || '컬럼 추가 실패', 'error'); return; }
+        const row3 = grid.querySelector(`.hdr-row3[data-row3-group="${attrEsc(row2Key)}"][data-row1-key="${attrEsc(row1Key)}"][data-row3-label="${attrEsc(tempLabel)}"]`);
+        if (row3) enterRow3EditMode(row3, tempLabel, /*isNew=*/true);
+      }
+
+      function addRow2Inline(row1Key) {
+        let tempLabel = '새 중분류';
+        const existing = getRow2OrderForRow1(row1Key);
+        let i = 1;
+        while (existing.includes(tempLabel)) { i += 1; tempLabel = '새 중분류 ' + i; }
+        const result = insertRow2Column(row1Key, tempLabel);
+        if (!result.ok) { showToast(result.error || '중분류 추가 실패', 'error'); return; }
+        const row2 = getRow2El(row1Key, tempLabel);
+        if (row2) enterRow2EditMode(row2, tempLabel, /*isNew=*/true);
+      }
+
+      function addRow1Inline() {
+        let tempLabel = '새 대분류';
+        const existing = getRow1Order();
+        let i = 1;
+        while (existing.includes(tempLabel)) { i += 1; tempLabel = '새 대분류 ' + i; }
+        const result = insertRow1Column(tempLabel);
+        if (!result.ok) { showToast(result.error || '대분류 추가 실패', 'error'); return; }
+        const row1 = grid.querySelector(`.hdr-row1[data-row1-key="${attrEsc(tempLabel)}"]`);
+        if (row1) enterRow1EditMode(row1, tempLabel, /*isNew=*/true);
+      }
+
+      // ---- Row3 inline edit ----
+      function enterRow3EditMode(row3, originalLabel, isNew) {
+        const row1Key = row3.dataset.row1Key;
+        const row2Key = row3.dataset.row3Group;
+        const originalHTML = row3.innerHTML;
+        row3.classList.add('hdr-row3-edit');
+        row3.innerHTML = '';
+        const input = document.createElement('input');
+        input.type = 'text';
+        input.value = isNew ? '' : originalLabel;
+        input.placeholder = '컬럼 이름';
+        input.autocomplete = 'off';
+        row3.appendChild(input);
+        setTimeout(() => { input.focus(); input.select(); }, 0);
+        let settled = false;
+
+        function commit() {
+          if (settled) return;
+          settled = true;
+          const newLabel = input.value.trim();
+          if (!newLabel) {
+            if (isNew) { performRemoveRow3Silent(row1Key, row2Key, originalLabel); return; }
+            row3.classList.remove('hdr-row3-edit');
+            row3.innerHTML = originalHTML;
+            lucide.createIcons();
+            return;
+          }
+          const dupes = getRow3LabelsFor(row1Key, row2Key).filter(l => l !== originalLabel);
+          if (dupes.includes(newLabel)) {
+            showToast('같은 이름의 컬럼이 이미 있습니다: ' + newLabel, 'error');
+            input.focus(); input.select();
+            settled = false;
+            return;
+          }
+          renameRow3(row1Key, row2Key, originalLabel, newLabel);
+          const cols = loadColumns();
+          if (isNew) {
+            cols.row3.push({ row1Label: row1Key, row2Label: row2Key, label: newLabel });
+          } else {
+            const entry = cols.row3.find(e => e.row1Label === row1Key && e.row2Label === row2Key && e.label === originalLabel);
+            if (entry) entry.label = newLabel;
+            else cols.row3.push({ row1Label: row1Key, row2Label: row2Key, label: newLabel });
+          }
+          saveColumns(cols);
+          showToast(`"${row2Key} - ${newLabel}" 컬럼을 추가했습니다.`, 'success');
+          applyFilters();
+        }
+        function cancel() {
+          if (settled) return;
+          settled = true;
+          if (isNew) { performRemoveRow3Silent(row1Key, row2Key, originalLabel); return; }
+          row3.classList.remove('hdr-row3-edit');
+          row3.innerHTML = originalHTML;
+          lucide.createIcons();
+        }
+        input.addEventListener('keydown', (e) => {
+          if (e.key === 'Enter') { e.preventDefault(); commit(); }
+          else if (e.key === 'Escape') { e.preventDefault(); cancel(); }
+        });
+        input.addEventListener('blur', () => { if (!settled) commit(); });
+      }
+
+      function renameRow3(row1Key, row2Key, oldLabel, newLabel) {
+        const row3 = grid.querySelector(`.hdr-row3[data-row3-group="${attrEsc(row2Key)}"][data-row1-key="${attrEsc(row1Key)}"][data-row3-label="${attrEsc(oldLabel)}"]`);
+        if (!row3) return;
+        row3.dataset.row3Label = newLabel;
+        row3.classList.remove('hdr-row3-edit');
+        row3.innerHTML = '';
+        row3.appendChild(document.createTextNode(newLabel));
+        const delBtn = document.createElement('span');
+        delBtn.className = 'hdr-row3-del';
+        delBtn.title = '컬럼 삭제';
+        delBtn.innerHTML = '<i data-lucide="x"></i>';
+        row3.appendChild(delBtn);
+        row3.title = newLabel;
+
+        const state = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}');
+        const oldZoneSuffix = `|${row1Key}|${row2Key}|${oldLabel}`;
+        // Iterate all data cells; match by parsed zone
+        grid.querySelectorAll('.cell[data-drop-zone]').forEach(cell => {
+          const p = parseZone(cell.dataset.dropZone);
+          if (!p) return;
+          if (p.row1 === row1Key && p.row2 === row2Key && p.label === oldLabel) {
+            const newZone = zoneFromParts(p.time, row1Key, row2Key, newLabel);
+            cell.dataset.dropZone = newZone;
+            cell.querySelectorAll('[data-card-id]').forEach(card => {
+              state[card.dataset.cardId] = newZone;
+            });
+          }
+        });
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+        lucide.createIcons();
+      }
+
+      // ---- Row2 inline edit ----
+      function enterRow2EditMode(row2, originalLabel, isNew) {
+        const row1Key = row2.dataset.row1Key;
+        const originalHTML = row2.innerHTML;
+        row2.classList.add('hdr-row2-edit');
+        row2.innerHTML = '';
+        const input = document.createElement('input');
+        input.type = 'text';
+        input.value = isNew ? '' : originalLabel;
+        input.placeholder = '중분류 이름';
+        input.autocomplete = 'off';
+        row2.appendChild(input);
+        setTimeout(() => { input.focus(); input.select(); }, 0);
+        let settled = false;
+
+        function commit() {
+          if (settled) return;
+          settled = true;
+          const newLabel = input.value.trim();
+          if (!newLabel) {
+            if (isNew) { performRemoveRow2Silent(row1Key, originalLabel); return; }
+            row2.classList.remove('hdr-row2-edit');
+            row2.innerHTML = originalHTML;
+            lucide.createIcons();
+            return;
+          }
+          const dupes = getRow2OrderForRow1(row1Key).filter(l => l !== originalLabel);
+          if (dupes.includes(newLabel)) {
+            showToast('같은 이름의 중분류가 이미 있습니다: ' + newLabel, 'error');
+            input.focus(); input.select();
+            settled = false;
+            return;
+          }
+          renameRow2(row1Key, originalLabel, newLabel);
+          const cols = loadColumns();
+          if (isNew) {
+            cols.row2.push({ row1Label: row1Key, label: newLabel });
+          } else {
+            const entry = cols.row2.find(e => e.row1Label === row1Key && e.label === originalLabel);
+            if (entry) entry.label = newLabel;
+            else cols.row2.push({ row1Label: row1Key, label: newLabel });
+          }
+          saveColumns(cols);
+          showToast(`"${row1Key} > ${newLabel}" 중분류를 추가했습니다.`, 'success');
+          applyFilters();
+        }
+        function cancel() {
+          if (settled) return;
+          settled = true;
+          if (isNew) { performRemoveRow2Silent(row1Key, originalLabel); return; }
+          row2.classList.remove('hdr-row2-edit');
+          row2.innerHTML = originalHTML;
+          lucide.createIcons();
+        }
+        input.addEventListener('keydown', (e) => {
+          if (e.key === 'Enter') { e.preventDefault(); commit(); }
+          else if (e.key === 'Escape') { e.preventDefault(); cancel(); }
+        });
+        input.addEventListener('blur', () => { if (!settled) commit(); });
+      }
+
+      function renameRow2(row1Key, oldLabel, newLabel) {
+        const row2 = getRow2El(row1Key, oldLabel);
+        if (!row2) return;
+        row2.dataset.row2Key = newLabel;
+        row2.classList.remove('hdr-row2-edit');
+        // Count row3s
+        const n = getRow3LabelsFor(row1Key, oldLabel).length;
+        row2.innerHTML = newLabel + ' <span class="row2-count">(' + n + ')</span>';
+        const r2Del = document.createElement('span');
+        r2Del.className = 'hdr-row2-del';
+        r2Del.title = '중분류 삭제';
+        r2Del.innerHTML = '<i data-lucide="x"></i>';
+        row2.appendChild(r2Del);
+
+        // Update all row3s under this (row1, oldLabel) → (row1, newLabel)
+        grid.querySelectorAll(`.hdr-row3[data-row3-group="${attrEsc(oldLabel)}"][data-row1-key="${attrEsc(row1Key)}"]`).forEach(r3 => {
+          r3.dataset.row3Group = newLabel;
+        });
+        // Update row3-add cell for this (row1, oldLabel)
+        const r3Add = grid.querySelector(`.hdr-row3.hdr-add[data-row3-add-group="${attrEsc(oldLabel)}"][data-row1-key="${attrEsc(row1Key)}"]`);
+        if (r3Add) {
+          r3Add.dataset.row3AddGroup = newLabel;
+          r3Add.title = newLabel + ' 컬럼 추가';
+        }
+
+        // Update zones
+        const state = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}');
+        grid.querySelectorAll('.cell[data-drop-zone]').forEach(cell => {
+          const p = parseZone(cell.dataset.dropZone);
+          if (!p) return;
+          if (p.row1 === row1Key && p.row2 === oldLabel) {
+            const newZone = zoneFromParts(p.time, row1Key, newLabel, p.label);
+            cell.dataset.dropZone = newZone;
+            cell.querySelectorAll('[data-card-id]').forEach(card => { state[card.dataset.cardId] = newZone; });
+          }
+        });
+        // Update data placeholders (row3-add placeholders)
+        grid.querySelectorAll(`.cell-add-placeholder[data-placeholder-type="row3-add"][data-row1-key="${attrEsc(row1Key)}"][data-row2-key="${attrEsc(oldLabel)}"]`).forEach(ph => {
+          ph.dataset.row2Key = newLabel;
+        });
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+        // Also update row3-column persistence
+        const cols = loadColumns();
+        cols.row3.forEach(e => { if (e.row1Label === row1Key && e.row2Label === oldLabel) e.row2Label = newLabel; });
+        saveColumns(cols);
+        lucide.createIcons();
+      }
+
+      // ---- Row1 inline edit ----
+      function enterRow1EditMode(row1, originalLabel, isNew) {
+        const originalHTML = row1.innerHTML;
+        row1.classList.add('hdr-row1-edit');
+        row1.innerHTML = '';
+        const input = document.createElement('input');
+        input.type = 'text';
+        input.value = isNew ? '' : originalLabel;
+        input.placeholder = '대분류 이름';
+        input.autocomplete = 'off';
+        row1.appendChild(input);
+        setTimeout(() => { input.focus(); input.select(); }, 0);
+        let settled = false;
+
+        function commit() {
+          if (settled) return;
+          settled = true;
+          const newLabel = input.value.trim();
+          if (!newLabel) {
+            if (isNew) { performRemoveRow1Silent(originalLabel); return; }
+            row1.classList.remove('hdr-row1-edit');
+            row1.innerHTML = originalHTML;
+            lucide.createIcons();
+            return;
+          }
+          const dupes = getRow1Order().filter(l => l !== originalLabel);
+          if (dupes.includes(newLabel)) {
+            showToast('같은 이름의 대분류가 이미 있습니다: ' + newLabel, 'error');
+            input.focus(); input.select();
+            settled = false;
+            return;
+          }
+          renameRow1(originalLabel, newLabel);
+          const cols = loadColumns();
+          if (isNew) {
+            cols.row1.push({ label: newLabel });
+          } else {
+            const entry = cols.row1.find(e => e.label === originalLabel);
+            if (entry) entry.label = newLabel;
+            else cols.row1.push({ label: newLabel });
+          }
+          saveColumns(cols);
+          showToast(`"${newLabel}" 대분류를 추가했습니다.`, 'success');
+          applyFilters();
+        }
+        function cancel() {
+          if (settled) return;
+          settled = true;
+          if (isNew) { performRemoveRow1Silent(originalLabel); return; }
+          row1.classList.remove('hdr-row1-edit');
+          row1.innerHTML = originalHTML;
+          lucide.createIcons();
+        }
+        input.addEventListener('keydown', (e) => {
+          if (e.key === 'Enter') { e.preventDefault(); commit(); }
+          else if (e.key === 'Escape') { e.preventDefault(); cancel(); }
+        });
+        input.addEventListener('blur', () => { if (!settled) commit(); });
+      }
+
+      function renameRow1(oldLabel, newLabel) {
+        const row1 = grid.querySelector(`.hdr-row1[data-row1-key="${attrEsc(oldLabel)}"]`);
+        if (!row1) return;
+        row1.dataset.row1Key = newLabel;
+        row1.classList.remove('hdr-row1-edit');
+        row1.innerHTML = '';
+        row1.appendChild(document.createTextNode(newLabel));
+        const r1Del = document.createElement('span');
+        r1Del.className = 'hdr-row1-del';
+        r1Del.title = '대분류 삭제';
+        r1Del.innerHTML = '<i data-lucide="x"></i>';
+        row1.appendChild(r1Del);
+
+        // Update all row2, row3, placeholders, row2-add cells, row3-placeholder-for-row2-add, etc.
+        grid.querySelectorAll(`[data-row1-key="${attrEsc(oldLabel)}"]`).forEach(el => {
+          if (el === row1) return;
+          el.dataset.row1Key = newLabel;
+        });
+
+        // Update all zones
+        const state = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}');
+        grid.querySelectorAll('.cell[data-drop-zone]').forEach(cell => {
+          const p = parseZone(cell.dataset.dropZone);
+          if (!p) return;
+          if (p.row1 === oldLabel) {
+            const newZone = zoneFromParts(p.time, newLabel, p.row2, p.label);
+            cell.dataset.dropZone = newZone;
+            cell.querySelectorAll('[data-card-id]').forEach(card => { state[card.dataset.cardId] = newZone; });
+          }
+        });
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+        // Persist updates
+        const cols = loadColumns();
+        cols.row2.forEach(e => { if (e.row1Label === oldLabel) e.row1Label = newLabel; });
+        cols.row3.forEach(e => { if (e.row1Label === oldLabel) e.row1Label = newLabel; });
+        saveColumns(cols);
+        lucide.createIcons();
+      }
+
+      // ==================== REMOVE FUNCTIONS ====================
+
+      // pendingDelete: { level: 'row1'|'row2'|'row3', row1Key, row2Key?, label }
+      let pendingDelete = null;
+
+      function removeRow3(row1Key, row2Key, label) {
+        pendingDelete = { level: 'row3', row1Key, row2Key, label };
+        const desc = document.getElementById('deleteColumnDialogDesc');
+        if (desc) desc.textContent = `"${row2Key} - ${label}" 컬럼을 삭제할까요? 컬럼 안의 카드도 함께 사라집니다.`;
+        openDialog('deleteColumnDialog');
+      }
+
+      function removeRow2(row1Key, label) {
+        pendingDelete = { level: 'row2', row1Key, label };
+        const desc = document.getElementById('deleteGroupDialogDesc');
+        if (desc) desc.textContent = `"${row1Key} > ${label}" 중분류를 삭제할까요? 하위 컬럼과 카드가 모두 사라집니다.`;
+        openDialog('deleteGroupDialog');
+      }
+
+      function removeRow1(label) {
+        pendingDelete = { level: 'row1', label };
+        const desc = document.getElementById('deleteGroupDialogDesc');
+        if (desc) desc.textContent = `"${label}" 대분류를 삭제할까요? 하위 중분류, 컬럼, 카드가 모두 사라집니다.`;
+        openDialog('deleteGroupDialog');
+      }
+
+      function performRemoveRow3(row1Key, row2Key, label) {
+        performRemoveRow3Silent(row1Key, row2Key, label);
+        const cols = loadColumns();
+        cols.row3 = cols.row3.filter(e => !(e.row1Label === row1Key && e.row2Label === row2Key && e.label === label));
+        saveColumns(cols);
+      }
+
+      function performRemoveRow3Silent(row1Key, row2Key, label) {
+        const row3 = grid.querySelector(`.hdr-row3[data-row3-group="${attrEsc(row2Key)}"][data-row1-key="${attrEsc(row1Key)}"][data-row3-label="${attrEsc(label)}"]`);
+        if (row3) row3.remove();
+
+        const state = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}');
+        grid.querySelectorAll('.cell[data-drop-zone]').forEach(cell => {
+          const p = parseZone(cell.dataset.dropZone);
+          if (!p) return;
+          if (p.row1 === row1Key && p.row2 === row2Key && p.label === label) {
+            cell.querySelectorAll('[data-card-id]').forEach(card => {
+              delete state[card.dataset.cardId];
+              card.remove();
+            });
+            cell.remove();
+          }
+        });
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+        rebuildGridTemplate();
+        syncHeaderSpans();
+        applyFilters();
+      }
+
+      function performRemoveRow2(row1Key, label) {
+        performRemoveRow2Silent(row1Key, label);
+        const cols = loadColumns();
+        // Remove all row3 entries under (row1Key, label)
+        cols.row3 = cols.row3.filter(e => !(e.row1Label === row1Key && e.row2Label === label));
+        // Remove row2 entry
+        cols.row2 = cols.row2.filter(e => !(e.row1Label === row1Key && e.label === label));
+        saveColumns(cols);
+      }
+
+      function performRemoveRow2Silent(row1Key, label) {
+        // Remove all row3 headers under (row1Key, label) and their +cell
+        grid.querySelectorAll(`.hdr-row3[data-row3-group="${attrEsc(label)}"][data-row1-key="${attrEsc(row1Key)}"]`).forEach(el => el.remove());
+        const r3Add = grid.querySelector(`.hdr-row3.hdr-add[data-row3-add-group="${attrEsc(label)}"][data-row1-key="${attrEsc(row1Key)}"]`);
+        if (r3Add) r3Add.remove();
+        // Remove row2 header
+        const row2 = getRow2El(row1Key, label);
+        if (row2) row2.remove();
+
+        // Remove data cells + placeholders (row3-add placeholders for this row2)
+        const state = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}');
+        grid.querySelectorAll('.cell[data-drop-zone]').forEach(cell => {
+          const p = parseZone(cell.dataset.dropZone);
+          if (!p) return;
+          if (p.row1 === row1Key && p.row2 === label) {
+            cell.querySelectorAll('[data-card-id]').forEach(card => {
+              delete state[card.dataset.cardId];
+              card.remove();
+            });
+            cell.remove();
+          }
+        });
+        grid.querySelectorAll(`.cell-add-placeholder[data-placeholder-type="row3-add"][data-row1-key="${attrEsc(row1Key)}"][data-row2-key="${attrEsc(label)}"]`).forEach(el => el.remove());
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+
+        rebuildGridTemplate();
+        syncHeaderSpans();
+        applyFilters();
+      }
+
+      function performRemoveRow1(label) {
+        performRemoveRow1Silent(label);
+        const cols = loadColumns();
+        cols.row3 = cols.row3.filter(e => e.row1Label !== label);
+        cols.row2 = cols.row2.filter(e => e.row1Label !== label);
+        cols.row1 = cols.row1.filter(e => e.label !== label);
+        saveColumns(cols);
+      }
+
+      function performRemoveRow1Silent(label) {
+        // Remove row1 header
+        const row1 = grid.querySelector(`.hdr-row1[data-row1-key="${attrEsc(label)}"]`);
+        if (row1) row1.remove();
+        // Remove all row2 under this row1
+        grid.querySelectorAll(`.hdr-row2[data-row1-key="${attrEsc(label)}"]`).forEach(el => el.remove());
+        // Remove all row3 under this row1
+        grid.querySelectorAll(`.hdr-row3[data-row1-key="${attrEsc(label)}"]`).forEach(el => el.remove());
+
+        // Remove data cells + placeholders belonging to this row1
+        const state = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}');
+        grid.querySelectorAll('.cell[data-drop-zone]').forEach(cell => {
+          const p = parseZone(cell.dataset.dropZone);
+          if (!p) return;
+          if (p.row1 === label) {
+            cell.querySelectorAll('[data-card-id]').forEach(card => {
+              delete state[card.dataset.cardId];
+              card.remove();
+            });
+            cell.remove();
+          }
+        });
+        grid.querySelectorAll(`.cell-add-placeholder[data-row1-key="${attrEsc(label)}"]`).forEach(el => el.remove());
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+
+        rebuildGridTemplate();
+        syncHeaderSpans();
+        applyFilters();
+      }
+
+      // Wire delete confirms
+      document.getElementById('deleteColumnConfirm').addEventListener('click', () => {
+        if (pendingDelete && pendingDelete.level === 'row3') {
+          performRemoveRow3(pendingDelete.row1Key, pendingDelete.row2Key, pendingDelete.label);
+        }
+        pendingDelete = null;
+        closeDialog('deleteColumnDialog');
+      });
+      document.getElementById('deleteGroupConfirm').addEventListener('click', () => {
+        if (pendingDelete) {
+          if (pendingDelete.level === 'row2') performRemoveRow2(pendingDelete.row1Key, pendingDelete.label);
+          else if (pendingDelete.level === 'row1') performRemoveRow1(pendingDelete.label);
+        }
+        pendingDelete = null;
+        closeDialog('deleteGroupDialog');
+      });
+
+      // ==================== COLUMN STORAGE HELPERS ====================
+      function loadColumns() {
+        const raw = localStorage.getItem(COLUMNS_KEY);
+        if (!raw) return { row1: [], row2: [], row3: [] };
+        const parsed = JSON.parse(raw);
+        return {
+          row1: parsed.row1 || [],
+          row2: parsed.row2 || [],
+          row3: parsed.row3 || [],
+        };
+      }
+      function saveColumns(cols) {
+        localStorage.setItem(COLUMNS_KEY, JSON.stringify(cols));
+      }
+
+      // ==================== GRID EVENT DELEGATION ====================
+
+      grid.addEventListener('click', (e) => {
+        // Row3-add "+" click
+        const r3Add = e.target.closest('.hdr-row3.hdr-add[data-row3-add-group]');
+        if (r3Add) {
+          addRow3Inline(r3Add.dataset.row1Key, r3Add.dataset.row3AddGroup);
+          return;
+        }
+        // Row2-add "+" click
+        const r2Add = e.target.closest('.hdr-row2.hdr-add[data-row2-add="true"]');
+        if (r2Add) {
+          addRow2Inline(r2Add.dataset.row1Key);
+          return;
+        }
+        // Row1-add "+" click
+        const r1Add = e.target.closest('.hdr-row1.hdr-add[data-row1-add="true"]');
+        if (r1Add) {
+          addRow1Inline();
+          return;
+        }
+        // Delete icon clicks
+        const r3Del = e.target.closest('.hdr-row3-del');
+        if (r3Del) {
+          const r3 = r3Del.closest('.hdr-row3[data-user-added="true"]');
+          if (r3) {
+            e.stopPropagation();
+            removeRow3(r3.dataset.row1Key, r3.dataset.row3Group, r3.dataset.row3Label);
+          }
+          return;
+        }
+        const r2Del = e.target.closest('.hdr-row2-del');
+        if (r2Del) {
+          const r2 = r2Del.closest('.hdr-row2[data-user-added="true"]');
+          if (r2) {
+            e.stopPropagation();
+            removeRow2(r2.dataset.row1Key, r2.dataset.row2Key);
+          }
+          return;
+        }
+        const r1Del = e.target.closest('.hdr-row1-del');
+        if (r1Del) {
+          const r1 = r1Del.closest('.hdr-row1[data-user-added="true"]');
+          if (r1) {
+            e.stopPropagation();
+            removeRow1(r1.dataset.row1Key);
+          }
+          return;
+        }
+      });
+
+      grid.addEventListener('dblclick', (e) => {
+        const r3 = e.target.closest('.hdr-row3[data-user-added="true"]');
+        if (r3) {
+          removeRow3(r3.dataset.row1Key, r3.dataset.row3Group, r3.dataset.row3Label);
+          return;
+        }
+        const r2 = e.target.closest('.hdr-row2[data-user-added="true"]');
+        if (r2) {
+          removeRow2(r2.dataset.row1Key, r2.dataset.row2Key);
+          return;
+        }
+        const r1 = e.target.closest('.hdr-row1[data-user-added="true"]');
+        if (r1) {
+          removeRow1(r1.dataset.row1Key);
+          return;
+        }
+      });
+
+      // ==================== INIT ====================
+      upgradeAndInsertPlaceholders();
+
+      // Restore saved columns: row1 → row2 → row3 order
+      const savedCols = loadColumns();
+      for (const r1 of savedCols.row1) {
+        insertRow1Column(r1.label);
+      }
+      for (const r2 of savedCols.row2) {
+        // Skip if default (row1Label is a default with row2Label matching)
+        insertRow2Column(r2.row1Label, r2.label);
+      }
+      for (const r3 of savedCols.row3) {
+        insertRow3Column(r3.row1Label, r3.row2Label, r3.label, false);
+      }
+
+      // ---------- Restore card positions ----------
+      const saved = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}');
+      Object.entries(saved).forEach(([cardId, zoneId]) => {
+        const card = document.querySelector(`[data-card-id="${cardId}"]`);
+        // Use attribute-selector-safe lookup (zoneId may contain | which is fine inside quoted attr).
+        const zone = Array.from(document.querySelectorAll('[data-drop-zone]'))
+          .find(el => el.dataset.dropZone === zoneId);
+        if (card && zone) zone.appendChild(card);
+      });
+
+      // ---------- DnD: drag handlers on cards ----------
+      document.querySelectorAll('[draggable="true"]').forEach(card => {
+        card.addEventListener('dragstart', (e) => {
+          e.dataTransfer.setData('text/plain', card.dataset.cardId);
+          e.dataTransfer.effectAllowed = 'move';
+          card.classList.add('opacity-50');
+        });
+        card.addEventListener('dragend', () => {
+          card.classList.remove('opacity-50');
+        });
+      });
+
+      // ---------- DnD: drop handlers on every data cell ----------
+      document.querySelectorAll('[data-drop-zone]').forEach(bindDropListeners);
+
+      rebuildGridTemplate();
+      syncHeaderSpans();
+
+      // ---------- Filters ----------
+      // Parse counselor from data-drop-zone label. "9:00|상담|임플|김수지아웃" -> "김수지"
+      function zoneCounselor(zone) {
+        const p = parseZone(zone);
+        if (!p) return null;
+        const leaf = p.label || '';
+        for (const c of COUNSELORS) {
+          if (leaf.startsWith(c)) return c;
+        }
+        return null;
+      }
+
+      function chipStatus(chip) {
+        if (chip.classList.contains('chip-success')) return 'success';
+        if (chip.classList.contains('chip-cancel')) return 'cancel';
+        if (chip.classList.contains('chip-wait')) return 'wait';
+        if (chip.classList.contains('chip-xres')) return 'noreserve';
+        if (chip.classList.contains('chip-base')) return 'default';
+        return 'default';
+      }
+
+      const counselorFilter = document.getElementById('counselorFilter');
+      const statusFilter = document.getElementById('statusFilter');
+      const summaryTotal = document.getElementById('summaryTotal');
+      const summarySuccess = document.getElementById('summarySuccess');
+      const summaryCancel = document.getElementById('summaryCancel');
+      const summaryWait = document.getElementById('summaryWait');
+
+      function applyFilters() {
+        const c = counselorFilter ? counselorFilter.value : 'all';
+        const s = statusFilter ? statusFilter.value : 'all';
+
+        let total = 0, nSuccess = 0, nCancel = 0, nWait = 0;
+
+        document.querySelectorAll('.chip[data-card-id]').forEach(chip => {
+          const zone = chip.parentElement ? chip.parentElement.dataset.dropZone : null;
+          const counselor = zoneCounselor(zone);
+          const status = chipStatus(chip);
+
+          const counselorOk = (c === 'all') || (counselor === c);
+          const statusOk = (s === 'all') || (status === s);
+
+          if (counselorOk && statusOk) {
+            chip.style.display = '';
+            total += 1;
+            if (status === 'success') nSuccess += 1;
+            else if (status === 'cancel') nCancel += 1;
+            else if (status === 'wait') nWait += 1;
+          } else {
+            chip.style.display = 'none';
+          }
+        });
+
+        if (summaryTotal) summaryTotal.textContent = total;
+        if (summarySuccess) summarySuccess.textContent = nSuccess;
+        if (summaryCancel) summaryCancel.textContent = nCancel;
+        if (summaryWait) summaryWait.textContent = nWait;
+      }
+
+      if (counselorFilter) counselorFilter.addEventListener('change', applyFilters);
+      if (statusFilter) statusFilter.addEventListener('change', applyFilters);
+
+      // Re-apply filters after DnD drop (to refresh counts/visibility)
+      document.addEventListener('drop', () => { setTimeout(applyFilters, 0); }, true);
+
+      applyFilters();
+
+      // ---------- 초기화 button ----------
+      const resetBtn = document.getElementById('resetBtn');
+      if (resetBtn) {
+        resetBtn.addEventListener('click', () => openDialog('resetDialog'));
+      }
+      const resetConfirm = document.getElementById('resetConfirm');
+      if (resetConfirm) {
+        resetConfirm.addEventListener('click', () => {
+          localStorage.removeItem(STORAGE_KEY);
+          closeDialog('resetDialog');
+          window.location.reload();
+        });
+      }
+    })();
+  </script>
+</body>
+</html>

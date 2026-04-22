@@ -1,0 +1,10 @@
+
+# funnel-crew (auto-generated)
+.claude/
+component-hub/
+credentials.json
+.env
+*.log
+__pycache__/
+.venv/
+demo/image.png

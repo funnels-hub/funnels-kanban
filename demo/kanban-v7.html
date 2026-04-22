@@ -1,0 +1,852 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>치과 상담 예약 대시보드 — Agenda List v7</title>
+
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.min.css" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Pretendard Variable', 'ui-sans-serif', 'system-ui', 'sans-serif'],
+          },
+          borderRadius: {
+            lg: 'var(--radius)',
+            md: 'calc(var(--radius) - 2px)',
+            sm: 'calc(var(--radius) - 4px)',
+            xl: 'calc(var(--radius) + 4px)',
+            '2xl': 'calc(var(--radius) + 8px)',
+            '3xl': 'calc(var(--radius) + 12px)',
+            '4xl': 'calc(var(--radius) + 16px)',
+          },
+          colors: {
+            background: 'var(--background)',
+            foreground: 'var(--foreground)',
+            card: { DEFAULT: 'var(--card)', foreground: 'var(--card-foreground)' },
+            popover: { DEFAULT: 'var(--popover)', foreground: 'var(--popover-foreground)' },
+            primary: { DEFAULT: 'var(--primary)', foreground: 'var(--primary-foreground)' },
+            secondary: { DEFAULT: 'var(--secondary)', foreground: 'var(--secondary-foreground)' },
+            muted: { DEFAULT: 'var(--muted)', foreground: 'var(--muted-foreground)' },
+            accent: { DEFAULT: 'var(--accent)', foreground: 'var(--accent-foreground)' },
+            destructive: { DEFAULT: 'var(--destructive)' },
+            border: 'var(--border)',
+            input: 'var(--input)',
+            ring: 'var(--ring)',
+            chart: {
+              1: 'var(--chart-1)',
+              2: 'var(--chart-2)',
+              3: 'var(--chart-3)',
+              4: 'var(--chart-4)',
+              5: 'var(--chart-5)',
+            },
+            sidebar: {
+              DEFAULT: 'var(--sidebar)',
+              foreground: 'var(--sidebar-foreground)',
+              primary: 'var(--sidebar-primary)',
+              'primary-foreground': 'var(--sidebar-primary-foreground)',
+              accent: 'var(--sidebar-accent)',
+              'accent-foreground': 'var(--sidebar-accent-foreground)',
+              border: 'var(--sidebar-border)',
+              ring: 'var(--sidebar-ring)',
+            },
+          },
+        },
+      },
+    }
+  </script>
+  <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+
+  <style>
+    :root {
+      --font-sans: "Pretendard Variable", ui-sans-serif, system-ui, sans-serif;
+      --radius: 0.625rem;
+
+      --background: oklch(1 0 0);
+      --foreground: oklch(0.145 0 0);
+      --card: oklch(1 0 0);
+      --card-foreground: oklch(0.145 0 0);
+      --popover: oklch(1 0 0);
+      --popover-foreground: oklch(0.145 0 0);
+      --primary: oklch(0.205 0 0);
+      --primary-foreground: oklch(0.985 0 0);
+      --secondary: oklch(0.97 0 0);
+      --secondary-foreground: oklch(0.205 0 0);
+      --muted: oklch(0.97 0 0);
+      --muted-foreground: oklch(0.556 0 0);
+      --accent: oklch(0.97 0 0);
+      --accent-foreground: oklch(0.205 0 0);
+      --destructive: oklch(0.577 0.245 27.325);
+      --border: oklch(0.922 0 0);
+      --input: oklch(0.922 0 0);
+      --ring: oklch(0.708 0 0);
+      --chart-1: oklch(0.646 0.222 41.116);
+      --chart-2: oklch(0.6 0.118 184.704);
+      --chart-3: oklch(0.398 0.07 227.392);
+      --chart-4: oklch(0.828 0.189 84.429);
+      --chart-5: oklch(0.769 0.188 70.08);
+      --sidebar: oklch(0.985 0 0);
+      --sidebar-foreground: oklch(0.145 0 0);
+      --sidebar-primary: oklch(0.205 0 0);
+      --sidebar-primary-foreground: oklch(0.985 0 0);
+      --sidebar-accent: oklch(0.97 0 0);
+      --sidebar-accent-foreground: oklch(0.205 0 0);
+      --sidebar-border: oklch(0.922 0 0);
+      --sidebar-ring: oklch(0.708 0 0);
+    }
+
+    .dark {
+      --background: oklch(0.145 0 0);
+      --foreground: oklch(0.985 0 0);
+      --card: oklch(0.205 0 0);
+      --card-foreground: oklch(0.985 0 0);
+      --popover: oklch(0.205 0 0);
+      --popover-foreground: oklch(0.985 0 0);
+      --primary: oklch(0.922 0 0);
+      --primary-foreground: oklch(0.205 0 0);
+      --secondary: oklch(0.269 0 0);
+      --secondary-foreground: oklch(0.985 0 0);
+      --muted: oklch(0.269 0 0);
+      --muted-foreground: oklch(0.708 0 0);
+      --accent: oklch(0.269 0 0);
+      --accent-foreground: oklch(0.985 0 0);
+      --destructive: oklch(0.704 0.191 22.216);
+      --border: oklch(1 0 0 / 10%);
+      --input: oklch(1 0 0 / 15%);
+      --ring: oklch(0.556 0 0);
+      --chart-1: oklch(0.488 0.243 264.376);
+      --chart-2: oklch(0.696 0.17 162.48);
+      --chart-3: oklch(0.769 0.188 70.08);
+      --chart-4: oklch(0.627 0.265 303.9);
+      --chart-5: oklch(0.645 0.246 16.439);
+      --sidebar: oklch(0.205 0 0);
+      --sidebar-foreground: oklch(0.985 0 0);
+      --sidebar-primary: oklch(0.488 0.243 264.376);
+      --sidebar-primary-foreground: oklch(0.985 0 0);
+      --sidebar-accent: oklch(0.269 0 0);
+      --sidebar-accent-foreground: oklch(0.985 0 0);
+      --sidebar-border: oklch(1 0 0 / 10%);
+      --sidebar-ring: oklch(0.556 0 0);
+    }
+
+    * { border-color: var(--border); outline-color: color-mix(in oklch, var(--ring) 50%, transparent); }
+    body {
+      font-family: var(--font-sans);
+      background-color: var(--background);
+      color: var(--foreground);
+    }
+
+    /* Group content collapse */
+    .group-collapsed > .group-body { display: none; }
+    .group-collapsed .chev { transform: rotate(-90deg); }
+    .chev { transition: transform 0.15s ease; }
+
+    /* Scrollbars (subtle) */
+    aside::-webkit-scrollbar, main section::-webkit-scrollbar { width: 8px; }
+    aside::-webkit-scrollbar-thumb, main section::-webkit-scrollbar-thumb {
+      background: color-mix(in oklch, var(--muted-foreground) 25%, transparent);
+      border-radius: 8px;
+    }
+  </style>
+</head>
+<body class="min-h-screen">
+
+  <!-- ========== HEADER ========== -->
+  <header class="sticky top-0 z-30 h-14 border-b bg-background/80 backdrop-blur flex items-center justify-between px-4">
+    <div class="flex items-center gap-3">
+      <div class="flex items-center gap-2">
+        <div class="size-8 rounded-lg bg-primary text-primary-foreground grid place-items-center">
+          <i data-lucide="sparkles" class="size-4"></i>
+        </div>
+        <span class="font-semibold tracking-tight">덴탈 CRM</span>
+        <span class="hidden md:inline text-xs text-muted-foreground">상담 예약 대시보드</span>
+      </div>
+
+      <div class="mx-3 hidden md:flex items-center gap-1 border rounded-md px-1 py-0.5">
+        <button class="size-7 grid place-items-center rounded hover:bg-accent" title="이전 날짜">
+          <i data-lucide="chevron-left" class="size-4"></i>
+        </button>
+        <div class="px-2 text-sm tabular-nums font-medium">2026-04-01 (수)</div>
+        <button class="size-7 grid place-items-center rounded hover:bg-accent" title="다음 날짜">
+          <i data-lucide="chevron-right" class="size-4"></i>
+        </button>
+        <button class="ml-1 h-7 px-2 text-xs rounded border hover:bg-accent">오늘</button>
+      </div>
+    </div>
+
+    <div class="flex items-center gap-2">
+      <button onclick="if(confirm('초기 상태로?')){localStorage.removeItem('kanban-v7-state');location.reload();}"
+              class="inline-flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground px-2 py-1 rounded hover:bg-muted">
+        <i data-lucide="rotate-ccw" class="size-3.5"></i> 초기화
+      </button>
+      <button class="size-9 grid place-items-center rounded-md hover:bg-accent relative" title="알림">
+        <i data-lucide="bell" class="size-4"></i>
+        <span class="absolute top-1.5 right-1.5 size-2 rounded-full bg-destructive"></span>
+      </button>
+      <button id="darkToggle" class="size-9 grid place-items-center rounded-md hover:bg-accent" title="다크 모드">
+        <i data-lucide="moon" class="size-4 dark:hidden"></i>
+        <i data-lucide="sun" class="size-4 hidden dark:inline"></i>
+      </button>
+      <div class="size-9 rounded-full bg-secondary grid place-items-center text-sm font-medium">유</div>
+    </div>
+  </header>
+
+  <!-- ========== KPI 요약 ========== -->
+  <section class="border-b px-4 py-2 flex items-center gap-3 text-sm">
+    <div class="flex items-center gap-1.5">
+      <i data-lucide="calendar-days" class="size-4 text-muted-foreground"></i>
+      <span class="font-medium">오늘 18건</span>
+    </div>
+    <span class="text-border">·</span>
+    <div class="flex items-center gap-1.5">
+      <span class="size-2 rounded-full bg-amber-500"></span>
+      <span class="text-muted-foreground">대기</span>
+      <span class="font-medium tabular-nums">8</span>
+    </div>
+    <span class="text-border">·</span>
+    <div class="flex items-center gap-1.5">
+      <span class="size-2 rounded-full bg-blue-500"></span>
+      <span class="text-muted-foreground">진행</span>
+      <span class="font-medium tabular-nums">3</span>
+    </div>
+    <span class="text-border">·</span>
+    <div class="flex items-center gap-1.5">
+      <span class="size-2 rounded-full bg-emerald-500"></span>
+      <span class="text-muted-foreground">성공</span>
+      <span class="font-medium tabular-nums">3</span>
+    </div>
+    <span class="text-border">·</span>
+    <div class="flex items-center gap-1.5">
+      <span class="size-2 rounded-full bg-rose-500"></span>
+      <span class="text-muted-foreground">취소</span>
+      <span class="font-medium tabular-nums">6</span>
+    </div>
+    <span class="text-border">·</span>
+    <div class="flex items-center gap-1.5">
+      <i data-lucide="trending-up" class="size-4 text-muted-foreground"></i>
+      <span class="text-muted-foreground">전환율</span>
+      <span class="font-medium tabular-nums">15%</span>
+    </div>
+
+    <div class="ml-auto">
+      <button class="inline-flex items-center gap-1.5 h-8 px-3 rounded-md bg-primary text-primary-foreground text-xs font-medium hover:opacity-90">
+        <i data-lucide="plus" class="size-3.5"></i>
+        새 상담
+      </button>
+    </div>
+  </section>
+
+  <!-- ========== 필터 탭 + 검색 ========== -->
+  <section class="border-b px-4 py-2 flex items-center justify-between gap-3">
+    <nav class="flex items-center gap-1 text-sm">
+      <button class="inline-flex items-center gap-1.5 h-8 px-3 rounded-md bg-secondary text-secondary-foreground font-medium">
+        전체 <span class="tabular-nums text-muted-foreground">18</span>
+      </button>
+      <button class="inline-flex items-center gap-1.5 h-8 px-3 rounded-md hover:bg-accent text-muted-foreground">
+        <span class="size-1.5 rounded-full bg-amber-500"></span>
+        대기 <span class="tabular-nums">8</span>
+      </button>
+      <button class="inline-flex items-center gap-1.5 h-8 px-3 rounded-md hover:bg-accent text-muted-foreground">
+        <span class="size-1.5 rounded-full bg-blue-500"></span>
+        진행 <span class="tabular-nums">3</span>
+      </button>
+      <button class="inline-flex items-center gap-1.5 h-8 px-3 rounded-md hover:bg-accent text-muted-foreground">
+        <span class="size-1.5 rounded-full bg-emerald-500"></span>
+        성공 <span class="tabular-nums">3</span>
+      </button>
+      <button class="inline-flex items-center gap-1.5 h-8 px-3 rounded-md hover:bg-accent text-muted-foreground">
+        <span class="size-1.5 rounded-full bg-rose-500"></span>
+        취소 <span class="tabular-nums">6</span>
+      </button>
+    </nav>
+
+    <div class="relative">
+      <i data-lucide="search" class="size-4 absolute left-2.5 top-1/2 -translate-y-1/2 text-muted-foreground"></i>
+      <input
+        type="search"
+        placeholder="환자/차트번호 검색"
+        class="h-8 w-56 md:w-72 pl-8 pr-3 rounded-md border bg-transparent text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring/40"
+      />
+    </div>
+  </section>
+
+  <!-- ========== MASTER-DETAIL ========== -->
+  <main class="grid lg:grid-cols-[380px_1fr] h-[calc(100vh-180px)]">
+
+    <!-- ========== 좌측 아젠다 ========== -->
+    <aside class="border-r overflow-y-auto">
+
+      <!-- Group 1: 오전 -->
+      <div class="group-block" data-group>
+        <button data-toggle class="w-full sticky top-0 z-10 bg-background/95 backdrop-blur flex items-center justify-between px-3 py-2 border-b text-sm font-medium">
+          <span class="flex items-center gap-2">
+            <i data-lucide="chevron-down" class="size-4 chev"></i>
+            오전 09:00–12:00
+          </span>
+          <span class="inline-flex h-5 px-2 items-center rounded-full bg-secondary text-xs tabular-nums">8건</span>
+        </button>
+        <div class="group-body divide-y" data-drop-zone="group-morning">
+          <!-- 09:00 임플 박종호 17541 대기 -->
+          <button draggable="true" data-card-id="card-17541" class="w-full grid grid-cols-[auto_auto_1fr_auto_auto] items-center gap-2 px-3 py-2 text-sm hover:bg-accent/50">
+            <span class="size-2 rounded-full bg-amber-500"></span>
+            <span class="tabular-nums text-muted-foreground font-mono">09:00</span>
+            <span class="truncate text-left"><span class="text-muted-foreground text-xs mr-1">임플</span>박종호</span>
+            <span class="text-xs text-muted-foreground tabular-nums font-mono">17541</span>
+            <span class="inline-flex h-5 px-2 items-center rounded-full text-[10px] font-medium bg-amber-100 text-amber-800 border border-amber-200">대기</span>
+          </button>
+          <!-- 09:00 임플 이승재 17545 예약x -->
+          <button draggable="true" data-card-id="card-17545" class="w-full grid grid-cols-[auto_auto_1fr_auto_auto] items-center gap-2 px-3 py-2 text-sm hover:bg-accent/50">
+            <span class="size-2 rounded-full bg-zinc-400"></span>
+            <span class="tabular-nums text-muted-foreground font-mono">09:00</span>
+            <span class="truncate text-left"><span class="text-muted-foreground text-xs mr-1">임플</span>이승재</span>
+            <span class="text-xs text-muted-foreground tabular-nums font-mono">17545</span>
+            <span class="inline-flex h-5 px-2 items-center rounded-full text-[10px] font-medium bg-zinc-100 text-zinc-700 border border-zinc-200">예약x</span>
+          </button>
+          <!-- 09:00 임플 김민정 17542 — 성공 ◀ 선택 -->
+          <button draggable="true" data-card-id="card-17542" class="w-full grid grid-cols-[auto_auto_1fr_auto_auto] items-center gap-2 px-3 py-2 text-sm bg-accent border-l-2 border-l-primary -ml-px">
+            <span class="size-2 rounded-full bg-emerald-500"></span>
+            <span class="tabular-nums text-muted-foreground font-mono">09:00</span>
+            <span class="truncate text-left font-medium"><span class="text-muted-foreground text-xs mr-1 font-normal">임플</span>김민정</span>
+            <span class="text-xs text-muted-foreground tabular-nums font-mono">17542</span>
+            <span class="inline-flex h-5 px-2 items-center rounded-full text-[10px] font-medium bg-emerald-100 text-emerald-800 border border-emerald-200">성공</span>
+          </button>
+          <!-- 09:00 임플 서성욱 9595 기본 -->
+          <button draggable="true" data-card-id="card-9595" class="w-full grid grid-cols-[auto_auto_1fr_auto_auto] items-center gap-2 px-3 py-2 text-sm hover:bg-accent/50">
+            <span class="size-2 rounded-full bg-slate-400"></span>
+            <span class="tabular-nums text-muted-foreground font-mono">09:00</span>
+            <span class="truncate text-left"><span class="text-muted-foreground text-xs mr-1">임플</span>서성욱</span>
+            <span class="text-xs text-muted-foreground tabular-nums font-mono">9595</span>
+            <span class="inline-flex h-5 px-2 items-center rounded-full text-[10px] font-medium bg-secondary text-secondary-foreground border">기본</span>
+          </button>
+          <!-- 09:00 일반 손민채 17550 취소 -->
+          <button draggable="true" data-card-id="card-17550" class="w-full grid grid-cols-[auto_auto_1fr_auto_auto] items-center gap-2 px-3 py-2 text-sm hover:bg-accent/50">
+            <span class="size-2 rounded-full bg-rose-500"></span>
+            <span class="tabular-nums text-muted-foreground font-mono line-through decoration-muted-foreground/60">09:00</span>
+            <span class="truncate text-left text-muted-foreground"><span class="text-xs mr-1">일반</span>손민채</span>
+            <span class="text-xs text-muted-foreground tabular-nums font-mono">17550</span>
+            <span class="inline-flex h-5 px-2 items-center rounded-full text-[10px] font-medium bg-rose-100 text-rose-800 border border-rose-200">취소</span>
+          </button>
+          <!-- 09:00 일반 홍단우 17549 취소 -->
+          <button draggable="true" data-card-id="card-17549" class="w-full grid grid-cols-[auto_auto_1fr_auto_auto] items-center gap-2 px-3 py-2 text-sm hover:bg-accent/50">
+            <span class="size-2 rounded-full bg-rose-500"></span>
+            <span class="tabular-nums text-muted-foreground font-mono line-through decoration-muted-foreground/60">09:00</span>
+            <span class="truncate text-left text-muted-foreground"><span class="text-xs mr-1">일반</span>홍단우</span>
+            <span class="text-xs text-muted-foreground tabular-nums font-mono">17549</span>
+            <span class="inline-flex h-5 px-2 items-center rounded-full text-[10px] font-medium bg-rose-100 text-rose-800 border border-rose-200">취소</span>
+          </button>
+          <!-- 09:30 임플 오희선 17543 대기 -->
+          <button draggable="true" data-card-id="card-17543" class="w-full grid grid-cols-[auto_auto_1fr_auto_auto] items-center gap-2 px-3 py-2 text-sm hover:bg-accent/50">
+            <span class="size-2 rounded-full bg-amber-500"></span>
+            <span class="tabular-nums text-muted-foreground font-mono">09:30</span>
+            <span class="truncate text-left"><span class="text-muted-foreground text-xs mr-1">임플</span>오희선</span>
+            <span class="text-xs text-muted-foreground tabular-nums font-mono">17543</span>
+            <span class="inline-flex h-5 px-2 items-center rounded-full text-[10px] font-medium bg-amber-100 text-amber-800 border border-amber-200">대기</span>
+          </button>
+          <!-- 09:30 임플 김화정 17548 대기 -->
+          <button draggable="true" data-card-id="card-17548" class="w-full grid grid-cols-[auto_auto_1fr_auto_auto] items-center gap-2 px-3 py-2 text-sm hover:bg-accent/50">
+            <span class="size-2 rounded-full bg-amber-500"></span>
+            <span class="tabular-nums text-muted-foreground font-mono">09:30</span>
+            <span class="truncate text-left"><span class="text-muted-foreground text-xs mr-1">임플</span>김화정</span>
+            <span class="text-xs text-muted-foreground tabular-nums font-mono">17548</span>
+            <span class="inline-flex h-5 px-2 items-center rounded-full text-[10px] font-medium bg-amber-100 text-amber-800 border border-amber-200">대기</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Group 2: 점심 (접힘) -->
+      <div class="group-block group-collapsed" data-group>
+        <button data-toggle class="w-full sticky top-0 z-10 bg-background/95 backdrop-blur flex items-center justify-between px-3 py-2 border-b text-sm font-medium">
+          <span class="flex items-center gap-2">
+            <i data-lucide="chevron-down" class="size-4 chev"></i>
+            점심 12:00–14:00
+          </span>
+          <span class="inline-flex h-5 px-2 items-center rounded-full bg-secondary text-xs tabular-nums">2건</span>
+        </button>
+        <div class="group-body divide-y" data-drop-zone="group-lunch">
+          <button draggable="true" data-card-id="card-474" class="w-full grid grid-cols-[auto_auto_1fr_auto_auto] items-center gap-2 px-3 py-2 text-sm hover:bg-accent/50">
+            <span class="size-2 rounded-full bg-slate-400"></span>
+            <span class="tabular-nums text-muted-foreground font-mono">12:30</span>
+            <span class="truncate text-left"><span class="text-muted-foreground text-xs mr-1">임플</span>서예진</span>
+            <span class="text-xs text-muted-foreground tabular-nums font-mono">474</span>
+            <span class="inline-flex h-5 px-2 items-center rounded-full text-[10px] font-medium bg-secondary text-secondary-foreground border">기본</span>
+          </button>
+          <button draggable="true" data-card-id="card-17544" class="w-full grid grid-cols-[auto_auto_1fr_auto_auto] items-center gap-2 px-3 py-2 text-sm hover:bg-accent/50">
+            <span class="size-2 rounded-full bg-amber-500"></span>
+            <span class="tabular-nums text-muted-foreground font-mono">13:00</span>
+            <span class="truncate text-left"><span class="text-muted-foreground text-xs mr-1">임플</span>최남숙</span>
+            <span class="text-xs text-muted-foreground tabular-nums font-mono">17544</span>
+            <span class="inline-flex h-5 px-2 items-center rounded-full text-[10px] font-medium bg-amber-100 text-amber-800 border border-amber-200">대기</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Group 3: 오후 -->
+      <div class="group-block" data-group>
+        <button data-toggle class="w-full sticky top-0 z-10 bg-background/95 backdrop-blur flex items-center justify-between px-3 py-2 border-b text-sm font-medium">
+          <span class="flex items-center gap-2">
+            <i data-lucide="chevron-down" class="size-4 chev"></i>
+            오후 14:00–18:00
+          </span>
+          <span class="inline-flex h-5 px-2 items-center rounded-full bg-secondary text-xs tabular-nums">6건</span>
+        </button>
+        <div class="group-body divide-y" data-drop-zone="group-afternoon">
+          <button draggable="true" data-card-id="card-9595-a" class="w-full grid grid-cols-[auto_auto_1fr_auto_auto] items-center gap-2 px-3 py-2 text-sm hover:bg-accent/50">
+            <span class="size-2 rounded-full bg-slate-400"></span>
+            <span class="tabular-nums text-muted-foreground font-mono">10:00</span>
+            <span class="truncate text-left"><span class="text-muted-foreground text-xs mr-1">신환</span>서성욱</span>
+            <span class="text-xs text-muted-foreground tabular-nums font-mono">9595</span>
+            <span class="inline-flex h-5 px-2 items-center rounded-full text-[10px] font-medium bg-secondary text-secondary-foreground border">기본</span>
+          </button>
+          <button draggable="true" data-card-id="card-17546" class="w-full grid grid-cols-[auto_auto_1fr_auto_auto] items-center gap-2 px-3 py-2 text-sm hover:bg-accent/50">
+            <span class="size-2 rounded-full bg-amber-500"></span>
+            <span class="tabular-nums text-muted-foreground font-mono">10:30</span>
+            <span class="truncate text-left"><span class="text-muted-foreground text-xs mr-1">임플</span>이현순</span>
+            <span class="text-xs text-muted-foreground tabular-nums font-mono">17546</span>
+            <span class="inline-flex h-5 px-2 items-center rounded-full text-[10px] font-medium bg-amber-100 text-amber-800 border border-amber-200">대기</span>
+          </button>
+          <button draggable="true" data-card-id="card-17547" class="w-full grid grid-cols-[auto_auto_1fr_auto_auto] items-center gap-2 px-3 py-2 text-sm hover:bg-accent/50">
+            <span class="size-2 rounded-full bg-amber-500"></span>
+            <span class="tabular-nums text-muted-foreground font-mono">11:00</span>
+            <span class="truncate text-left"><span class="text-muted-foreground text-xs mr-1">임플</span>이해룡</span>
+            <span class="text-xs text-muted-foreground tabular-nums font-mono">17547</span>
+            <span class="inline-flex h-5 px-2 items-center rounded-full text-[10px] font-medium bg-amber-100 text-amber-800 border border-amber-200">대기</span>
+          </button>
+          <button draggable="true" data-card-id="card-17541-a" class="w-full grid grid-cols-[auto_auto_1fr_auto_auto] items-center gap-2 px-3 py-2 text-sm hover:bg-accent/50">
+            <span class="size-2 rounded-full bg-amber-500"></span>
+            <span class="tabular-nums text-muted-foreground font-mono">11:30</span>
+            <span class="truncate text-left"><span class="text-muted-foreground text-xs mr-1">신환</span>박종호</span>
+            <span class="text-xs text-muted-foreground tabular-nums font-mono">17541</span>
+            <span class="inline-flex h-5 px-2 items-center rounded-full text-[10px] font-medium bg-amber-100 text-amber-800 border border-amber-200">대기</span>
+          </button>
+          <button draggable="true" data-card-id="card-17406" class="w-full grid grid-cols-[auto_auto_1fr_auto_auto] items-center gap-2 px-3 py-2 text-sm hover:bg-accent/50">
+            <span class="size-2 rounded-full bg-amber-500"></span>
+            <span class="tabular-nums text-muted-foreground font-mono">16:00</span>
+            <span class="truncate text-left"><span class="text-muted-foreground text-xs mr-1">일반</span>박경호</span>
+            <span class="text-xs text-muted-foreground tabular-nums font-mono">17406</span>
+            <span class="inline-flex h-5 px-2 items-center rounded-full text-[10px] font-medium bg-amber-100 text-amber-800 border border-amber-200">대기</span>
+          </button>
+          <button draggable="true" data-card-id="card-977" class="w-full grid grid-cols-[auto_auto_1fr_auto_auto] items-center gap-2 px-3 py-2 text-sm hover:bg-accent/50">
+            <span class="size-2 rounded-full bg-amber-500"></span>
+            <span class="tabular-nums text-muted-foreground font-mono">17:30</span>
+            <span class="truncate text-left"><span class="text-muted-foreground text-xs mr-1">일반</span>김정애</span>
+            <span class="text-xs text-muted-foreground tabular-nums font-mono">977</span>
+            <span class="inline-flex h-5 px-2 items-center rounded-full text-[10px] font-medium bg-amber-100 text-amber-800 border border-amber-200">대기</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Group 4: 저녁 -->
+      <div class="group-block" data-group>
+        <button data-toggle class="w-full sticky top-0 z-10 bg-background/95 backdrop-blur flex items-center justify-between px-3 py-2 border-b text-sm font-medium">
+          <span class="flex items-center gap-2">
+            <i data-lucide="chevron-down" class="size-4 chev"></i>
+            저녁 18:00–20:30
+          </span>
+          <span class="inline-flex h-5 px-2 items-center rounded-full bg-secondary text-xs tabular-nums">1건</span>
+        </button>
+        <div class="group-body divide-y" data-drop-zone="group-evening">
+          <button draggable="true" data-card-id="card-17553" class="w-full grid grid-cols-[auto_auto_1fr_auto_auto] items-center gap-2 px-3 py-2 text-sm hover:bg-accent/50">
+            <span class="size-2 rounded-full bg-amber-500"></span>
+            <span class="tabular-nums text-muted-foreground font-mono">20:30</span>
+            <span class="truncate text-left"><span class="text-muted-foreground text-xs mr-1">임플</span>김도희</span>
+            <span class="text-xs text-muted-foreground tabular-nums font-mono">17553</span>
+            <span class="inline-flex h-5 px-2 items-center rounded-full text-[10px] font-medium bg-amber-100 text-amber-800 border border-amber-200">대기</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Group 5: 상담 취소 -->
+      <div class="group-block m-3 rounded-lg border border-rose-300/50 bg-rose-50/40 dark:bg-rose-950/10 overflow-hidden" data-group>
+        <button data-toggle class="w-full sticky top-0 z-10 bg-rose-50/80 dark:bg-rose-950/30 backdrop-blur flex items-center justify-between px-3 py-2 border-b border-rose-300/50 text-sm font-medium text-rose-900 dark:text-rose-200">
+          <span class="flex items-center gap-2">
+            <i data-lucide="chevron-down" class="size-4 chev"></i>
+            <i data-lucide="alert-triangle" class="size-4"></i>
+            상담 취소
+          </span>
+          <span class="inline-flex h-5 px-2 items-center rounded-full bg-rose-200/80 dark:bg-rose-900/50 text-rose-900 dark:text-rose-200 text-xs tabular-nums">6건</span>
+        </button>
+        <div class="group-body divide-y divide-rose-200/60" data-drop-zone="group-cancel">
+          <button draggable="true" data-card-id="card-17159" class="w-full grid grid-cols-[auto_1fr_auto_auto] items-center gap-2 px-3 py-2 text-sm hover:bg-rose-100/40">
+            <i data-lucide="x" class="size-3.5 text-rose-600"></i>
+            <span class="truncate text-left text-muted-foreground">임용채</span>
+            <span class="text-xs text-muted-foreground tabular-nums font-mono">17159</span>
+            <span class="text-[10px] text-rose-700 bg-rose-100/70 border border-rose-200 px-1.5 py-0.5 rounded">타원진행</span>
+          </button>
+          <button draggable="true" data-card-id="card-17435" class="w-full grid grid-cols-[auto_1fr_auto_auto] items-center gap-2 px-3 py-2 text-sm hover:bg-rose-100/40">
+            <i data-lucide="x" class="size-3.5 text-rose-600"></i>
+            <span class="truncate text-left text-muted-foreground">주성중</span>
+            <span class="text-xs text-muted-foreground tabular-nums font-mono">17435</span>
+            <span class="text-[10px] text-rose-700 bg-rose-100/70 border border-rose-200 px-1.5 py-0.5 rounded">기존치과</span>
+          </button>
+          <button draggable="true" data-card-id="card-17237" class="w-full grid grid-cols-[auto_1fr_auto_auto] items-center gap-2 px-3 py-2 text-sm hover:bg-rose-100/40">
+            <i data-lucide="x" class="size-3.5 text-rose-600"></i>
+            <span class="truncate text-left text-muted-foreground">박종애</span>
+            <span class="text-xs text-muted-foreground tabular-nums font-mono">17237</span>
+            <span class="text-[10px] text-rose-700 bg-rose-100/70 border border-rose-200 px-1.5 py-0.5 rounded">치료거부</span>
+          </button>
+          <button draggable="true" data-card-id="card-17342" class="w-full grid grid-cols-[auto_1fr_auto_auto] items-center gap-2 px-3 py-2 text-sm hover:bg-rose-100/40">
+            <i data-lucide="x" class="size-3.5 text-rose-600"></i>
+            <span class="truncate text-left text-muted-foreground">이은선</span>
+            <span class="text-xs text-muted-foreground tabular-nums font-mono">17342</span>
+            <span class="text-[10px] text-rose-700 bg-rose-100/70 border border-rose-200 px-1.5 py-0.5 rounded">치료보류</span>
+          </button>
+          <button draggable="true" data-card-id="card-17488" class="w-full grid grid-cols-[auto_1fr_auto_auto] items-center gap-2 px-3 py-2 text-sm hover:bg-rose-100/40">
+            <i data-lucide="x" class="size-3.5 text-rose-600"></i>
+            <span class="truncate text-left text-muted-foreground">남명숙</span>
+            <span class="text-xs text-muted-foreground tabular-nums font-mono">17488</span>
+            <span class="text-[10px] text-rose-700 bg-rose-100/70 border border-rose-200 px-1.5 py-0.5 rounded">카드취소</span>
+          </button>
+          <button draggable="true" data-card-id="card-6690" class="w-full grid grid-cols-[auto_1fr_auto_auto] items-center gap-2 px-3 py-2 text-sm hover:bg-rose-100/40">
+            <i data-lucide="x" class="size-3.5 text-rose-600"></i>
+            <span class="truncate text-left text-muted-foreground">임승준</span>
+            <span class="text-xs text-muted-foreground tabular-nums font-mono">6690</span>
+            <span class="text-[10px] text-rose-700 bg-rose-100/70 border border-rose-200 px-1.5 py-0.5 rounded">치료불가</span>
+          </button>
+        </div>
+      </div>
+
+    </aside>
+
+    <!-- ========== 우측 상세 패널 (김민정 17542) ========== -->
+    <section class="overflow-y-auto">
+      <div class="p-6 space-y-5 max-w-4xl">
+
+        <!-- Header -->
+        <header class="flex items-start justify-between gap-3">
+          <div>
+            <div class="flex items-center gap-2 text-xs text-muted-foreground mb-1">
+              <i data-lucide="user" class="size-3.5"></i>
+              <span>환자 상세</span>
+            </div>
+            <h1 class="text-2xl font-semibold tracking-tight">김민정</h1>
+            <p class="text-sm text-muted-foreground mt-1">차트 17542 · 임플 · 그외</p>
+          </div>
+          <div class="flex items-center gap-2">
+            <span class="bg-emerald-500 text-white px-2.5 py-1 rounded-full text-xs font-medium inline-flex items-center gap-1">
+              <i data-lucide="check" class="size-3"></i>
+              완료/성공
+            </span>
+            <button class="size-8 grid place-items-center hover:bg-accent rounded" title="더보기">
+              <i data-lucide="more-horizontal" class="size-4"></i>
+            </button>
+          </div>
+        </header>
+
+        <!-- 연락처 + 액션 -->
+        <div class="flex items-center gap-3 text-sm text-muted-foreground flex-wrap">
+          <div class="inline-flex items-center gap-1.5">
+            <i data-lucide="phone" class="size-4"></i>
+            <span class="tabular-nums">010-****-****</span>
+          </div>
+          <span class="text-border">·</span>
+          <button class="underline hover:text-foreground">메시지 보내기</button>
+          <span class="text-border">·</span>
+          <div class="inline-flex items-center gap-1.5">
+            <i data-lucide="clock" class="size-4"></i>
+            <span>예약 11:30</span>
+          </div>
+        </div>
+
+        <!-- 타임라인 Card -->
+        <div class="rounded-lg border bg-card text-card-foreground">
+          <div class="px-4 py-3 border-b flex items-center justify-between">
+            <h2 class="text-sm font-semibold inline-flex items-center gap-2">
+              <i data-lucide="activity" class="size-4 text-muted-foreground"></i>
+              진행 타임라인
+            </h2>
+            <span class="text-xs text-muted-foreground tabular-nums">총 30분 소요</span>
+          </div>
+          <div class="p-4 space-y-3">
+            <div class="grid grid-cols-3 gap-3 text-sm">
+              <div class="rounded-md border p-3">
+                <div class="text-xs text-muted-foreground mb-1">예약</div>
+                <div class="font-semibold tabular-nums">11:30</div>
+              </div>
+              <div class="rounded-md border p-3">
+                <div class="text-xs text-muted-foreground mb-1">도착</div>
+                <div class="font-semibold tabular-nums">11:35 <span class="text-xs text-amber-600 font-normal">+5m</span></div>
+              </div>
+              <div class="rounded-md border p-3">
+                <div class="text-xs text-muted-foreground mb-1">종료</div>
+                <div class="font-semibold tabular-nums">12:05</div>
+              </div>
+            </div>
+            <div>
+              <div class="flex items-center justify-between text-xs text-muted-foreground mb-1.5">
+                <span>진행률</span>
+                <span class="tabular-nums font-medium text-foreground">65%</span>
+              </div>
+              <div class="h-2 rounded-full bg-secondary overflow-hidden">
+                <div class="h-full bg-emerald-500 rounded-full" style="width:65%"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 담당/분류 Card -->
+        <div class="rounded-lg border bg-card text-card-foreground">
+          <div class="px-4 py-3 border-b">
+            <h2 class="text-sm font-semibold inline-flex items-center gap-2">
+              <i data-lucide="tag" class="size-4 text-muted-foreground"></i>
+              담당 · 분류
+            </h2>
+          </div>
+          <div class="p-4 grid gap-3 sm:grid-cols-2">
+            <div>
+              <div class="text-xs text-muted-foreground mb-1.5">상담사</div>
+              <button class="inline-flex items-center gap-1.5 h-8 px-3 rounded-md border bg-background hover:bg-accent text-sm">
+                <span class="size-5 rounded-full bg-secondary grid place-items-center text-[10px] font-medium">?</span>
+                미배정
+                <i data-lucide="chevron-down" class="size-3.5 text-muted-foreground"></i>
+              </button>
+              <button class="ml-1 text-xs text-primary underline">할당</button>
+            </div>
+            <div>
+              <div class="text-xs text-muted-foreground mb-1.5">유형</div>
+              <div class="flex flex-wrap gap-1.5">
+                <span class="inline-flex items-center h-6 px-2 rounded-md bg-secondary text-xs font-medium">임플</span>
+                <span class="inline-flex items-center h-6 px-2 rounded-md bg-secondary text-xs font-medium">그외</span>
+              </div>
+            </div>
+            <div>
+              <div class="text-xs text-muted-foreground mb-1.5">결제</div>
+              <div class="text-sm inline-flex items-center gap-1.5">
+                <i data-lucide="credit-card" class="size-4 text-muted-foreground"></i>
+                카드 · <span class="font-semibold tabular-nums">50만원</span>
+              </div>
+            </div>
+            <div>
+              <div class="text-xs text-muted-foreground mb-1.5">태그</div>
+              <div class="flex flex-wrap gap-1.5">
+                <span class="inline-flex items-center h-6 px-2 rounded-md bg-amber-100 text-amber-800 border border-amber-200 text-xs font-medium">VIP</span>
+                <span class="inline-flex items-center h-6 px-2 rounded-md bg-blue-100 text-blue-800 border border-blue-200 text-xs font-medium">재방문</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 상태 변경 Card -->
+        <div class="rounded-lg border bg-card text-card-foreground">
+          <div class="px-4 py-3 border-b flex items-center justify-between">
+            <h2 class="text-sm font-semibold inline-flex items-center gap-2">
+              <i data-lucide="circle-dot" class="size-4 text-muted-foreground"></i>
+              상태 변경
+            </h2>
+            <button class="inline-flex items-center gap-1.5 h-8 px-3 rounded-md bg-primary text-primary-foreground text-xs font-medium hover:opacity-90">
+              <i data-lucide="save" class="size-3.5"></i>
+              저장
+            </button>
+          </div>
+          <div class="p-4">
+            <div role="radiogroup" class="grid grid-cols-4 gap-2">
+              <label class="cursor-pointer">
+                <input type="radio" name="status" class="peer sr-only" />
+                <div class="h-10 px-3 rounded-md border flex items-center justify-center gap-1.5 text-sm peer-checked:border-primary peer-checked:bg-primary/5 hover:bg-accent">
+                  <span class="size-2 rounded-full bg-amber-500"></span>
+                  대기
+                </div>
+              </label>
+              <label class="cursor-pointer">
+                <input type="radio" name="status" class="peer sr-only" />
+                <div class="h-10 px-3 rounded-md border flex items-center justify-center gap-1.5 text-sm peer-checked:border-primary peer-checked:bg-primary/5 hover:bg-accent">
+                  <span class="size-2 rounded-full bg-blue-500"></span>
+                  진행
+                </div>
+              </label>
+              <label class="cursor-pointer">
+                <input type="radio" name="status" class="peer sr-only" checked />
+                <div class="h-10 px-3 rounded-md border-2 border-primary bg-primary/5 flex items-center justify-center gap-1.5 text-sm font-medium">
+                  <span class="size-2 rounded-full bg-emerald-500"></span>
+                  성공
+                </div>
+              </label>
+              <label class="cursor-pointer">
+                <input type="radio" name="status" class="peer sr-only" />
+                <div class="h-10 px-3 rounded-md border flex items-center justify-center gap-1.5 text-sm peer-checked:border-primary peer-checked:bg-primary/5 hover:bg-accent">
+                  <span class="size-2 rounded-full bg-rose-500"></span>
+                  취소
+                </div>
+              </label>
+            </div>
+          </div>
+        </div>
+
+        <!-- 메모 Card -->
+        <div class="rounded-lg border bg-card text-card-foreground">
+          <div class="px-4 py-3 border-b">
+            <h2 class="text-sm font-semibold inline-flex items-center gap-2">
+              <i data-lucide="notebook-pen" class="size-4 text-muted-foreground"></i>
+              상담 메모
+            </h2>
+          </div>
+          <div class="p-4 space-y-3">
+            <textarea
+              rows="3"
+              class="w-full resize-none rounded-md border bg-transparent px-3 py-2 text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring/40"
+            >임플란트 상담 완료, 견적 확정. 다음주 월요일 2차 방문 예약.</textarea>
+            <div class="flex items-center justify-end gap-2">
+              <button class="h-8 px-3 rounded-md border text-sm hover:bg-accent">취소</button>
+              <button class="h-8 px-3 rounded-md bg-primary text-primary-foreground text-sm font-medium hover:opacity-90">메모 저장</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- 빠른 액션 -->
+        <div class="rounded-lg border bg-card text-card-foreground">
+          <div class="px-4 py-3 border-b">
+            <h2 class="text-sm font-semibold inline-flex items-center gap-2">
+              <i data-lucide="zap" class="size-4 text-muted-foreground"></i>
+              빠른 액션
+            </h2>
+          </div>
+          <div class="p-4 flex flex-wrap gap-2">
+            <button class="inline-flex items-center gap-1.5 h-9 px-3 rounded-md border hover:bg-accent text-sm">
+              <i data-lucide="phone" class="size-4"></i>
+              전화
+            </button>
+            <button class="inline-flex items-center gap-1.5 h-9 px-3 rounded-md border hover:bg-accent text-sm">
+              <i data-lucide="message-square" class="size-4"></i>
+              문자
+            </button>
+            <button class="inline-flex items-center gap-1.5 h-9 px-3 rounded-md border hover:bg-accent text-sm">
+              <i data-lucide="calendar-plus" class="size-4"></i>
+              재예약
+            </button>
+            <button class="inline-flex items-center gap-1.5 h-9 px-3 rounded-md border hover:bg-accent text-sm">
+              <i data-lucide="receipt" class="size-4"></i>
+              견적
+            </button>
+            <button class="inline-flex items-center gap-1.5 h-9 px-3 rounded-md border border-rose-300 text-rose-700 hover:bg-rose-50 text-sm">
+              <i data-lucide="x" class="size-4"></i>
+              취소
+            </button>
+          </div>
+        </div>
+
+        <!-- 활동 이력 -->
+        <div class="rounded-lg border bg-card text-card-foreground">
+          <div class="px-4 py-3 border-b">
+            <h2 class="text-sm font-semibold inline-flex items-center gap-2">
+              <i data-lucide="history" class="size-4 text-muted-foreground"></i>
+              활동 이력
+            </h2>
+          </div>
+          <ol class="p-4 relative">
+            <div class="absolute left-[22px] top-6 bottom-6 w-px bg-border"></div>
+
+            <li class="relative grid grid-cols-[auto_1fr] gap-3 pb-4">
+              <div class="size-4 rounded-full bg-amber-500 ring-4 ring-background relative z-10 mt-1 ml-[14px]"></div>
+              <div class="pl-2">
+                <div class="flex items-center gap-2 text-sm">
+                  <span class="tabular-nums font-mono text-muted-foreground">11:35</span>
+                  <span class="font-medium">도착 체크인</span>
+                </div>
+                <div class="text-xs text-muted-foreground mt-0.5">담당: 김수지</div>
+              </div>
+            </li>
+
+            <li class="relative grid grid-cols-[auto_1fr] gap-3 pb-4">
+              <div class="size-4 rounded-full bg-blue-500 ring-4 ring-background relative z-10 mt-1 ml-[14px]"></div>
+              <div class="pl-2">
+                <div class="flex items-center gap-2 text-sm">
+                  <span class="tabular-nums font-mono text-muted-foreground">11:40</span>
+                  <span class="font-medium">상담 시작</span>
+                </div>
+                <div class="text-xs text-muted-foreground mt-0.5">임플란트 견적 검토</div>
+              </div>
+            </li>
+
+            <li class="relative grid grid-cols-[auto_1fr] gap-3 pb-4">
+              <div class="size-4 rounded-full bg-indigo-500 ring-4 ring-background relative z-10 mt-1 ml-[14px]"></div>
+              <div class="pl-2">
+                <div class="flex items-center gap-2 text-sm">
+                  <span class="tabular-nums font-mono text-muted-foreground">12:00</span>
+                  <span class="font-medium">견적 확정</span>
+                  <span class="tabular-nums text-sm">50만원</span>
+                </div>
+                <div class="text-xs text-muted-foreground mt-0.5">카드 결제 안내</div>
+              </div>
+            </li>
+
+            <li class="relative grid grid-cols-[auto_1fr] gap-3">
+              <div class="size-4 rounded-full bg-emerald-500 ring-4 ring-background relative z-10 mt-1 ml-[14px]"></div>
+              <div class="pl-2">
+                <div class="flex items-center gap-2 text-sm">
+                  <span class="tabular-nums font-mono text-muted-foreground">12:05</span>
+                  <span class="font-medium">완료/성공 처리</span>
+                </div>
+                <div class="text-xs text-muted-foreground mt-0.5">다음주 월요일 2차 방문 예약 완료</div>
+              </div>
+            </li>
+          </ol>
+        </div>
+
+      </div>
+    </section>
+
+  </main>
+
+  <script>
+    // Lucide icons
+    lucide.createIcons();
+
+    // Dark mode toggle
+    const darkToggle = document.getElementById('darkToggle');
+    darkToggle?.addEventListener('click', () => {
+      document.documentElement.classList.toggle('dark');
+    });
+
+    // Collapsible groups
+    document.querySelectorAll('[data-toggle]').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        btn.closest('[data-group]')?.classList.toggle('group-collapsed');
+      });
+    });
+  </script>
+
+  <script>
+    (function() {
+      const STORAGE_KEY = 'kanban-v7-state';
+      const saved = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}');
+      Object.entries(saved).forEach(([cardId, zoneId]) => {
+        const card = document.querySelector(`[data-card-id="${cardId}"]`);
+        const zone = document.querySelector(`[data-drop-zone="${zoneId}"]`);
+        if (card && zone) zone.appendChild(card);
+      });
+      document.querySelectorAll('[draggable="true"]').forEach(card => {
+        card.addEventListener('dragstart', (e) => {
+          e.dataTransfer.setData('text/plain', card.dataset.cardId);
+          e.dataTransfer.effectAllowed = 'move';
+          card.classList.add('opacity-50');
+        });
+        card.addEventListener('dragend', () => card.classList.remove('opacity-50'));
+      });
+      document.querySelectorAll('[data-drop-zone]').forEach(zone => {
+        zone.addEventListener('dragover', (e) => {
+          e.preventDefault();
+          zone.classList.add('bg-primary/5', 'ring-2', 'ring-primary', 'ring-inset');
+        });
+        zone.addEventListener('dragleave', () => {
+          zone.classList.remove('bg-primary/5', 'ring-2', 'ring-primary', 'ring-inset');
+        });
+        zone.addEventListener('drop', (e) => {
+          e.preventDefault();
+          zone.classList.remove('bg-primary/5', 'ring-2', 'ring-primary', 'ring-inset');
+          const cardId = e.dataTransfer.getData('text/plain');
+          const card = document.querySelector(`[data-card-id="${cardId}"]`);
+          if (card) {
+            zone.appendChild(card);
+            const state = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}');
+            state[cardId] = zone.dataset.dropZone;
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+          }
+        });
+      });
+    })();
+  </script>
+</body>
+</html>

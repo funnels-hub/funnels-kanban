@@ -1,0 +1,985 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>치과 상담 v5 Kanban</title>
+
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.min.css" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Pretendard Variable', 'ui-sans-serif', 'system-ui', 'sans-serif'],
+          },
+          borderRadius: {
+            lg: 'var(--radius)',
+            md: 'calc(var(--radius) - 2px)',
+            sm: 'calc(var(--radius) - 4px)',
+            xl: 'calc(var(--radius) + 4px)',
+            '2xl': 'calc(var(--radius) + 8px)',
+            '3xl': 'calc(var(--radius) + 12px)',
+            '4xl': 'calc(var(--radius) + 16px)',
+          },
+          colors: {
+            background: 'var(--background)',
+            foreground: 'var(--foreground)',
+            card: { DEFAULT: 'var(--card)', foreground: 'var(--card-foreground)' },
+            popover: { DEFAULT: 'var(--popover)', foreground: 'var(--popover-foreground)' },
+            primary: { DEFAULT: 'var(--primary)', foreground: 'var(--primary-foreground)' },
+            secondary: { DEFAULT: 'var(--secondary)', foreground: 'var(--secondary-foreground)' },
+            muted: { DEFAULT: 'var(--muted)', foreground: 'var(--muted-foreground)' },
+            accent: { DEFAULT: 'var(--accent)', foreground: 'var(--accent-foreground)' },
+            destructive: { DEFAULT: 'var(--destructive)' },
+            border: 'var(--border)',
+            input: 'var(--input)',
+            ring: 'var(--ring)',
+            chart: {
+              1: 'var(--chart-1)',
+              2: 'var(--chart-2)',
+              3: 'var(--chart-3)',
+              4: 'var(--chart-4)',
+              5: 'var(--chart-5)',
+            },
+            sidebar: {
+              DEFAULT: 'var(--sidebar)',
+              foreground: 'var(--sidebar-foreground)',
+              primary: 'var(--sidebar-primary)',
+              'primary-foreground': 'var(--sidebar-primary-foreground)',
+              accent: 'var(--sidebar-accent)',
+              'accent-foreground': 'var(--sidebar-accent-foreground)',
+              border: 'var(--sidebar-border)',
+              ring: 'var(--sidebar-ring)',
+            },
+          },
+        },
+      },
+    }
+  </script>
+  <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+
+  <style>
+    :root {
+      --font-sans: "Pretendard Variable", ui-sans-serif, system-ui, sans-serif;
+      --radius: 0.625rem;
+
+      --background: oklch(1 0 0);
+      --foreground: oklch(0.145 0 0);
+      --card: oklch(1 0 0);
+      --card-foreground: oklch(0.145 0 0);
+      --popover: oklch(1 0 0);
+      --popover-foreground: oklch(0.145 0 0);
+      --primary: oklch(0.205 0 0);
+      --primary-foreground: oklch(0.985 0 0);
+      --secondary: oklch(0.97 0 0);
+      --secondary-foreground: oklch(0.205 0 0);
+      --muted: oklch(0.97 0 0);
+      --muted-foreground: oklch(0.556 0 0);
+      --accent: oklch(0.97 0 0);
+      --accent-foreground: oklch(0.205 0 0);
+      --destructive: oklch(0.577 0.245 27.325);
+      --border: oklch(0.922 0 0);
+      --input: oklch(0.922 0 0);
+      --ring: oklch(0.708 0 0);
+      --chart-1: oklch(0.646 0.222 41.116);
+      --chart-2: oklch(0.6 0.118 184.704);
+      --chart-3: oklch(0.398 0.07 227.392);
+      --chart-4: oklch(0.828 0.189 84.429);
+      --chart-5: oklch(0.769 0.188 70.08);
+      --sidebar: oklch(0.985 0 0);
+      --sidebar-foreground: oklch(0.145 0 0);
+      --sidebar-primary: oklch(0.205 0 0);
+      --sidebar-primary-foreground: oklch(0.985 0 0);
+      --sidebar-accent: oklch(0.97 0 0);
+      --sidebar-accent-foreground: oklch(0.205 0 0);
+      --sidebar-border: oklch(0.922 0 0);
+      --sidebar-ring: oklch(0.708 0 0);
+    }
+
+    .dark {
+      --background: oklch(0.145 0 0);
+      --foreground: oklch(0.985 0 0);
+      --card: oklch(0.205 0 0);
+      --card-foreground: oklch(0.985 0 0);
+      --popover: oklch(0.205 0 0);
+      --popover-foreground: oklch(0.985 0 0);
+      --primary: oklch(0.922 0 0);
+      --primary-foreground: oklch(0.205 0 0);
+      --secondary: oklch(0.269 0 0);
+      --secondary-foreground: oklch(0.985 0 0);
+      --muted: oklch(0.269 0 0);
+      --muted-foreground: oklch(0.708 0 0);
+      --accent: oklch(0.269 0 0);
+      --accent-foreground: oklch(0.985 0 0);
+      --destructive: oklch(0.704 0.191 22.216);
+      --border: oklch(1 0 0 / 10%);
+      --input: oklch(1 0 0 / 15%);
+      --ring: oklch(0.556 0 0);
+      --chart-1: oklch(0.488 0.243 264.376);
+      --chart-2: oklch(0.696 0.17 162.48);
+      --chart-3: oklch(0.769 0.188 70.08);
+      --chart-4: oklch(0.627 0.265 303.9);
+      --chart-5: oklch(0.645 0.246 16.439);
+      --sidebar: oklch(0.205 0 0);
+      --sidebar-foreground: oklch(0.985 0 0);
+      --sidebar-primary: oklch(0.488 0.243 264.376);
+      --sidebar-primary-foreground: oklch(0.985 0 0);
+      --sidebar-accent: oklch(0.269 0 0);
+      --sidebar-accent-foreground: oklch(0.985 0 0);
+      --sidebar-border: oklch(1 0 0 / 10%);
+      --sidebar-ring: oklch(0.556 0 0);
+    }
+
+    * { border-color: var(--border); outline-color: color-mix(in oklch, var(--ring) 50%, transparent); }
+    body {
+      font-family: var(--font-sans);
+      background-color: var(--background);
+      color: var(--foreground);
+    }
+
+    /* Subtle scrollbar for kanban columns */
+    .kanban-scroll::-webkit-scrollbar { width: 6px; height: 6px; }
+    .kanban-scroll::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+    .kanban-scroll::-webkit-scrollbar-track { background: transparent; }
+  </style>
+</head>
+<body class="min-h-screen">
+
+  <!-- 1. 앱바 -->
+  <header class="sticky top-0 z-30 bg-background/80 backdrop-blur border-b">
+    <div class="flex items-center justify-between px-4 h-14 gap-4">
+      <div class="flex items-center gap-3">
+        <div class="flex items-center gap-2">
+          <div class="size-8 rounded-lg bg-primary text-primary-foreground flex items-center justify-center">
+            <i data-lucide="layout-dashboard" class="size-4"></i>
+          </div>
+          <div>
+            <h1 class="text-sm font-bold leading-tight">치과 상담 v5 Kanban</h1>
+            <p class="text-[10px] text-muted-foreground leading-tight">Status-first Board</p>
+          </div>
+        </div>
+        <div class="h-6 w-px bg-border mx-1"></div>
+        <button class="inline-flex items-center gap-2 h-9 px-3 rounded-md border bg-card hover:bg-accent text-sm font-medium">
+          <i data-lucide="calendar" class="size-4 text-muted-foreground"></i>
+          2026-04-01
+          <i data-lucide="chevron-down" class="size-3.5 text-muted-foreground"></i>
+        </button>
+        <div class="hidden md:flex items-center gap-1">
+          <button class="size-8 rounded-md hover:bg-accent flex items-center justify-center">
+            <i data-lucide="chevron-left" class="size-4"></i>
+          </button>
+          <button class="h-8 px-2.5 rounded-md hover:bg-accent text-xs font-medium">오늘</button>
+          <button class="size-8 rounded-md hover:bg-accent flex items-center justify-center">
+            <i data-lucide="chevron-right" class="size-4"></i>
+          </button>
+        </div>
+      </div>
+
+      <div class="flex items-center gap-2">
+        <div class="relative hidden md:block">
+          <i data-lucide="search" class="absolute left-2.5 top-1/2 -translate-y-1/2 size-4 text-muted-foreground"></i>
+          <input type="text" placeholder="환자명 · 차트번호 검색" class="h-9 w-64 pl-8 pr-3 rounded-md border bg-card text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring/50" />
+        </div>
+        <button onclick="if(confirm('초기 상태로?')){localStorage.removeItem('kanban-v5-state');location.reload();}"
+                class="inline-flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground px-2 py-1 rounded hover:bg-muted">
+          <i data-lucide="rotate-ccw" class="size-3.5"></i> 초기화
+        </button>
+        <button class="size-9 rounded-md hover:bg-accent flex items-center justify-center relative">
+          <i data-lucide="bell" class="size-4"></i>
+          <span class="absolute top-1.5 right-1.5 size-2 rounded-full bg-rose-500"></span>
+        </button>
+        <button class="size-9 rounded-md hover:bg-accent flex items-center justify-center">
+          <i data-lucide="settings" class="size-4"></i>
+        </button>
+        <div class="size-8 rounded-full bg-chart-1 text-white flex items-center justify-center text-xs font-bold">관</div>
+      </div>
+    </div>
+  </header>
+
+  <!-- 2. KPI 6카드 -->
+  <section class="px-4 pt-4">
+    <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
+      <div class="rounded-lg border bg-card p-3">
+        <div class="flex items-center justify-between">
+          <span class="text-xs text-muted-foreground">총 상담</span>
+          <i data-lucide="users" class="size-3.5 text-muted-foreground"></i>
+        </div>
+        <div class="mt-1 text-2xl font-bold tabular-nums">17</div>
+        <div class="text-[10px] text-muted-foreground mt-0.5">건</div>
+      </div>
+      <div class="rounded-lg border bg-card p-3">
+        <div class="flex items-center justify-between">
+          <span class="text-xs text-muted-foreground">예약</span>
+          <span class="size-2 rounded-full bg-slate-400"></span>
+        </div>
+        <div class="mt-1 text-2xl font-bold tabular-nums">9</div>
+        <div class="text-[10px] text-muted-foreground mt-0.5">대기 + 진행</div>
+      </div>
+      <div class="rounded-lg border bg-card p-3">
+        <div class="flex items-center justify-between">
+          <span class="text-xs text-muted-foreground">성공</span>
+          <span class="size-2 rounded-full bg-emerald-500"></span>
+        </div>
+        <div class="mt-1 text-2xl font-bold tabular-nums text-emerald-600 dark:text-emerald-400">2</div>
+        <div class="text-[10px] text-muted-foreground mt-0.5">계약 완료</div>
+      </div>
+      <div class="rounded-lg border bg-card p-3">
+        <div class="flex items-center justify-between">
+          <span class="text-xs text-muted-foreground">취소</span>
+          <span class="size-2 rounded-full bg-rose-500"></span>
+        </div>
+        <div class="mt-1 text-2xl font-bold tabular-nums text-rose-600 dark:text-rose-400">7</div>
+        <div class="text-[10px] text-muted-foreground mt-0.5">이탈 포함</div>
+      </div>
+      <div class="rounded-lg border bg-card p-3">
+        <div class="flex items-center justify-between">
+          <span class="text-xs text-muted-foreground">계약액</span>
+          <i data-lucide="wallet" class="size-3.5 text-muted-foreground"></i>
+        </div>
+        <div class="mt-1 text-2xl font-bold tabular-nums">700<span class="text-sm font-medium text-muted-foreground ml-0.5">만</span></div>
+        <div class="text-[10px] text-muted-foreground mt-0.5">환불 -280만 제외</div>
+      </div>
+      <div class="rounded-lg border bg-card p-3">
+        <div class="flex items-center justify-between">
+          <span class="text-xs text-muted-foreground">평균 상담</span>
+          <i data-lucide="timer" class="size-3.5 text-muted-foreground"></i>
+        </div>
+        <div class="mt-1 text-2xl font-bold tabular-nums">24<span class="text-sm font-medium text-muted-foreground ml-0.5">분</span></div>
+        <div class="text-[10px] text-muted-foreground mt-0.5">오늘 기준</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 3. 필터 바 -->
+  <section class="px-4 pt-3 pb-2">
+    <div class="flex flex-wrap items-center gap-2 rounded-lg border bg-card px-3 py-2">
+      <div class="flex items-center gap-1.5">
+        <i data-lucide="filter" class="size-3.5 text-muted-foreground"></i>
+        <span class="text-xs font-medium text-muted-foreground">필터</span>
+      </div>
+
+      <div class="h-5 w-px bg-border"></div>
+
+      <button class="inline-flex items-center gap-1.5 h-8 px-2.5 rounded-md border bg-background hover:bg-accent text-xs">
+        <i data-lucide="user-round" class="size-3.5 text-muted-foreground"></i>
+        상담사 <span class="text-foreground font-medium">전체</span>
+        <i data-lucide="chevron-down" class="size-3 text-muted-foreground"></i>
+      </button>
+
+      <button class="inline-flex items-center gap-1.5 h-8 px-2.5 rounded-md border bg-background hover:bg-accent text-xs">
+        <i data-lucide="stethoscope" class="size-3.5 text-muted-foreground"></i>
+        유형 <span class="text-foreground font-medium">전체</span>
+        <i data-lucide="chevron-down" class="size-3 text-muted-foreground"></i>
+      </button>
+
+      <div class="inline-flex items-center rounded-md border bg-background p-0.5 text-xs">
+        <button class="h-7 px-2.5 rounded bg-primary text-primary-foreground font-medium">전체</button>
+        <button class="h-7 px-2.5 rounded hover:bg-accent">신환</button>
+        <button class="h-7 px-2.5 rounded hover:bg-accent">구환</button>
+      </div>
+
+      <button class="inline-flex items-center gap-1.5 h-8 px-2.5 rounded-md border bg-background hover:bg-accent text-xs">
+        <i data-lucide="arrow-up-down" class="size-3.5 text-muted-foreground"></i>
+        정렬 <span class="text-foreground font-medium">시간순</span>
+        <i data-lucide="chevron-down" class="size-3 text-muted-foreground"></i>
+      </button>
+
+      <div class="ml-auto flex items-center gap-2">
+        <button class="inline-flex items-center gap-1.5 h-8 px-3 rounded-md border bg-background hover:bg-accent text-xs font-medium">
+          <i data-lucide="download" class="size-3.5"></i>
+          내보내기
+        </button>
+        <button class="inline-flex items-center gap-1.5 h-8 px-3 rounded-md bg-primary text-primary-foreground hover:opacity-90 text-xs font-medium">
+          <i data-lucide="plus" class="size-3.5"></i>
+          새 상담
+        </button>
+      </div>
+    </div>
+  </section>
+
+  <!-- 메인: 사이드바 + 칸반 -->
+  <div class="flex gap-3 px-4 pb-4">
+
+    <!-- 좌측 사이드바 -->
+    <aside class="hidden lg:block w-48 shrink-0 space-y-3">
+      <div class="rounded-lg border bg-card p-3">
+        <h4 class="text-xs font-semibold mb-2 flex items-center gap-1.5">
+          <i data-lucide="calendar-check" class="size-3.5 text-muted-foreground"></i>
+          오늘 요약
+        </h4>
+        <ul class="space-y-1.5 text-xs">
+          <li class="flex items-center justify-between">
+            <span class="text-muted-foreground">총</span>
+            <span class="font-semibold tabular-nums">17</span>
+          </li>
+          <li class="flex items-center justify-between">
+            <span class="text-muted-foreground flex items-center gap-1">
+              <span class="size-1.5 rounded-full bg-slate-400"></span>예약
+            </span>
+            <span class="font-semibold tabular-nums">9</span>
+          </li>
+          <li class="flex items-center justify-between">
+            <span class="text-muted-foreground flex items-center gap-1">
+              <span class="size-1.5 rounded-full bg-emerald-500"></span>성공
+            </span>
+            <span class="font-semibold tabular-nums text-emerald-600 dark:text-emerald-400">2</span>
+          </li>
+          <li class="flex items-center justify-between">
+            <span class="text-muted-foreground flex items-center gap-1">
+              <span class="size-1.5 rounded-full bg-rose-500"></span>취소
+            </span>
+            <span class="font-semibold tabular-nums text-rose-600 dark:text-rose-400">7</span>
+          </li>
+        </ul>
+      </div>
+
+      <div class="rounded-lg border bg-card p-3">
+        <h4 class="text-xs font-semibold mb-2 flex items-center gap-1.5">
+          <i data-lucide="zap" class="size-3.5 text-muted-foreground"></i>
+          빠른 필터
+        </h4>
+        <div class="space-y-1.5">
+          <button class="w-full text-left text-xs px-2 py-1.5 rounded-md hover:bg-accent flex items-center gap-2">
+            <i data-lucide="user" class="size-3 text-muted-foreground"></i>
+            내 상담만
+          </button>
+          <button class="w-full text-left text-xs px-2 py-1.5 rounded-md hover:bg-accent flex items-center gap-2">
+            <i data-lucide="syringe" class="size-3 text-muted-foreground"></i>
+            임플만
+          </button>
+          <button class="w-full text-left text-xs px-2 py-1.5 rounded-md hover:bg-accent flex items-center gap-2">
+            <i data-lucide="x-circle" class="size-3 text-muted-foreground"></i>
+            취소 필요
+          </button>
+        </div>
+      </div>
+
+      <div class="rounded-lg border bg-card p-3">
+        <div class="flex items-center justify-between mb-2">
+          <h4 class="text-xs font-semibold flex items-center gap-1.5">
+            <i data-lucide="trending-up" class="size-3.5 text-muted-foreground"></i>
+            성공률
+          </h4>
+          <span class="text-xs font-bold tabular-nums">15%</span>
+        </div>
+        <div class="h-2 rounded-full bg-muted overflow-hidden">
+          <div class="h-full rounded-full bg-emerald-500" style="width: 15%"></div>
+        </div>
+        <p class="text-[10px] text-muted-foreground mt-1.5">2 / 13 방문완료</p>
+      </div>
+
+      <div class="rounded-lg border bg-card p-3">
+        <h4 class="text-xs font-semibold mb-2 flex items-center gap-1.5">
+          <i data-lucide="users" class="size-3.5 text-muted-foreground"></i>
+          상담사
+        </h4>
+        <div class="space-y-1.5 text-xs">
+          <div class="flex items-center justify-between">
+            <div class="flex items-center gap-1.5">
+              <span class="inline-flex size-5 rounded-full bg-violet-500 text-white items-center justify-center text-[10px] font-bold">김</span>
+              <span>김수지</span>
+            </div>
+            <span class="text-muted-foreground tabular-nums">8</span>
+          </div>
+          <div class="flex items-center justify-between">
+            <div class="flex items-center gap-1.5">
+              <span class="inline-flex size-5 rounded-full bg-amber-500 text-white items-center justify-center text-[10px] font-bold">유</span>
+              <span>유소연</span>
+            </div>
+            <span class="text-muted-foreground tabular-nums">6</span>
+          </div>
+        </div>
+      </div>
+    </aside>
+
+    <!-- Kanban Board -->
+    <main class="flex-1 grid grid-cols-5 gap-3 overflow-x-auto min-w-[1400px]">
+
+      <!-- Column 1: 예약 대기 -->
+      <section class="bg-slate-50 dark:bg-slate-900/30 rounded-lg flex flex-col max-h-[calc(100vh-200px)]">
+        <header class="flex items-center justify-between px-3 py-2 border-b border-l-4 border-l-slate-400">
+          <div class="flex items-center gap-2">
+            <span class="size-2 rounded-full bg-slate-400"></span>
+            <h3 class="font-semibold text-sm">예약 대기</h3>
+            <span data-count-badge="status-wait" class="inline-flex items-center h-5 px-2 rounded-full bg-background text-xs tabular-nums">4</span>
+          </div>
+          <button class="size-6 rounded hover:bg-background flex items-center justify-center">
+            <i data-lucide="plus" class="size-3.5"></i>
+          </button>
+        </header>
+        <div data-drop-zone="status-wait" class="flex-1 overflow-y-auto kanban-scroll p-2 space-y-2">
+
+          <!-- 11:50 오희선 -->
+          <div draggable="true" data-card-id="card-17543" class="rounded-lg border bg-card p-3 shadow-sm cursor-grab active:cursor-grabbing hover:shadow-md hover:-translate-y-0.5 transition space-y-2 border-l-4 border-l-slate-300">
+            <div class="flex items-center justify-between">
+              <span class="inline-flex items-center gap-1 text-xs font-mono tabular-nums text-muted-foreground">
+                <i data-lucide="clock" class="size-3"></i> 11:50
+              </span>
+              <button class="text-muted-foreground hover:text-foreground">
+                <i data-lucide="more-vertical" class="size-3.5"></i>
+              </button>
+            </div>
+            <div>
+              <div class="font-semibold text-sm">오희선</div>
+              <div class="text-xs text-muted-foreground font-mono">#17543</div>
+            </div>
+            <div class="flex flex-wrap gap-1">
+              <span class="inline-flex h-5 px-1.5 items-center rounded bg-secondary text-secondary-foreground text-[10px]">임플</span>
+              <span class="inline-flex h-5 px-1.5 items-center rounded border text-[10px]">그외</span>
+            </div>
+            <div class="flex items-center gap-1.5 text-xs pt-1 border-t">
+              <span class="inline-flex size-5 rounded-full bg-violet-500 text-white items-center justify-center text-[10px] font-bold">김</span>
+              <span class="text-muted-foreground">김수지</span>
+            </div>
+          </div>
+
+          <!-- 12:00 박종호 -->
+          <div draggable="true" data-card-id="card-17541-1" class="rounded-lg border bg-card p-3 shadow-sm cursor-grab active:cursor-grabbing hover:shadow-md hover:-translate-y-0.5 transition space-y-2 border-l-4 border-l-slate-300">
+            <div class="flex items-center justify-between">
+              <span class="inline-flex items-center gap-1 text-xs font-mono tabular-nums text-muted-foreground">
+                <i data-lucide="clock" class="size-3"></i> 12:00
+              </span>
+              <button class="text-muted-foreground hover:text-foreground">
+                <i data-lucide="more-vertical" class="size-3.5"></i>
+              </button>
+            </div>
+            <div>
+              <div class="font-semibold text-sm">박종호</div>
+              <div class="text-xs text-muted-foreground font-mono">#17541</div>
+            </div>
+            <div class="flex flex-wrap gap-1">
+              <span class="inline-flex h-5 px-1.5 items-center rounded bg-secondary text-secondary-foreground text-[10px]">임플</span>
+            </div>
+            <div class="flex items-center gap-1.5 text-xs pt-1 border-t">
+              <span class="inline-flex size-5 rounded-full bg-violet-500 text-white items-center justify-center text-[10px] font-bold">김</span>
+              <span class="text-muted-foreground">김수지</span>
+            </div>
+          </div>
+
+          <!-- 17:00 김화정 -->
+          <div draggable="true" data-card-id="card-17548" class="rounded-lg border bg-card p-3 shadow-sm cursor-grab active:cursor-grabbing hover:shadow-md hover:-translate-y-0.5 transition space-y-2 border-l-4 border-l-slate-300">
+            <div class="flex items-center justify-between">
+              <span class="inline-flex items-center gap-1 text-xs font-mono tabular-nums text-muted-foreground">
+                <i data-lucide="clock" class="size-3"></i> 17:00
+              </span>
+              <button class="text-muted-foreground hover:text-foreground">
+                <i data-lucide="more-vertical" class="size-3.5"></i>
+              </button>
+            </div>
+            <div>
+              <div class="font-semibold text-sm">김화정</div>
+              <div class="text-xs text-muted-foreground font-mono">#17548</div>
+            </div>
+            <div class="flex flex-wrap gap-1">
+              <span class="inline-flex h-5 px-1.5 items-center rounded bg-secondary text-secondary-foreground text-[10px]">임플</span>
+              <span class="inline-flex h-5 px-1.5 items-center rounded border text-[10px]">그외</span>
+            </div>
+            <div class="flex items-center gap-1.5 text-xs pt-1 border-t">
+              <span class="inline-flex size-5 rounded-full bg-amber-500 text-white items-center justify-center text-[10px] font-bold">유</span>
+              <span class="text-muted-foreground">유소연</span>
+            </div>
+          </div>
+
+          <!-- 20:30 김도희 -->
+          <div draggable="true" data-card-id="card-17553" class="rounded-lg border bg-card p-3 shadow-sm cursor-grab active:cursor-grabbing hover:shadow-md hover:-translate-y-0.5 transition space-y-2 border-l-4 border-l-slate-300">
+            <div class="flex items-center justify-between">
+              <span class="inline-flex items-center gap-1 text-xs font-mono tabular-nums text-muted-foreground">
+                <i data-lucide="clock" class="size-3"></i> 20:30
+              </span>
+              <button class="text-muted-foreground hover:text-foreground">
+                <i data-lucide="more-vertical" class="size-3.5"></i>
+              </button>
+            </div>
+            <div>
+              <div class="font-semibold text-sm">김도희</div>
+              <div class="text-xs text-muted-foreground font-mono">#17553</div>
+            </div>
+            <div class="flex flex-wrap gap-1">
+              <span class="inline-flex h-5 px-1.5 items-center rounded bg-secondary text-secondary-foreground text-[10px]">임플</span>
+            </div>
+            <div class="flex items-center gap-1.5 text-xs pt-1 border-t">
+              <span class="inline-flex size-5 rounded-full bg-amber-500 text-white items-center justify-center text-[10px] font-bold">유</span>
+              <span class="text-muted-foreground">유소연</span>
+            </div>
+          </div>
+
+        </div>
+        <footer class="p-2">
+          <button class="w-full text-xs text-muted-foreground hover:bg-accent rounded py-1.5 flex items-center justify-center gap-1">
+            <i data-lucide="plus" class="size-3"></i>
+            카드 추가
+          </button>
+        </footer>
+      </section>
+
+      <!-- Column 2: 방문 확인 -->
+      <section class="bg-gray-50 dark:bg-gray-900/30 rounded-lg flex flex-col max-h-[calc(100vh-200px)]">
+        <header class="flex items-center justify-between px-3 py-2 border-b border-l-4 border-l-gray-500">
+          <div class="flex items-center gap-2">
+            <span class="size-2 rounded-full bg-gray-500"></span>
+            <h3 class="font-semibold text-sm">방문 확인</h3>
+            <span data-count-badge="status-checkin" class="inline-flex items-center h-5 px-2 rounded-full bg-background text-xs tabular-nums">2</span>
+          </div>
+          <button class="size-6 rounded hover:bg-background flex items-center justify-center">
+            <i data-lucide="plus" class="size-3.5"></i>
+          </button>
+        </header>
+        <div data-drop-zone="status-checkin" class="flex-1 overflow-y-auto kanban-scroll p-2 space-y-2">
+
+          <!-- 10:00 서성욱 -->
+          <div draggable="true" data-card-id="card-9595-1" class="rounded-lg border bg-card p-3 shadow-sm cursor-grab active:cursor-grabbing hover:shadow-md hover:-translate-y-0.5 transition space-y-2 border-l-4 border-l-gray-400">
+            <div class="flex items-center justify-between">
+              <span class="inline-flex items-center gap-1 text-xs font-mono tabular-nums text-muted-foreground">
+                <i data-lucide="clock" class="size-3"></i> 10:00
+              </span>
+              <button class="text-muted-foreground hover:text-foreground">
+                <i data-lucide="more-vertical" class="size-3.5"></i>
+              </button>
+            </div>
+            <div>
+              <div class="font-semibold text-sm">서성욱</div>
+              <div class="text-xs text-muted-foreground font-mono">#9595</div>
+            </div>
+            <div class="flex flex-wrap gap-1">
+              <span class="inline-flex h-5 px-1.5 items-center rounded bg-secondary text-secondary-foreground text-[10px]">임플</span>
+              <span class="inline-flex h-5 px-1.5 items-center rounded border text-[10px]">재방문</span>
+            </div>
+            <div class="flex items-center gap-1.5 text-xs pt-1 border-t">
+              <span class="inline-flex size-5 rounded-full bg-amber-500 text-white items-center justify-center text-[10px] font-bold">유</span>
+              <span class="text-muted-foreground">유소연</span>
+            </div>
+          </div>
+
+          <!-- 11:30 박종호 -->
+          <div draggable="true" data-card-id="card-17541-2" class="rounded-lg border bg-card p-3 shadow-sm cursor-grab active:cursor-grabbing hover:shadow-md hover:-translate-y-0.5 transition space-y-2 border-l-4 border-l-gray-400">
+            <div class="flex items-center justify-between">
+              <span class="inline-flex items-center gap-1 text-xs font-mono tabular-nums text-muted-foreground">
+                <i data-lucide="clock" class="size-3"></i> 11:30
+              </span>
+              <button class="text-muted-foreground hover:text-foreground">
+                <i data-lucide="more-vertical" class="size-3.5"></i>
+              </button>
+            </div>
+            <div>
+              <div class="font-semibold text-sm">박종호</div>
+              <div class="text-xs text-muted-foreground font-mono">#17541</div>
+            </div>
+            <div class="flex flex-wrap gap-1">
+              <span class="inline-flex h-5 px-1.5 items-center rounded bg-sky-100 dark:bg-sky-900/40 text-sky-700 dark:text-sky-300 text-[10px]">신환</span>
+            </div>
+            <div class="flex items-center gap-1.5 text-xs pt-1 border-t">
+              <span class="inline-flex size-5 rounded-full bg-violet-500 text-white items-center justify-center text-[10px] font-bold">김</span>
+              <span class="text-muted-foreground">김수지</span>
+            </div>
+          </div>
+
+        </div>
+        <footer class="p-2">
+          <button class="w-full text-xs text-muted-foreground hover:bg-accent rounded py-1.5 flex items-center justify-center gap-1">
+            <i data-lucide="plus" class="size-3"></i>
+            카드 추가
+          </button>
+        </footer>
+      </section>
+
+      <!-- Column 3: 상담 진행 -->
+      <section class="bg-blue-50 dark:bg-blue-950/30 rounded-lg flex flex-col max-h-[calc(100vh-200px)]">
+        <header class="flex items-center justify-between px-3 py-2 border-b border-l-4 border-l-blue-500">
+          <div class="flex items-center gap-2">
+            <span class="size-2 rounded-full bg-blue-500 animate-pulse"></span>
+            <h3 class="font-semibold text-sm">상담 진행</h3>
+            <span data-count-badge="status-progress" class="inline-flex items-center h-5 px-2 rounded-full bg-background text-xs tabular-nums">2</span>
+          </div>
+          <button class="size-6 rounded hover:bg-background flex items-center justify-center">
+            <i data-lucide="plus" class="size-3.5"></i>
+          </button>
+        </header>
+        <div data-drop-zone="status-progress" class="flex-1 overflow-y-auto kanban-scroll p-2 space-y-2">
+
+          <!-- 10:30 이현순 -->
+          <div draggable="true" data-card-id="card-17546" class="rounded-lg border bg-card p-3 shadow-sm cursor-grab active:cursor-grabbing hover:shadow-md hover:-translate-y-0.5 transition space-y-2 border-l-4 border-l-blue-500">
+            <div class="flex items-center justify-between">
+              <span class="inline-flex items-center gap-1 text-xs font-mono tabular-nums text-muted-foreground">
+                <i data-lucide="clock" class="size-3"></i> 10:30
+              </span>
+              <span class="inline-flex items-center gap-1 text-[10px] text-blue-700 dark:text-blue-300 bg-blue-100 dark:bg-blue-900/50 px-1.5 py-0.5 rounded">
+                <span class="size-1.5 rounded-full bg-blue-500 animate-pulse"></span>
+                5분
+              </span>
+            </div>
+            <div>
+              <div class="font-semibold text-sm">이현순</div>
+              <div class="text-xs text-muted-foreground font-mono">#17546</div>
+            </div>
+            <div class="flex flex-wrap gap-1">
+              <span class="inline-flex h-5 px-1.5 items-center rounded bg-secondary text-secondary-foreground text-[10px]">임플</span>
+              <span class="inline-flex h-5 px-1.5 items-center rounded border text-[10px]">그외</span>
+            </div>
+            <div class="flex items-center gap-1.5 text-xs pt-1 border-t">
+              <span class="inline-flex size-5 rounded-full bg-violet-500 text-white items-center justify-center text-[10px] font-bold">김</span>
+              <span class="text-muted-foreground">김수지</span>
+            </div>
+          </div>
+
+          <!-- 11:00 이해룡 -->
+          <div draggable="true" data-card-id="card-17547" class="rounded-lg border bg-card p-3 shadow-sm cursor-grab active:cursor-grabbing hover:shadow-md hover:-translate-y-0.5 transition space-y-2 border-l-4 border-l-blue-500">
+            <div class="flex items-center justify-between">
+              <span class="inline-flex items-center gap-1 text-xs font-mono tabular-nums text-muted-foreground">
+                <i data-lucide="clock" class="size-3"></i> 11:00
+              </span>
+              <span class="inline-flex items-center gap-1 text-[10px] text-amber-700 dark:text-amber-300 bg-amber-100 dark:bg-amber-900/50 px-1.5 py-0.5 rounded">
+                <span class="size-1.5 rounded-full bg-amber-500 animate-pulse"></span>
+                12분
+              </span>
+            </div>
+            <div>
+              <div class="font-semibold text-sm">이해룡</div>
+              <div class="text-xs text-muted-foreground font-mono">#17547</div>
+            </div>
+            <div class="flex flex-wrap gap-1">
+              <span class="inline-flex h-5 px-1.5 items-center rounded bg-secondary text-secondary-foreground text-[10px]">임플</span>
+              <span class="inline-flex h-5 px-1.5 items-center rounded border text-[10px]">그외</span>
+            </div>
+            <div class="flex items-center gap-1.5 text-xs pt-1 border-t">
+              <span class="inline-flex size-5 rounded-full bg-violet-500 text-white items-center justify-center text-[10px] font-bold">김</span>
+              <span class="text-muted-foreground">김수지</span>
+            </div>
+          </div>
+
+        </div>
+        <footer class="p-2">
+          <button class="w-full text-xs text-muted-foreground hover:bg-accent rounded py-1.5 flex items-center justify-center gap-1">
+            <i data-lucide="plus" class="size-3"></i>
+            카드 추가
+          </button>
+        </footer>
+      </section>
+
+      <!-- Column 4: 완료/성공 -->
+      <section class="bg-emerald-50 dark:bg-emerald-950/30 rounded-lg flex flex-col max-h-[calc(100vh-200px)]">
+        <header class="flex items-center justify-between px-3 py-2 border-b border-l-4 border-l-emerald-500">
+          <div class="flex items-center gap-2">
+            <span class="size-2 rounded-full bg-emerald-500"></span>
+            <h3 class="font-semibold text-sm">완료/성공</h3>
+            <span data-count-badge="status-success" class="inline-flex items-center h-5 px-2 rounded-full bg-background text-xs tabular-nums">2</span>
+          </div>
+          <button class="size-6 rounded hover:bg-background flex items-center justify-center">
+            <i data-lucide="plus" class="size-3.5"></i>
+          </button>
+        </header>
+        <div data-drop-zone="status-success" class="flex-1 overflow-y-auto kanban-scroll p-2 space-y-2">
+
+          <!-- 11:30 김민정 -->
+          <div draggable="true" data-card-id="card-17542" class="rounded-lg border bg-card p-3 shadow-sm cursor-grab active:cursor-grabbing hover:shadow-md hover:-translate-y-0.5 transition space-y-2 border-l-4 border-l-emerald-500">
+            <div class="flex items-center justify-between">
+              <span class="inline-flex items-center gap-1 text-xs font-mono tabular-nums text-muted-foreground">
+                <i data-lucide="clock" class="size-3"></i> 11:30
+              </span>
+              <span class="inline-flex items-center gap-1 text-[10px] text-emerald-700 dark:text-emerald-300">
+                <i data-lucide="check-circle-2" class="size-3"></i>
+                계약
+              </span>
+            </div>
+            <div>
+              <div class="font-semibold text-sm">김민정</div>
+              <div class="text-xs text-muted-foreground font-mono">#17542</div>
+            </div>
+            <div class="flex flex-wrap gap-1">
+              <span class="inline-flex h-5 px-1.5 items-center rounded bg-emerald-100 dark:bg-emerald-900/40 text-emerald-700 dark:text-emerald-300 text-[10px] font-medium">임플 계약</span>
+            </div>
+            <div class="flex items-center justify-between gap-1.5 text-xs pt-1 border-t">
+              <div class="flex items-center gap-1.5">
+                <span class="inline-flex size-5 rounded-full bg-violet-500 text-white items-center justify-center text-[10px] font-bold">김</span>
+                <span class="text-muted-foreground">김수지</span>
+              </div>
+              <span class="font-bold tabular-nums text-emerald-700 dark:text-emerald-300">580만</span>
+            </div>
+          </div>
+
+          <!-- 09:00 서성욱 -->
+          <div draggable="true" data-card-id="card-9595-2" class="rounded-lg border bg-card p-3 shadow-sm cursor-grab active:cursor-grabbing hover:shadow-md hover:-translate-y-0.5 transition space-y-2 border-l-4 border-l-emerald-500">
+            <div class="flex items-center justify-between">
+              <span class="inline-flex items-center gap-1 text-xs font-mono tabular-nums text-muted-foreground">
+                <i data-lucide="clock" class="size-3"></i> 09:00
+              </span>
+              <span class="inline-flex items-center gap-1 text-[10px] text-emerald-700 dark:text-emerald-300">
+                <i data-lucide="check-circle-2" class="size-3"></i>
+                성공
+              </span>
+            </div>
+            <div>
+              <div class="font-semibold text-sm">서성욱</div>
+              <div class="text-xs text-muted-foreground font-mono">#9595</div>
+            </div>
+            <div class="flex flex-wrap gap-1">
+              <span class="inline-flex h-5 px-1.5 items-center rounded bg-secondary text-secondary-foreground text-[10px]">임플</span>
+              <span class="inline-flex h-5 px-1.5 items-center rounded border text-[10px]">재방문</span>
+            </div>
+            <div class="flex items-center justify-between gap-1.5 text-xs pt-1 border-t">
+              <span class="text-muted-foreground">—</span>
+              <span class="font-bold tabular-nums text-emerald-700 dark:text-emerald-300">120만</span>
+            </div>
+          </div>
+
+        </div>
+        <footer class="p-2">
+          <button class="w-full text-xs text-muted-foreground hover:bg-accent rounded py-1.5 flex items-center justify-center gap-1">
+            <i data-lucide="plus" class="size-3"></i>
+            카드 추가
+          </button>
+        </footer>
+      </section>
+
+      <!-- Column 5: 취소/이탈 -->
+      <section class="bg-rose-50 dark:bg-rose-950/30 rounded-lg flex flex-col max-h-[calc(100vh-200px)]">
+        <header class="flex items-center justify-between px-3 py-2 border-b border-l-4 border-l-rose-500">
+          <div class="flex items-center gap-2">
+            <span class="size-2 rounded-full bg-rose-500"></span>
+            <h3 class="font-semibold text-sm">취소/이탈</h3>
+            <span data-count-badge="status-cancel" class="inline-flex items-center h-5 px-2 rounded-full bg-background text-xs tabular-nums">7</span>
+          </div>
+          <button class="size-6 rounded hover:bg-background flex items-center justify-center">
+            <i data-lucide="plus" class="size-3.5"></i>
+          </button>
+        </header>
+        <div data-drop-zone="status-cancel" class="flex-1 overflow-y-auto kanban-scroll p-2 space-y-2">
+
+          <!-- 12:00 서예진 -->
+          <div draggable="true" data-card-id="card-474" class="rounded-lg border bg-card p-3 shadow-sm cursor-grab active:cursor-grabbing hover:shadow-md hover:-translate-y-0.5 transition space-y-2 border-l-4 border-l-rose-400 opacity-90">
+            <div class="flex items-center justify-between">
+              <span class="inline-flex items-center gap-1 text-xs font-mono tabular-nums text-muted-foreground">
+                <i data-lucide="clock" class="size-3"></i> 12:00
+              </span>
+              <button class="text-muted-foreground hover:text-foreground">
+                <i data-lucide="more-vertical" class="size-3.5"></i>
+              </button>
+            </div>
+            <div>
+              <div class="font-semibold text-sm">서예진</div>
+              <div class="text-xs text-muted-foreground font-mono">#474</div>
+            </div>
+            <div class="flex flex-wrap gap-1">
+              <span class="inline-flex h-5 px-1.5 items-center rounded border text-[10px]">구환</span>
+              <span class="inline-flex h-5 px-1.5 items-center rounded bg-rose-100 dark:bg-rose-900/40 text-rose-700 dark:text-rose-300 text-[10px]">예약x</span>
+            </div>
+            <div class="flex items-center gap-1.5 text-xs pt-1 border-t">
+              <span class="inline-flex size-5 rounded-full bg-amber-500 text-white items-center justify-center text-[10px] font-bold">유</span>
+              <span class="text-muted-foreground">유소연</span>
+            </div>
+          </div>
+
+          <!-- 09:00 이승재 -->
+          <div draggable="true" data-card-id="card-17545" class="rounded-lg border bg-card p-3 shadow-sm cursor-grab active:cursor-grabbing hover:shadow-md hover:-translate-y-0.5 transition space-y-2 border-l-4 border-l-rose-400 opacity-90">
+            <div class="flex items-center justify-between">
+              <span class="inline-flex items-center gap-1 text-xs font-mono tabular-nums text-muted-foreground">
+                <i data-lucide="clock" class="size-3"></i> 09:00
+              </span>
+              <button class="text-muted-foreground hover:text-foreground">
+                <i data-lucide="more-vertical" class="size-3.5"></i>
+              </button>
+            </div>
+            <div>
+              <div class="font-semibold text-sm">이승재</div>
+              <div class="text-xs text-muted-foreground font-mono">#17545</div>
+            </div>
+            <div class="flex flex-wrap gap-1">
+              <span class="inline-flex h-5 px-1.5 items-center rounded bg-secondary text-secondary-foreground text-[10px]">임플</span>
+              <span class="inline-flex h-5 px-1.5 items-center rounded bg-rose-100 dark:bg-rose-900/40 text-rose-700 dark:text-rose-300 text-[10px]">예약x</span>
+            </div>
+            <div class="flex items-center gap-1.5 text-xs pt-1 border-t">
+              <span class="inline-flex size-5 rounded-full bg-amber-500 text-white items-center justify-center text-[10px] font-bold">유</span>
+              <span class="text-muted-foreground">유소연</span>
+            </div>
+          </div>
+
+          <!-- 임용채 -->
+          <div draggable="true" data-card-id="card-17159" class="rounded-lg border bg-card p-3 shadow-sm cursor-grab active:cursor-grabbing hover:shadow-md hover:-translate-y-0.5 transition space-y-2 border-l-4 border-l-rose-400 opacity-90">
+            <div class="flex items-center justify-between">
+              <span class="inline-flex items-center gap-1 text-xs font-mono text-muted-foreground">
+                <i data-lucide="clock" class="size-3"></i> —
+              </span>
+              <button class="text-muted-foreground hover:text-foreground">
+                <i data-lucide="more-vertical" class="size-3.5"></i>
+              </button>
+            </div>
+            <div>
+              <div class="font-semibold text-sm">임용채</div>
+              <div class="text-xs text-muted-foreground font-mono">#17159</div>
+            </div>
+            <div class="flex flex-wrap gap-1">
+              <span class="inline-flex h-5 px-1.5 items-center rounded bg-rose-100 dark:bg-rose-900/40 text-rose-700 dark:text-rose-300 text-[10px]">타원진행</span>
+            </div>
+            <div class="flex items-center justify-between gap-1.5 text-xs pt-1 border-t">
+              <span class="text-muted-foreground flex items-center gap-1">
+                <i data-lucide="rotate-ccw" class="size-3"></i>환불
+              </span>
+              <span class="font-bold tabular-nums text-rose-600 dark:text-rose-400">-10만</span>
+            </div>
+          </div>
+
+          <!-- 박종애 -->
+          <div draggable="true" data-card-id="card-17237" class="rounded-lg border bg-card p-3 shadow-sm cursor-grab active:cursor-grabbing hover:shadow-md hover:-translate-y-0.5 transition space-y-2 border-l-4 border-l-rose-400 opacity-90">
+            <div class="flex items-center justify-between">
+              <span class="inline-flex items-center gap-1 text-xs font-mono text-muted-foreground">
+                <i data-lucide="clock" class="size-3"></i> —
+              </span>
+              <button class="text-muted-foreground hover:text-foreground">
+                <i data-lucide="more-vertical" class="size-3.5"></i>
+              </button>
+            </div>
+            <div>
+              <div class="font-semibold text-sm">박종애</div>
+              <div class="text-xs text-muted-foreground font-mono">#17237</div>
+            </div>
+            <div class="flex flex-wrap gap-1">
+              <span class="inline-flex h-5 px-1.5 items-center rounded bg-rose-100 dark:bg-rose-900/40 text-rose-700 dark:text-rose-300 text-[10px]">치료거부</span>
+            </div>
+            <div class="flex items-center justify-between gap-1.5 text-xs pt-1 border-t">
+              <span class="text-muted-foreground flex items-center gap-1">
+                <i data-lucide="rotate-ccw" class="size-3"></i>환불
+              </span>
+              <span class="font-bold tabular-nums text-rose-600 dark:text-rose-400">-260만</span>
+            </div>
+          </div>
+
+          <!-- 이은선 -->
+          <div draggable="true" data-card-id="card-17342" class="rounded-lg border bg-card p-3 shadow-sm cursor-grab active:cursor-grabbing hover:shadow-md hover:-translate-y-0.5 transition space-y-2 border-l-4 border-l-rose-400 opacity-90">
+            <div class="flex items-center justify-between">
+              <span class="inline-flex items-center gap-1 text-xs font-mono text-muted-foreground">
+                <i data-lucide="clock" class="size-3"></i> —
+              </span>
+              <button class="text-muted-foreground hover:text-foreground">
+                <i data-lucide="more-vertical" class="size-3.5"></i>
+              </button>
+            </div>
+            <div>
+              <div class="font-semibold text-sm">이은선</div>
+              <div class="text-xs text-muted-foreground font-mono">#17342</div>
+            </div>
+            <div class="flex flex-wrap gap-1">
+              <span class="inline-flex h-5 px-1.5 items-center rounded bg-rose-100 dark:bg-rose-900/40 text-rose-700 dark:text-rose-300 text-[10px]">치료보류</span>
+            </div>
+            <div class="flex items-center justify-between gap-1.5 text-xs pt-1 border-t">
+              <span class="text-muted-foreground flex items-center gap-1">
+                <i data-lucide="rotate-ccw" class="size-3"></i>환불
+              </span>
+              <span class="font-bold tabular-nums text-rose-600 dark:text-rose-400">-10만</span>
+            </div>
+          </div>
+
+          <!-- 손민채 -->
+          <div draggable="true" data-card-id="card-17550" class="rounded-lg border bg-card p-3 shadow-sm cursor-grab active:cursor-grabbing hover:shadow-md hover:-translate-y-0.5 transition space-y-2 border-l-4 border-l-rose-400 opacity-90">
+            <div class="flex items-center justify-between">
+              <span class="inline-flex items-center gap-1 text-xs font-mono text-muted-foreground">
+                <i data-lucide="clock" class="size-3"></i> —
+              </span>
+              <button class="text-muted-foreground hover:text-foreground">
+                <i data-lucide="more-vertical" class="size-3.5"></i>
+              </button>
+            </div>
+            <div>
+              <div class="font-semibold text-sm">손민채</div>
+              <div class="text-xs text-muted-foreground font-mono">#17550</div>
+            </div>
+            <div class="flex flex-wrap gap-1">
+              <span class="inline-flex h-5 px-1.5 items-center rounded border text-[10px]">일반</span>
+              <span class="inline-flex h-5 px-1.5 items-center rounded bg-rose-100 dark:bg-rose-900/40 text-rose-700 dark:text-rose-300 text-[10px]">no-show</span>
+            </div>
+            <div class="flex items-center gap-1.5 text-xs pt-1 border-t">
+              <span class="text-muted-foreground">—</span>
+            </div>
+          </div>
+
+          <!-- 홍단우 -->
+          <div draggable="true" data-card-id="card-17549" class="rounded-lg border bg-card p-3 shadow-sm cursor-grab active:cursor-grabbing hover:shadow-md hover:-translate-y-0.5 transition space-y-2 border-l-4 border-l-rose-400 opacity-90">
+            <div class="flex items-center justify-between">
+              <span class="inline-flex items-center gap-1 text-xs font-mono text-muted-foreground">
+                <i data-lucide="clock" class="size-3"></i> —
+              </span>
+              <button class="text-muted-foreground hover:text-foreground">
+                <i data-lucide="more-vertical" class="size-3.5"></i>
+              </button>
+            </div>
+            <div>
+              <div class="font-semibold text-sm">홍단우</div>
+              <div class="text-xs text-muted-foreground font-mono">#17549</div>
+            </div>
+            <div class="flex flex-wrap gap-1">
+              <span class="inline-flex h-5 px-1.5 items-center rounded border text-[10px]">일반</span>
+              <span class="inline-flex h-5 px-1.5 items-center rounded bg-rose-100 dark:bg-rose-900/40 text-rose-700 dark:text-rose-300 text-[10px]">no-show</span>
+            </div>
+            <div class="flex items-center gap-1.5 text-xs pt-1 border-t">
+              <span class="text-muted-foreground">—</span>
+            </div>
+          </div>
+
+        </div>
+        <footer class="p-2">
+          <button class="w-full text-xs text-muted-foreground hover:bg-accent rounded py-1.5 flex items-center justify-center gap-1">
+            <i data-lucide="plus" class="size-3"></i>
+            카드 추가
+          </button>
+        </footer>
+      </section>
+
+    </main>
+  </div>
+
+  <script>lucide.createIcons();</script>
+  <script>
+    (function() {
+      const STORAGE_KEY = 'kanban-v5-state';
+
+      function updateCounts() {
+        document.querySelectorAll('[data-drop-zone^="status-"]').forEach(zone => {
+          const count = zone.children.length;
+          const badge = document.querySelector(`[data-count-badge="${zone.dataset.dropZone}"]`);
+          if (badge) badge.textContent = count;
+        });
+      }
+
+      const saved = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}');
+      Object.entries(saved).forEach(([cardId, zoneId]) => {
+        const card = document.querySelector(`[data-card-id="${cardId}"]`);
+        const zone = document.querySelector(`[data-drop-zone="${zoneId}"]`);
+        if (card && zone) zone.appendChild(card);
+      });
+      updateCounts();
+
+      document.querySelectorAll('[draggable="true"]').forEach(card => {
+        card.addEventListener('dragstart', (e) => {
+          e.dataTransfer.setData('text/plain', card.dataset.cardId);
+          e.dataTransfer.effectAllowed = 'move';
+          card.classList.add('opacity-50', 'rotate-1');
+        });
+        card.addEventListener('dragend', () => card.classList.remove('opacity-50', 'rotate-1'));
+      });
+      document.querySelectorAll('[data-drop-zone]').forEach(zone => {
+        zone.addEventListener('dragover', (e) => {
+          e.preventDefault();
+          zone.classList.add('bg-primary/10', 'ring-2', 'ring-primary');
+        });
+        zone.addEventListener('dragleave', (e) => {
+          if (e.target === zone) zone.classList.remove('bg-primary/10', 'ring-2', 'ring-primary');
+        });
+        zone.addEventListener('drop', (e) => {
+          e.preventDefault();
+          zone.classList.remove('bg-primary/10', 'ring-2', 'ring-primary');
+          const cardId = e.dataTransfer.getData('text/plain');
+          const card = document.querySelector(`[data-card-id="${cardId}"]`);
+          if (card) {
+            zone.appendChild(card);
+            const state = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}');
+            state[cardId] = zone.dataset.dropZone;
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+            updateCounts();
+          }
+        });
+      });
+    })();
+  </script>
+</body>
+</html>

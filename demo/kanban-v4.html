@@ -1,0 +1,1067 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>치과 상담 예약 대시보드 — Counselor Swimlanes v4</title>
+
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.min.css" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Pretendard Variable', 'ui-sans-serif', 'system-ui', 'sans-serif'],
+          },
+          borderRadius: {
+            lg: 'var(--radius)',
+            md: 'calc(var(--radius) - 2px)',
+            sm: 'calc(var(--radius) - 4px)',
+            xl: 'calc(var(--radius) + 4px)',
+            '2xl': 'calc(var(--radius) + 8px)',
+            '3xl': 'calc(var(--radius) + 12px)',
+            '4xl': 'calc(var(--radius) + 16px)',
+          },
+          colors: {
+            background: 'var(--background)',
+            foreground: 'var(--foreground)',
+            card: { DEFAULT: 'var(--card)', foreground: 'var(--card-foreground)' },
+            popover: { DEFAULT: 'var(--popover)', foreground: 'var(--popover-foreground)' },
+            primary: { DEFAULT: 'var(--primary)', foreground: 'var(--primary-foreground)' },
+            secondary: { DEFAULT: 'var(--secondary)', foreground: 'var(--secondary-foreground)' },
+            muted: { DEFAULT: 'var(--muted)', foreground: 'var(--muted-foreground)' },
+            accent: { DEFAULT: 'var(--accent)', foreground: 'var(--accent-foreground)' },
+            destructive: { DEFAULT: 'var(--destructive)' },
+            border: 'var(--border)',
+            input: 'var(--input)',
+            ring: 'var(--ring)',
+            chart: {
+              1: 'var(--chart-1)',
+              2: 'var(--chart-2)',
+              3: 'var(--chart-3)',
+              4: 'var(--chart-4)',
+              5: 'var(--chart-5)',
+            },
+            sidebar: {
+              DEFAULT: 'var(--sidebar)',
+              foreground: 'var(--sidebar-foreground)',
+              primary: 'var(--sidebar-primary)',
+              'primary-foreground': 'var(--sidebar-primary-foreground)',
+              accent: 'var(--sidebar-accent)',
+              'accent-foreground': 'var(--sidebar-accent-foreground)',
+              border: 'var(--sidebar-border)',
+              ring: 'var(--sidebar-ring)',
+            },
+          },
+        },
+      },
+    }
+  </script>
+  <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+
+  <style>
+    :root {
+      --font-sans: "Pretendard Variable", ui-sans-serif, system-ui, sans-serif;
+      --radius: 0.625rem;
+
+      --background: oklch(1 0 0);
+      --foreground: oklch(0.145 0 0);
+      --card: oklch(1 0 0);
+      --card-foreground: oklch(0.145 0 0);
+      --popover: oklch(1 0 0);
+      --popover-foreground: oklch(0.145 0 0);
+      --primary: oklch(0.205 0 0);
+      --primary-foreground: oklch(0.985 0 0);
+      --secondary: oklch(0.97 0 0);
+      --secondary-foreground: oklch(0.205 0 0);
+      --muted: oklch(0.97 0 0);
+      --muted-foreground: oklch(0.556 0 0);
+      --accent: oklch(0.97 0 0);
+      --accent-foreground: oklch(0.205 0 0);
+      --destructive: oklch(0.577 0.245 27.325);
+      --border: oklch(0.922 0 0);
+      --input: oklch(0.922 0 0);
+      --ring: oklch(0.708 0 0);
+      --chart-1: oklch(0.646 0.222 41.116);
+      --chart-2: oklch(0.6 0.118 184.704);
+      --chart-3: oklch(0.398 0.07 227.392);
+      --chart-4: oklch(0.828 0.189 84.429);
+      --chart-5: oklch(0.769 0.188 70.08);
+      --sidebar: oklch(0.985 0 0);
+      --sidebar-foreground: oklch(0.145 0 0);
+      --sidebar-primary: oklch(0.205 0 0);
+      --sidebar-primary-foreground: oklch(0.985 0 0);
+      --sidebar-accent: oklch(0.97 0 0);
+      --sidebar-accent-foreground: oklch(0.205 0 0);
+      --sidebar-border: oklch(0.922 0 0);
+      --sidebar-ring: oklch(0.708 0 0);
+    }
+
+    .dark {
+      --background: oklch(0.145 0 0);
+      --foreground: oklch(0.985 0 0);
+      --card: oklch(0.205 0 0);
+      --card-foreground: oklch(0.985 0 0);
+      --popover: oklch(0.205 0 0);
+      --popover-foreground: oklch(0.985 0 0);
+      --primary: oklch(0.922 0 0);
+      --primary-foreground: oklch(0.205 0 0);
+      --secondary: oklch(0.269 0 0);
+      --secondary-foreground: oklch(0.985 0 0);
+      --muted: oklch(0.269 0 0);
+      --muted-foreground: oklch(0.708 0 0);
+      --accent: oklch(0.269 0 0);
+      --accent-foreground: oklch(0.985 0 0);
+      --destructive: oklch(0.704 0.191 22.216);
+      --border: oklch(1 0 0 / 10%);
+      --input: oklch(1 0 0 / 15%);
+      --ring: oklch(0.556 0 0);
+      --chart-1: oklch(0.488 0.243 264.376);
+      --chart-2: oklch(0.696 0.17 162.48);
+      --chart-3: oklch(0.769 0.188 70.08);
+      --chart-4: oklch(0.627 0.265 303.9);
+      --chart-5: oklch(0.645 0.246 16.439);
+      --sidebar: oklch(0.205 0 0);
+      --sidebar-foreground: oklch(0.985 0 0);
+      --sidebar-primary: oklch(0.488 0.243 264.376);
+      --sidebar-primary-foreground: oklch(0.985 0 0);
+      --sidebar-accent: oklch(0.269 0 0);
+      --sidebar-accent-foreground: oklch(0.985 0 0);
+      --sidebar-border: oklch(1 0 0 / 10%);
+      --sidebar-ring: oklch(0.556 0 0);
+    }
+
+    * { border-color: var(--border); outline-color: color-mix(in oklch, var(--ring) 50%, transparent); }
+    body {
+      font-family: var(--font-sans);
+      background-color: var(--background);
+      color: var(--foreground);
+    }
+
+    /* 커스텀 스크롤바 (타임라인용) */
+    .timeline-scroll::-webkit-scrollbar { height: 8px; }
+    .timeline-scroll::-webkit-scrollbar-track { background: var(--muted); border-radius: 4px; }
+    .timeline-scroll::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
+    .timeline-scroll::-webkit-scrollbar-thumb:hover { background: var(--muted-foreground); }
+  </style>
+</head>
+<body class="min-h-screen">
+
+  <!-- ========================= 상단바 ========================= -->
+  <header class="sticky top-0 z-40 bg-background/95 backdrop-blur border-b">
+    <div class="px-6 py-3 flex items-center justify-between gap-4">
+      <!-- 로고 + 날짜 -->
+      <div class="flex items-center gap-6">
+        <div class="flex items-center gap-2">
+          <div class="w-8 h-8 rounded-md bg-primary text-primary-foreground flex items-center justify-center">
+            <i data-lucide="stethoscope" class="w-4 h-4"></i>
+          </div>
+          <div class="flex flex-col leading-tight">
+            <span class="text-sm font-semibold">치과 상담 예약</span>
+            <span class="text-[10px] text-muted-foreground">Counselor Swimlanes · v4</span>
+          </div>
+        </div>
+
+        <div class="flex items-center gap-1 border rounded-md px-1 py-0.5">
+          <button class="w-7 h-7 rounded hover:bg-muted flex items-center justify-center">
+            <i data-lucide="chevron-left" class="w-4 h-4"></i>
+          </button>
+          <button class="px-3 h-7 text-sm font-mono font-medium tabular-nums flex items-center gap-2 hover:bg-muted rounded">
+            <i data-lucide="calendar" class="w-3.5 h-3.5 text-muted-foreground"></i>
+            2026-04-01 (수)
+          </button>
+          <button class="w-7 h-7 rounded hover:bg-muted flex items-center justify-center">
+            <i data-lucide="chevron-right" class="w-4 h-4"></i>
+          </button>
+        </div>
+
+        <!-- 레인 표시 Toggle -->
+        <div class="flex items-center gap-1 bg-muted rounded-md p-1">
+          <span class="px-2 text-[10px] text-muted-foreground font-medium uppercase tracking-wider">레인</span>
+          <button class="h-7 px-2.5 rounded text-xs font-medium bg-background shadow-sm flex items-center gap-1">
+            <span class="w-2 h-2 rounded-full bg-violet-500"></span> 김수지
+          </button>
+          <button class="h-7 px-2.5 rounded text-xs font-medium bg-background shadow-sm flex items-center gap-1">
+            <span class="w-2 h-2 rounded-full bg-cyan-500"></span> 라근주
+          </button>
+          <button class="h-7 px-2.5 rounded text-xs font-medium bg-background shadow-sm flex items-center gap-1">
+            <span class="w-2 h-2 rounded-full bg-emerald-500"></span> 유소연
+          </button>
+          <button class="h-7 px-2.5 rounded text-xs font-medium bg-background shadow-sm flex items-center gap-1">
+            <i data-lucide="phone" class="w-3 h-3"></i> 전화
+          </button>
+          <button class="h-7 px-2.5 rounded text-xs font-medium bg-background shadow-sm flex items-center gap-1">
+            <i data-lucide="x-circle" class="w-3 h-3 text-red-500"></i> 취소
+          </button>
+        </div>
+      </div>
+
+      <!-- 우측: 뷰 전환 + 액션 -->
+      <div class="flex items-center gap-3">
+        <div class="flex items-center gap-0 border rounded-md p-0.5">
+          <button class="h-7 px-3 text-xs font-medium hover:bg-muted rounded flex items-center gap-1.5">
+            <i data-lucide="columns-3" class="w-3.5 h-3.5"></i> Board
+          </button>
+          <button class="h-7 px-3 text-xs font-semibold bg-primary text-primary-foreground rounded flex items-center gap-1.5">
+            <i data-lucide="rows-3" class="w-3.5 h-3.5"></i> Swim
+          </button>
+          <button class="h-7 px-3 text-xs font-medium hover:bg-muted rounded flex items-center gap-1.5">
+            <i data-lucide="bar-chart-horizontal-big" class="w-3.5 h-3.5"></i> Timeline
+          </button>
+        </div>
+
+        <button class="h-8 px-3 rounded-md border hover:bg-muted text-xs font-medium flex items-center gap-1.5">
+          <i data-lucide="filter" class="w-3.5 h-3.5"></i> 필터
+        </button>
+
+        <button class="h-8 px-3 rounded-md bg-primary text-primary-foreground hover:opacity-90 text-xs font-medium flex items-center gap-1.5">
+          <i data-lucide="plus" class="w-3.5 h-3.5"></i> 예약 추가
+        </button>
+
+        <button onclick="if(confirm('초기 상태로?')){localStorage.removeItem('kanban-v4-state');location.reload();}"
+                class="inline-flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground px-2 py-1 rounded hover:bg-muted">
+          <i data-lucide="rotate-ccw" class="size-3.5"></i> 초기화
+        </button>
+
+        <div class="w-8 h-8 rounded-full bg-muted flex items-center justify-center text-xs font-semibold">관</div>
+      </div>
+    </div>
+
+    <!-- KPI Strip -->
+    <div class="px-6 pb-3 flex items-center gap-3">
+      <div class="flex items-center gap-6 px-4 py-2 rounded-md bg-muted/40 border">
+        <div class="flex items-center gap-2">
+          <div class="w-1 h-6 rounded-full bg-blue-500"></div>
+          <div class="flex flex-col">
+            <span class="text-[10px] text-muted-foreground uppercase tracking-wider">총 예약</span>
+            <span class="text-lg font-semibold tabular-nums">18</span>
+          </div>
+        </div>
+        <div class="flex items-center gap-2">
+          <div class="w-1 h-6 rounded-full bg-emerald-500"></div>
+          <div class="flex flex-col">
+            <span class="text-[10px] text-muted-foreground uppercase tracking-wider">확정</span>
+            <span class="text-lg font-semibold tabular-nums">11</span>
+          </div>
+        </div>
+        <div class="flex items-center gap-2">
+          <div class="w-1 h-6 rounded-full bg-red-500"></div>
+          <div class="flex flex-col">
+            <span class="text-[10px] text-muted-foreground uppercase tracking-wider">취소</span>
+            <span class="text-lg font-semibold tabular-nums">6</span>
+          </div>
+        </div>
+        <div class="flex items-center gap-2">
+          <div class="w-1 h-6 rounded-full bg-violet-500"></div>
+          <div class="flex flex-col">
+            <span class="text-[10px] text-muted-foreground uppercase tracking-wider">성공률</span>
+            <span class="text-lg font-semibold tabular-nums">61%</span>
+          </div>
+        </div>
+        <div class="flex items-center gap-2">
+          <div class="w-1 h-6 rounded-full bg-amber-500"></div>
+          <div class="flex flex-col">
+            <span class="text-[10px] text-muted-foreground uppercase tracking-wider">손실액</span>
+            <span class="text-lg font-semibold tabular-nums">320만</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="ml-auto flex items-center gap-2 text-xs text-muted-foreground">
+        <i data-lucide="info" class="w-3.5 h-3.5"></i>
+        <span>30분 = 72px · 9:00 → 20:30</span>
+      </div>
+    </div>
+  </header>
+
+  <!-- ========================= 메인: Swimlanes ========================= -->
+  <main class="pb-10">
+
+    <!-- 가로 스크롤 공용 컨테이너 -->
+    <div class="relative">
+
+      <!-- 시간축 헤더 (sticky top) -->
+      <div class="sticky top-[108px] z-30 bg-background/95 backdrop-blur border-b grid grid-cols-[14rem_1fr]">
+        <!-- 좌측 공백 (프로필 컬럼과 정렬) -->
+        <div class="border-r bg-muted/30 flex items-center px-3">
+          <span class="text-[10px] text-muted-foreground uppercase tracking-wider font-medium">상담사 / 시간</span>
+        </div>
+        <!-- 시간 눈금 -->
+        <div class="overflow-x-auto timeline-scroll" id="timeHeader">
+          <div class="flex">
+            <!-- 9:00 ~ 20:30 (30분 간격, 24개) -->
+            <div class="min-w-[72px] h-10 border-r text-xs text-muted-foreground font-mono flex items-center justify-center">9:00</div>
+            <div class="min-w-[72px] h-10 border-r text-[10px] text-muted-foreground/60 font-mono flex items-center justify-center">9:30</div>
+            <div class="min-w-[72px] h-10 border-r text-xs text-muted-foreground font-mono flex items-center justify-center">10:00</div>
+            <div class="min-w-[72px] h-10 border-r text-[10px] text-muted-foreground/60 font-mono flex items-center justify-center">10:30</div>
+            <div class="min-w-[72px] h-10 border-r text-xs text-muted-foreground font-mono flex items-center justify-center">11:00</div>
+            <div class="min-w-[72px] h-10 border-r text-[10px] text-muted-foreground/60 font-mono flex items-center justify-center">11:30</div>
+            <div class="min-w-[72px] h-10 border-r text-xs text-muted-foreground font-mono flex items-center justify-center bg-amber-50/40">12:00</div>
+            <div class="min-w-[72px] h-10 border-r text-[10px] text-muted-foreground/60 font-mono flex items-center justify-center bg-amber-50/40">12:30</div>
+            <div class="min-w-[72px] h-10 border-r text-xs text-muted-foreground font-mono flex items-center justify-center bg-amber-50/40">13:00</div>
+            <div class="min-w-[72px] h-10 border-r text-[10px] text-muted-foreground/60 font-mono flex items-center justify-center">13:30</div>
+            <div class="min-w-[72px] h-10 border-r text-xs text-muted-foreground font-mono flex items-center justify-center">14:00</div>
+            <div class="min-w-[72px] h-10 border-r text-[10px] text-muted-foreground/60 font-mono flex items-center justify-center">14:30</div>
+            <div class="min-w-[72px] h-10 border-r text-xs text-muted-foreground font-mono flex items-center justify-center">15:00</div>
+            <div class="min-w-[72px] h-10 border-r text-[10px] text-muted-foreground/60 font-mono flex items-center justify-center">15:30</div>
+            <div class="min-w-[72px] h-10 border-r text-xs text-muted-foreground font-mono flex items-center justify-center">16:00</div>
+            <div class="min-w-[72px] h-10 border-r text-[10px] text-muted-foreground/60 font-mono flex items-center justify-center">16:30</div>
+            <div class="min-w-[72px] h-10 border-r text-xs text-muted-foreground font-mono flex items-center justify-center">17:00</div>
+            <div class="min-w-[72px] h-10 border-r text-[10px] text-muted-foreground/60 font-mono flex items-center justify-center">17:30</div>
+            <div class="min-w-[72px] h-10 border-r text-xs text-muted-foreground font-mono flex items-center justify-center">18:00</div>
+            <div class="min-w-[72px] h-10 border-r text-[10px] text-muted-foreground/60 font-mono flex items-center justify-center">18:30</div>
+            <div class="min-w-[72px] h-10 border-r text-xs text-muted-foreground font-mono flex items-center justify-center">19:00</div>
+            <div class="min-w-[72px] h-10 border-r text-[10px] text-muted-foreground/60 font-mono flex items-center justify-center">19:30</div>
+            <div class="min-w-[72px] h-10 border-r text-xs text-muted-foreground font-mono flex items-center justify-center">20:00</div>
+            <div class="min-w-[72px] h-10 border-r text-[10px] text-muted-foreground/60 font-mono flex items-center justify-center">20:30</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ================== 레인 1: 김수지 (상담팀장) ================== -->
+      <section class="grid grid-cols-[14rem_1fr] border-b min-h-[112px] hover:bg-muted/20 transition-colors group">
+        <!-- 좌측 프로필 -->
+        <div class="sticky left-0 z-20 bg-background border-r p-3 flex flex-col gap-2 items-center justify-center group-hover:bg-muted/30">
+          <div class="relative">
+            <div class="w-12 h-12 rounded-full bg-gradient-to-br from-violet-400 to-violet-600 text-white flex items-center justify-center font-semibold text-lg shadow-sm">
+              김
+            </div>
+            <div class="absolute -bottom-0.5 -right-0.5 w-4 h-4 rounded-full bg-emerald-500 border-2 border-background"></div>
+          </div>
+          <div class="flex flex-col items-center gap-0.5">
+            <span class="text-sm font-semibold">김수지</span>
+            <span class="text-[10px] text-violet-600 font-medium bg-violet-50 px-1.5 py-0.5 rounded">상담팀장</span>
+          </div>
+          <div class="flex items-center gap-1 text-[10px] font-mono tabular-nums">
+            <span class="px-1.5 py-0.5 rounded bg-blue-50 text-blue-700 border border-blue-200">건 5</span>
+            <span class="px-1.5 py-0.5 rounded bg-emerald-50 text-emerald-700 border border-emerald-200">성 0</span>
+            <span class="px-1.5 py-0.5 rounded bg-red-50 text-red-700 border border-red-200">취 0</span>
+          </div>
+        </div>
+
+        <!-- 우측 타임트랙 -->
+        <div class="relative overflow-x-auto timeline-scroll h-full" data-sync-scroll="1" data-drop-zone="lane-김수지">
+          <div class="relative h-full min-h-[112px]" style="width: 1728px;">
+            <!-- 세로 그리드 라인 (30분 간격) -->
+            <div class="absolute inset-0 flex pointer-events-none">
+              <div class="min-w-[72px] h-full border-r border-border/40"></div>
+              <div class="min-w-[72px] h-full border-r border-border/20"></div>
+              <div class="min-w-[72px] h-full border-r border-border/40"></div>
+              <div class="min-w-[72px] h-full border-r border-border/20"></div>
+              <div class="min-w-[72px] h-full border-r border-border/40"></div>
+              <div class="min-w-[72px] h-full border-r border-border/20"></div>
+              <div class="min-w-[72px] h-full border-r border-border/40 bg-amber-50/30"></div>
+              <div class="min-w-[72px] h-full border-r border-border/20 bg-amber-50/30"></div>
+              <div class="min-w-[72px] h-full border-r border-border/40 bg-amber-50/30"></div>
+              <div class="min-w-[72px] h-full border-r border-border/20"></div>
+              <div class="min-w-[72px] h-full border-r border-border/40"></div>
+              <div class="min-w-[72px] h-full border-r border-border/20"></div>
+              <div class="min-w-[72px] h-full border-r border-border/40"></div>
+              <div class="min-w-[72px] h-full border-r border-border/20"></div>
+              <div class="min-w-[72px] h-full border-r border-border/40"></div>
+              <div class="min-w-[72px] h-full border-r border-border/20"></div>
+              <div class="min-w-[72px] h-full border-r border-border/40"></div>
+              <div class="min-w-[72px] h-full border-r border-border/20"></div>
+              <div class="min-w-[72px] h-full border-r border-border/40"></div>
+              <div class="min-w-[72px] h-full border-r border-border/20"></div>
+              <div class="min-w-[72px] h-full border-r border-border/40"></div>
+              <div class="min-w-[72px] h-full border-r border-border/20"></div>
+              <div class="min-w-[72px] h-full border-r border-border/40"></div>
+              <div class="min-w-[72px] h-full border-r"></div>
+            </div>
+
+            <!-- 카드: 10:30 이현순 임플 (60분) -->
+            <div draggable="true" data-card-id="card-17546" class="absolute top-3 h-20 rounded-md border bg-emerald-50/40 shadow-sm hover:shadow-md hover:z-10 cursor-pointer transition-all
+                        before:absolute before:left-0 before:top-0 before:bottom-0 before:w-1 before:rounded-l-md before:bg-blue-500 p-2"
+                 style="left: 216px; width: 140px;">
+              <div class="flex items-center gap-1 text-[10px]">
+                <span>🦿</span>
+                <span class="font-semibold text-blue-700">임플</span>
+                <span class="ml-auto text-[9px] text-muted-foreground font-mono">60분</span>
+              </div>
+              <div class="text-sm font-semibold truncate mt-0.5">이현순</div>
+              <div class="text-[10px] text-muted-foreground font-mono">#17546 · 10:30</div>
+              <div class="flex items-center gap-1 mt-1">
+                <span class="text-[9px] px-1 rounded bg-blue-100 text-blue-700">대기</span>
+                <span class="text-[9px] text-muted-foreground">150만</span>
+              </div>
+            </div>
+
+            <!-- 카드: 11:00 이해룡 임플 (60분) → 11:30과 겹치면 앞 카드가 밀림 / 실제로는 11:00~12:00 -->
+            <div draggable="true" data-card-id="card-17547" class="absolute top-3 h-20 rounded-md border bg-emerald-50/40 shadow-sm hover:shadow-md hover:z-10 cursor-pointer transition-all
+                        before:absolute before:left-0 before:top-0 before:bottom-0 before:w-1 before:rounded-l-md before:bg-blue-500 p-2"
+                 style="left: 360px; width: 140px;">
+              <div class="flex items-center gap-1 text-[10px]">
+                <span>🦿</span>
+                <span class="font-semibold text-blue-700">임플</span>
+                <span class="ml-auto text-[9px] text-muted-foreground font-mono">60분</span>
+              </div>
+              <div class="text-sm font-semibold truncate mt-0.5">이해룡</div>
+              <div class="text-[10px] text-muted-foreground font-mono">#17547 · 11:00</div>
+              <div class="flex items-center gap-1 mt-1">
+                <span class="text-[9px] px-1 rounded bg-blue-100 text-blue-700">대기</span>
+                <span class="text-[9px] text-muted-foreground">180만</span>
+              </div>
+            </div>
+
+            <!-- 카드: 11:30 박종호 신환 (30분) — 이해룡과 겹침 경고로 아래 2열 -->
+            <div draggable="true" data-card-id="card-17541" class="absolute top-[92px] h-20 rounded-md border bg-blue-50/40 shadow-sm hover:shadow-md hover:z-10 cursor-pointer transition-all
+                        before:absolute before:left-0 before:top-0 before:bottom-0 before:w-1 before:rounded-l-md before:bg-blue-500 p-2 border-dashed"
+                 style="left: 432px; width: 68px;">
+              <div class="flex items-center gap-1 text-[10px]">
+                <span>✨</span>
+                <span class="font-semibold text-blue-700">신환</span>
+              </div>
+              <div class="text-sm font-semibold truncate mt-0.5">박종호</div>
+              <div class="text-[10px] text-muted-foreground font-mono">#17541</div>
+            </div>
+
+            <!-- 카드: 16:00 박경호 일반 (30분) -->
+            <div draggable="true" data-card-id="card-17406" class="absolute top-3 h-20 rounded-md border bg-blue-50/40 shadow-sm hover:shadow-md hover:z-10 cursor-pointer transition-all
+                        before:absolute before:left-0 before:top-0 before:bottom-0 before:w-1 before:rounded-l-md before:bg-blue-500 p-2"
+                 style="left: 1008px; width: 68px;">
+              <div class="flex items-center gap-1 text-[10px]">
+                <span>🪥</span>
+                <span class="font-semibold text-blue-700">일반</span>
+              </div>
+              <div class="text-sm font-semibold truncate mt-0.5">박경호</div>
+              <div class="text-[10px] text-muted-foreground font-mono">#17406</div>
+              <div class="flex items-center gap-1 mt-1">
+                <span class="text-[9px] px-1 rounded bg-blue-100 text-blue-700">대기</span>
+              </div>
+            </div>
+
+            <!-- 카드: 17:30 김정애 일반 (30분) -->
+            <div draggable="true" data-card-id="card-977" class="absolute top-3 h-20 rounded-md border bg-blue-50/40 shadow-sm hover:shadow-md hover:z-10 cursor-pointer transition-all
+                        before:absolute before:left-0 before:top-0 before:bottom-0 before:w-1 before:rounded-l-md before:bg-blue-500 p-2"
+                 style="left: 1224px; width: 68px;">
+              <div class="flex items-center gap-1 text-[10px]">
+                <span>🪥</span>
+                <span class="font-semibold text-blue-700">일반</span>
+              </div>
+              <div class="text-sm font-semibold truncate mt-0.5">김정애</div>
+              <div class="text-[10px] text-muted-foreground font-mono">#977</div>
+              <div class="flex items-center gap-1 mt-1">
+                <span class="text-[9px] px-1 rounded bg-blue-100 text-blue-700">대기</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ================== 레인 2: 라근주 (시니어, 한산) ================== -->
+      <section class="grid grid-cols-[14rem_1fr] border-b min-h-[112px] hover:bg-muted/20 transition-colors group">
+        <div class="sticky left-0 z-20 bg-background border-r p-3 flex flex-col gap-2 items-center justify-center group-hover:bg-muted/30">
+          <div class="relative">
+            <div class="w-12 h-12 rounded-full bg-gradient-to-br from-cyan-400 to-cyan-600 text-white flex items-center justify-center font-semibold text-lg shadow-sm">
+              라
+            </div>
+            <div class="absolute -bottom-0.5 -right-0.5 w-4 h-4 rounded-full bg-muted-foreground/40 border-2 border-background"></div>
+          </div>
+          <div class="flex flex-col items-center gap-0.5">
+            <span class="text-sm font-semibold">라근주</span>
+            <span class="text-[10px] text-cyan-700 font-medium bg-cyan-50 px-1.5 py-0.5 rounded">시니어</span>
+          </div>
+          <div class="flex items-center gap-1 text-[10px] font-mono tabular-nums">
+            <span class="px-1.5 py-0.5 rounded bg-muted text-muted-foreground border">건 0</span>
+          </div>
+        </div>
+
+        <div class="relative overflow-x-auto timeline-scroll h-full" data-sync-scroll="1" data-drop-zone="lane-라근주">
+          <div class="relative h-full min-h-[112px] flex items-center justify-center" style="width: 1728px;">
+            <!-- 세로 그리드 라인 -->
+            <div class="absolute inset-0 flex pointer-events-none opacity-50">
+              <div class="min-w-[72px] h-full border-r border-border/30"></div>
+              <div class="min-w-[72px] h-full border-r border-border/20"></div>
+              <div class="min-w-[72px] h-full border-r border-border/30"></div>
+              <div class="min-w-[72px] h-full border-r border-border/20"></div>
+              <div class="min-w-[72px] h-full border-r border-border/30"></div>
+              <div class="min-w-[72px] h-full border-r border-border/20"></div>
+              <div class="min-w-[72px] h-full border-r border-border/30 bg-amber-50/30"></div>
+              <div class="min-w-[72px] h-full border-r border-border/20 bg-amber-50/30"></div>
+              <div class="min-w-[72px] h-full border-r border-border/30 bg-amber-50/30"></div>
+              <div class="min-w-[72px] h-full border-r border-border/20"></div>
+              <div class="min-w-[72px] h-full border-r border-border/30"></div>
+              <div class="min-w-[72px] h-full border-r border-border/20"></div>
+              <div class="min-w-[72px] h-full border-r border-border/30"></div>
+              <div class="min-w-[72px] h-full border-r border-border/20"></div>
+              <div class="min-w-[72px] h-full border-r border-border/30"></div>
+              <div class="min-w-[72px] h-full border-r border-border/20"></div>
+              <div class="min-w-[72px] h-full border-r border-border/30"></div>
+              <div class="min-w-[72px] h-full border-r border-border/20"></div>
+              <div class="min-w-[72px] h-full border-r border-border/30"></div>
+              <div class="min-w-[72px] h-full border-r border-border/20"></div>
+              <div class="min-w-[72px] h-full border-r border-border/30"></div>
+              <div class="min-w-[72px] h-full border-r border-border/20"></div>
+              <div class="min-w-[72px] h-full border-r border-border/30"></div>
+              <div class="min-w-[72px] h-full border-r"></div>
+            </div>
+
+            <!-- 한산 상태 중앙 표시 -->
+            <div class="relative z-10 flex items-center gap-2 text-muted-foreground bg-background/80 px-4 py-2 rounded-md border border-dashed">
+              <i data-lucide="coffee" class="w-4 h-4"></i>
+              <span class="text-xs font-medium">한산 · 슬롯 0건</span>
+              <span class="text-[10px] text-muted-foreground/70">· 예약 배정 가능</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ================== 레인 3: 유소연 (주니어) ================== -->
+      <section class="grid grid-cols-[14rem_1fr] border-b min-h-[112px] hover:bg-muted/20 transition-colors group">
+        <div class="sticky left-0 z-20 bg-background border-r p-3 flex flex-col gap-2 items-center justify-center group-hover:bg-muted/30">
+          <div class="relative">
+            <div class="w-12 h-12 rounded-full bg-gradient-to-br from-emerald-400 to-emerald-600 text-white flex items-center justify-center font-semibold text-lg shadow-sm">
+              유
+            </div>
+            <div class="absolute -bottom-0.5 -right-0.5 w-4 h-4 rounded-full bg-emerald-500 border-2 border-background"></div>
+          </div>
+          <div class="flex flex-col items-center gap-0.5">
+            <span class="text-sm font-semibold">유소연</span>
+            <span class="text-[10px] text-emerald-700 font-medium bg-emerald-50 px-1.5 py-0.5 rounded">주니어</span>
+          </div>
+          <div class="flex items-center gap-1 text-[10px] font-mono tabular-nums">
+            <span class="px-1.5 py-0.5 rounded bg-blue-50 text-blue-700 border border-blue-200">건 4</span>
+            <span class="px-1.5 py-0.5 rounded bg-emerald-50 text-emerald-700 border border-emerald-200">성 0</span>
+            <span class="px-1.5 py-0.5 rounded bg-red-50 text-red-700 border border-red-200">취 2</span>
+          </div>
+        </div>
+
+        <div class="relative overflow-x-auto timeline-scroll h-full" data-sync-scroll="1" data-drop-zone="lane-유소연">
+          <div class="relative h-full min-h-[112px]" style="width: 1728px;">
+            <!-- 세로 그리드 라인 -->
+            <div class="absolute inset-0 flex pointer-events-none">
+              <div class="min-w-[72px] h-full border-r border-border/40"></div>
+              <div class="min-w-[72px] h-full border-r border-border/20"></div>
+              <div class="min-w-[72px] h-full border-r border-border/40"></div>
+              <div class="min-w-[72px] h-full border-r border-border/20"></div>
+              <div class="min-w-[72px] h-full border-r border-border/40"></div>
+              <div class="min-w-[72px] h-full border-r border-border/20"></div>
+              <div class="min-w-[72px] h-full border-r border-border/40 bg-amber-50/30"></div>
+              <div class="min-w-[72px] h-full border-r border-border/20 bg-amber-50/30"></div>
+              <div class="min-w-[72px] h-full border-r border-border/40 bg-amber-50/30"></div>
+              <div class="min-w-[72px] h-full border-r border-border/20"></div>
+              <div class="min-w-[72px] h-full border-r border-border/40"></div>
+              <div class="min-w-[72px] h-full border-r border-border/20"></div>
+              <div class="min-w-[72px] h-full border-r border-border/40"></div>
+              <div class="min-w-[72px] h-full border-r border-border/20"></div>
+              <div class="min-w-[72px] h-full border-r border-border/40"></div>
+              <div class="min-w-[72px] h-full border-r border-border/20"></div>
+              <div class="min-w-[72px] h-full border-r border-border/40"></div>
+              <div class="min-w-[72px] h-full border-r border-border/20"></div>
+              <div class="min-w-[72px] h-full border-r border-border/40"></div>
+              <div class="min-w-[72px] h-full border-r border-border/20"></div>
+              <div class="min-w-[72px] h-full border-r border-border/40"></div>
+              <div class="min-w-[72px] h-full border-r border-border/20"></div>
+              <div class="min-w-[72px] h-full border-r border-border/40"></div>
+              <div class="min-w-[72px] h-full border-r"></div>
+            </div>
+
+            <!-- 9:30 김화정 임플 (60분) -->
+            <div draggable="true" data-card-id="card-17548" class="absolute top-3 h-20 rounded-md border bg-emerald-50/40 shadow-sm hover:shadow-md hover:z-10 cursor-pointer transition-all
+                        before:absolute before:left-0 before:top-0 before:bottom-0 before:w-1 before:rounded-l-md before:bg-blue-500 p-2"
+                 style="left: 72px; width: 140px;">
+              <div class="flex items-center gap-1 text-[10px]">
+                <span>🦿</span>
+                <span class="font-semibold text-blue-700">임플</span>
+                <span class="ml-auto text-[9px] text-muted-foreground font-mono">60분</span>
+              </div>
+              <div class="text-sm font-semibold truncate mt-0.5">김화정</div>
+              <div class="text-[10px] text-muted-foreground font-mono">#17548 · 9:30</div>
+              <div class="flex items-center gap-1 mt-1">
+                <span class="text-[9px] px-1 rounded bg-blue-100 text-blue-700">대기</span>
+                <span class="text-[9px] text-muted-foreground">220만</span>
+              </div>
+            </div>
+
+            <!-- 10:00 서성욱 신환 (30분) — 김화정과 겹침 → 아래 열 -->
+            <div draggable="true" data-card-id="card-9595" class="absolute top-[92px] h-20 rounded-md border bg-blue-50/40 shadow-sm hover:shadow-md hover:z-10 cursor-pointer transition-all
+                        before:absolute before:left-0 before:top-0 before:bottom-0 before:w-1 before:rounded-l-md before:bg-blue-500 p-2"
+                 style="left: 144px; width: 68px;">
+              <div class="flex items-center gap-1 text-[10px]">
+                <span>✨</span>
+                <span class="font-semibold text-blue-700">신환</span>
+              </div>
+              <div class="text-sm font-semibold truncate mt-0.5">서성욱</div>
+              <div class="text-[10px] text-muted-foreground font-mono">#9595</div>
+            </div>
+
+            <!-- 12:00 서예진 구환 예약x (30분) -->
+            <div draggable="true" data-card-id="card-474" class="absolute top-3 h-20 rounded-md border-2 border-dashed bg-amber-50/40 shadow-sm hover:shadow-md hover:z-10 cursor-pointer transition-all
+                        before:absolute before:left-0 before:top-0 before:bottom-0 before:w-1 before:rounded-l-md before:bg-amber-500 p-2"
+                 style="left: 432px; width: 68px;">
+              <div class="flex items-center gap-1 text-[10px]">
+                <span>🔄</span>
+                <span class="font-semibold text-amber-700">구환</span>
+              </div>
+              <div class="text-sm font-semibold truncate mt-0.5">서예진</div>
+              <div class="text-[10px] text-muted-foreground font-mono">#474</div>
+              <div class="flex items-center gap-1 mt-1">
+                <span class="text-[9px] px-1 rounded bg-amber-100 text-amber-700">예약x</span>
+              </div>
+            </div>
+
+            <!-- 20:30 김도희 임플 (30분) -->
+            <div draggable="true" data-card-id="card-17553" class="absolute top-3 h-20 rounded-md border bg-emerald-50/40 shadow-sm hover:shadow-md hover:z-10 cursor-pointer transition-all
+                        before:absolute before:left-0 before:top-0 before:bottom-0 before:w-1 before:rounded-l-md before:bg-blue-500 p-2"
+                 style="left: 1656px; width: 68px;">
+              <div class="flex items-center gap-1 text-[10px]">
+                <span>🦿</span>
+                <span class="font-semibold text-blue-700">임플</span>
+              </div>
+              <div class="text-sm font-semibold truncate mt-0.5">김도희</div>
+              <div class="text-[10px] text-muted-foreground font-mono">#17553 · 20:30</div>
+              <div class="flex items-center gap-1 mt-1">
+                <span class="text-[9px] px-1 rounded bg-blue-100 text-blue-700">대기</span>
+                <span class="text-[9px] text-muted-foreground">160만</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ================== 레인 4: 전화상담 (공용) ================== -->
+      <section class="grid grid-cols-[14rem_1fr] border-b min-h-[112px] hover:bg-muted/20 transition-colors group bg-slate-50/30">
+        <div class="sticky left-0 z-20 bg-slate-50/50 border-r p-3 flex flex-col gap-2 items-center justify-center group-hover:bg-muted/30">
+          <div class="w-12 h-12 rounded-full bg-gradient-to-br from-slate-400 to-slate-600 text-white flex items-center justify-center shadow-sm">
+            <i data-lucide="phone" class="w-6 h-6"></i>
+          </div>
+          <div class="flex flex-col items-center gap-0.5">
+            <span class="text-sm font-semibold">전화상담</span>
+            <span class="text-[10px] text-slate-700 font-medium bg-slate-100 px-1.5 py-0.5 rounded">공용</span>
+          </div>
+          <div class="flex items-center gap-1 text-[10px] font-mono tabular-nums">
+            <span class="px-1.5 py-0.5 rounded bg-blue-50 text-blue-700 border border-blue-200">건 2</span>
+            <span class="px-1.5 py-0.5 rounded bg-emerald-50 text-emerald-700 border border-emerald-200">성 1</span>
+          </div>
+        </div>
+
+        <div class="relative overflow-x-auto timeline-scroll h-full" data-sync-scroll="1" data-drop-zone="lane-전화">
+          <div class="relative h-full min-h-[112px]" style="width: 1728px;">
+            <!-- 세로 그리드 라인 -->
+            <div class="absolute inset-0 flex pointer-events-none">
+              <div class="min-w-[72px] h-full border-r border-border/40"></div>
+              <div class="min-w-[72px] h-full border-r border-border/20"></div>
+              <div class="min-w-[72px] h-full border-r border-border/40"></div>
+              <div class="min-w-[72px] h-full border-r border-border/20"></div>
+              <div class="min-w-[72px] h-full border-r border-border/40"></div>
+              <div class="min-w-[72px] h-full border-r border-border/20"></div>
+              <div class="min-w-[72px] h-full border-r border-border/40 bg-amber-50/30"></div>
+              <div class="min-w-[72px] h-full border-r border-border/20 bg-amber-50/30"></div>
+              <div class="min-w-[72px] h-full border-r border-border/40 bg-amber-50/30"></div>
+              <div class="min-w-[72px] h-full border-r border-border/20"></div>
+              <div class="min-w-[72px] h-full border-r border-border/40"></div>
+              <div class="min-w-[72px] h-full border-r border-border/20"></div>
+              <div class="min-w-[72px] h-full border-r border-border/40"></div>
+              <div class="min-w-[72px] h-full border-r border-border/20"></div>
+              <div class="min-w-[72px] h-full border-r border-border/40"></div>
+              <div class="min-w-[72px] h-full border-r border-border/20"></div>
+              <div class="min-w-[72px] h-full border-r border-border/40"></div>
+              <div class="min-w-[72px] h-full border-r border-border/20"></div>
+              <div class="min-w-[72px] h-full border-r border-border/40"></div>
+              <div class="min-w-[72px] h-full border-r border-border/20"></div>
+              <div class="min-w-[72px] h-full border-r border-border/40"></div>
+              <div class="min-w-[72px] h-full border-r border-border/20"></div>
+              <div class="min-w-[72px] h-full border-r border-border/40"></div>
+              <div class="min-w-[72px] h-full border-r"></div>
+            </div>
+
+            <!-- 9:00 박종호 전화 (60분) -->
+            <div draggable="true" data-card-id="card-17541-phone" class="absolute top-3 h-20 rounded-md border bg-slate-50 shadow-sm hover:shadow-md hover:z-10 cursor-pointer transition-all
+                        before:absolute before:left-0 before:top-0 before:bottom-0 before:w-1 before:rounded-l-md before:bg-blue-500 p-2"
+                 style="left: 0px; width: 140px;">
+              <div class="flex items-center gap-1 text-[10px]">
+                <i data-lucide="phone" class="w-2.5 h-2.5"></i>
+                <span class="font-semibold text-blue-700">전화</span>
+                <span class="ml-auto text-[9px] text-muted-foreground font-mono">60분</span>
+              </div>
+              <div class="text-sm font-semibold truncate mt-0.5">박종호</div>
+              <div class="text-[10px] text-muted-foreground font-mono">#17541 · 9:00</div>
+              <div class="flex items-center gap-1 mt-1">
+                <span class="text-[9px] px-1 rounded bg-blue-100 text-blue-700">대기</span>
+                <span class="text-[9px] text-muted-foreground">상담문의</span>
+              </div>
+            </div>
+
+            <!-- 13:00 김민정 성공 (30분) -->
+            <div draggable="true" data-card-id="card-17542" class="absolute top-3 h-20 rounded-md border bg-emerald-50/60 shadow-sm hover:shadow-md hover:z-10 cursor-pointer transition-all
+                        before:absolute before:left-0 before:top-0 before:bottom-0 before:w-1 before:rounded-l-md before:bg-emerald-500 p-2"
+                 style="left: 576px; width: 68px;">
+              <div class="flex items-center gap-1 text-[10px]">
+                <i data-lucide="phone" class="w-2.5 h-2.5"></i>
+                <span class="font-semibold text-emerald-700">전화</span>
+              </div>
+              <div class="text-sm font-semibold truncate mt-0.5">김민정</div>
+              <div class="text-[10px] text-muted-foreground font-mono">#17542</div>
+              <div class="flex items-center gap-1 mt-1">
+                <span class="text-[9px] px-1 rounded bg-emerald-100 text-emerald-700 font-semibold">성공</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ================== 레인 5: 상담취소 기록 (시간축 무시 flow) ================== -->
+      <section class="grid grid-cols-[14rem_1fr] border-b-2 border-red-500/60 bg-red-50/20 min-h-[168px] group">
+        <div class="sticky left-0 z-20 bg-red-50/40 border-r-2 border-red-500/60 p-3 flex flex-col gap-2 items-center justify-center">
+          <div class="w-12 h-12 rounded-full bg-gradient-to-br from-red-400 to-red-600 text-white flex items-center justify-center shadow-sm">
+            <i data-lucide="x-circle" class="w-6 h-6"></i>
+          </div>
+          <div class="flex flex-col items-center gap-0.5">
+            <span class="text-sm font-semibold text-red-700">상담취소</span>
+            <span class="text-[10px] text-red-700 font-medium bg-red-100 px-1.5 py-0.5 rounded">기록</span>
+          </div>
+          <div class="flex items-center gap-1 text-[10px] font-mono tabular-nums">
+            <span class="px-1.5 py-0.5 rounded bg-red-100 text-red-700 border border-red-300 font-semibold">취소 6</span>
+          </div>
+          <div class="text-[10px] text-red-700/80 text-center">
+            손실 320만
+          </div>
+        </div>
+
+        <!-- 시간축 무시, wrap flow -->
+        <div class="p-3 flex flex-wrap gap-2 content-start" data-drop-zone="lane-취소">
+          <!-- 임용채 17159 타원진행 10만 -->
+          <div draggable="true" data-card-id="card-17159" class="w-48 rounded-md border border-red-200 bg-card shadow-sm hover:shadow-md cursor-pointer transition-all
+                      before:absolute before:left-0 before:top-0 before:bottom-0 before:w-1 before:rounded-l-md before:bg-red-500 relative p-2 pl-3">
+            <div class="flex items-center gap-1 text-[10px]">
+              <span>🚫</span>
+              <span class="font-semibold text-red-700">타원진행</span>
+            </div>
+            <div class="text-sm font-semibold truncate mt-0.5">임용채</div>
+            <div class="text-[10px] text-muted-foreground font-mono">#17159</div>
+            <div class="flex items-center justify-between mt-1">
+              <span class="text-[9px] px-1 rounded bg-red-100 text-red-700 font-semibold">취소</span>
+              <span class="text-[10px] font-mono text-red-700 font-semibold">10만</span>
+            </div>
+          </div>
+
+          <!-- 박종애 17237 치료거부 260만 -->
+          <div draggable="true" data-card-id="card-17237" class="w-48 rounded-md border border-red-300 bg-card shadow-sm hover:shadow-md cursor-pointer transition-all
+                      before:absolute before:left-0 before:top-0 before:bottom-0 before:w-1 before:rounded-l-md before:bg-red-500 relative p-2 pl-3
+                      ring-1 ring-red-300/50">
+            <div class="flex items-center gap-1 text-[10px]">
+              <span>🛑</span>
+              <span class="font-semibold text-red-700">치료거부</span>
+              <span class="ml-auto text-[9px] bg-red-600 text-white px-1 rounded">HIGH</span>
+            </div>
+            <div class="text-sm font-semibold truncate mt-0.5">박종애</div>
+            <div class="text-[10px] text-muted-foreground font-mono">#17237</div>
+            <div class="flex items-center justify-between mt-1">
+              <span class="text-[9px] px-1 rounded bg-red-100 text-red-700 font-semibold">취소</span>
+              <span class="text-[10px] font-mono text-red-700 font-bold">260만</span>
+            </div>
+          </div>
+
+          <!-- 이은선 17342 치료보류 10만 -->
+          <div draggable="true" data-card-id="card-17342" class="w-48 rounded-md border border-red-200 bg-card shadow-sm hover:shadow-md cursor-pointer transition-all
+                      before:absolute before:left-0 before:top-0 before:bottom-0 before:w-1 before:rounded-l-md before:bg-red-500 relative p-2 pl-3">
+            <div class="flex items-center gap-1 text-[10px]">
+              <span>⏸️</span>
+              <span class="font-semibold text-red-700">치료보류</span>
+            </div>
+            <div class="text-sm font-semibold truncate mt-0.5">이은선</div>
+            <div class="text-[10px] text-muted-foreground font-mono">#17342</div>
+            <div class="flex items-center justify-between mt-1">
+              <span class="text-[9px] px-1 rounded bg-red-100 text-red-700 font-semibold">취소</span>
+              <span class="text-[10px] font-mono text-red-700 font-semibold">10만</span>
+            </div>
+          </div>
+
+          <!-- 남명숙 17488 카드취소 10만 -->
+          <div draggable="true" data-card-id="card-17488" class="w-48 rounded-md border border-red-200 bg-card shadow-sm hover:shadow-md cursor-pointer transition-all
+                      before:absolute before:left-0 before:top-0 before:bottom-0 before:w-1 before:rounded-l-md before:bg-red-500 relative p-2 pl-3">
+            <div class="flex items-center gap-1 text-[10px]">
+              <span>💳</span>
+              <span class="font-semibold text-red-700">카드취소</span>
+            </div>
+            <div class="text-sm font-semibold truncate mt-0.5">남명숙</div>
+            <div class="text-[10px] text-muted-foreground font-mono">#17488</div>
+            <div class="flex items-center justify-between mt-1">
+              <span class="text-[9px] px-1 rounded bg-red-100 text-red-700 font-semibold">취소</span>
+              <span class="text-[10px] font-mono text-red-700 font-semibold">10만</span>
+            </div>
+          </div>
+
+          <!-- 임승준 6690 치료불가 20만 -->
+          <div draggable="true" data-card-id="card-6690" class="w-48 rounded-md border border-red-200 bg-card shadow-sm hover:shadow-md cursor-pointer transition-all
+                      before:absolute before:left-0 before:top-0 before:bottom-0 before:w-1 before:rounded-l-md before:bg-red-500 relative p-2 pl-3">
+            <div class="flex items-center gap-1 text-[10px]">
+              <span>❌</span>
+              <span class="font-semibold text-red-700">치료불가</span>
+            </div>
+            <div class="text-sm font-semibold truncate mt-0.5">임승준</div>
+            <div class="text-[10px] text-muted-foreground font-mono">#6690</div>
+            <div class="flex items-center justify-between mt-1">
+              <span class="text-[9px] px-1 rounded bg-red-100 text-red-700 font-semibold">취소</span>
+              <span class="text-[10px] font-mono text-red-700 font-semibold">20만</span>
+            </div>
+          </div>
+
+          <!-- 이경석 17462 발치거부 10만 -->
+          <div draggable="true" data-card-id="card-17462" class="w-48 rounded-md border border-red-200 bg-card shadow-sm hover:shadow-md cursor-pointer transition-all
+                      before:absolute before:left-0 before:top-0 before:bottom-0 before:w-1 before:rounded-l-md before:bg-red-500 relative p-2 pl-3">
+            <div class="flex items-center gap-1 text-[10px]">
+              <span>🦷</span>
+              <span class="font-semibold text-red-700">발치거부</span>
+            </div>
+            <div class="text-sm font-semibold truncate mt-0.5">이경석</div>
+            <div class="text-[10px] text-muted-foreground font-mono">#17462</div>
+            <div class="flex items-center justify-between mt-1">
+              <span class="text-[9px] px-1 rounded bg-red-100 text-red-700 font-semibold">취소</span>
+              <span class="text-[10px] font-mono text-red-700 font-semibold">10만</span>
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <!-- ========================= 하단: 시간대별 밀집도 미니 barchart ========================= -->
+    <section class="mt-6 mx-6 border rounded-lg p-4 bg-card">
+      <div class="flex items-center justify-between mb-3">
+        <div class="flex items-center gap-2">
+          <i data-lucide="bar-chart-3" class="w-4 h-4 text-muted-foreground"></i>
+          <h3 class="text-sm font-semibold">시간대별 밀집도</h3>
+          <span class="text-[10px] text-muted-foreground">9:00 → 20:30 · 30분 단위 예약 건수</span>
+        </div>
+        <div class="flex items-center gap-3 text-[10px] text-muted-foreground">
+          <div class="flex items-center gap-1">
+            <span class="w-2 h-2 rounded-sm bg-blue-500"></span> 예약
+          </div>
+          <div class="flex items-center gap-1">
+            <span class="w-2 h-2 rounded-sm bg-amber-500"></span> 피크
+          </div>
+        </div>
+      </div>
+
+      <div class="flex items-end gap-1 h-24 border-b border-l pt-2 pl-2">
+        <!-- 24개 bar, height = (예약수 * 10 + 4)px -->
+        <!-- 9:00 : 1건 -->
+        <div class="flex-1 flex flex-col items-center gap-1">
+          <div class="w-full bg-blue-400 rounded-sm hover:bg-blue-500 transition-colors cursor-pointer" style="height: 14px;" title="9:00 · 1건"></div>
+        </div>
+        <!-- 9:30 : 2건 -->
+        <div class="flex-1 flex flex-col items-center gap-1">
+          <div class="w-full bg-blue-500 rounded-sm hover:bg-blue-600 transition-colors cursor-pointer" style="height: 24px;" title="9:30 · 2건"></div>
+        </div>
+        <!-- 10:00 : 2건 -->
+        <div class="flex-1 flex flex-col items-center gap-1">
+          <div class="w-full bg-blue-500 rounded-sm hover:bg-blue-600 transition-colors cursor-pointer" style="height: 24px;" title="10:00 · 2건"></div>
+        </div>
+        <!-- 10:30 : 2건 -->
+        <div class="flex-1 flex flex-col items-center gap-1">
+          <div class="w-full bg-blue-500 rounded-sm hover:bg-blue-600 transition-colors cursor-pointer" style="height: 24px;" title="10:30 · 2건"></div>
+        </div>
+        <!-- 11:00 : 3건 (피크) -->
+        <div class="flex-1 flex flex-col items-center gap-1">
+          <div class="w-full bg-amber-500 rounded-sm hover:bg-amber-600 transition-colors cursor-pointer" style="height: 34px;" title="11:00 · 3건"></div>
+        </div>
+        <!-- 11:30 : 3건 (피크) -->
+        <div class="flex-1 flex flex-col items-center gap-1">
+          <div class="w-full bg-amber-500 rounded-sm hover:bg-amber-600 transition-colors cursor-pointer" style="height: 34px;" title="11:30 · 3건"></div>
+        </div>
+        <!-- 12:00 : 1건 -->
+        <div class="flex-1 flex flex-col items-center gap-1">
+          <div class="w-full bg-blue-400 rounded-sm hover:bg-blue-500 transition-colors cursor-pointer" style="height: 14px;" title="12:00 · 1건"></div>
+        </div>
+        <!-- 12:30 : 0 -->
+        <div class="flex-1 flex flex-col items-center gap-1">
+          <div class="w-full bg-muted rounded-sm" style="height: 4px;" title="12:30 · 0건"></div>
+        </div>
+        <!-- 13:00 : 1건 -->
+        <div class="flex-1 flex flex-col items-center gap-1">
+          <div class="w-full bg-blue-400 rounded-sm hover:bg-blue-500 transition-colors cursor-pointer" style="height: 14px;" title="13:00 · 1건"></div>
+        </div>
+        <!-- 13:30 : 0 -->
+        <div class="flex-1 flex flex-col items-center gap-1">
+          <div class="w-full bg-muted rounded-sm" style="height: 4px;" title="13:30 · 0건"></div>
+        </div>
+        <!-- 14:00 : 0 -->
+        <div class="flex-1 flex flex-col items-center gap-1">
+          <div class="w-full bg-muted rounded-sm" style="height: 4px;" title="14:00 · 0건"></div>
+        </div>
+        <!-- 14:30 : 0 -->
+        <div class="flex-1 flex flex-col items-center gap-1">
+          <div class="w-full bg-muted rounded-sm" style="height: 4px;" title="14:30 · 0건"></div>
+        </div>
+        <!-- 15:00 : 0 -->
+        <div class="flex-1 flex flex-col items-center gap-1">
+          <div class="w-full bg-muted rounded-sm" style="height: 4px;" title="15:00 · 0건"></div>
+        </div>
+        <!-- 15:30 : 0 -->
+        <div class="flex-1 flex flex-col items-center gap-1">
+          <div class="w-full bg-muted rounded-sm" style="height: 4px;" title="15:30 · 0건"></div>
+        </div>
+        <!-- 16:00 : 1건 -->
+        <div class="flex-1 flex flex-col items-center gap-1">
+          <div class="w-full bg-blue-400 rounded-sm hover:bg-blue-500 transition-colors cursor-pointer" style="height: 14px;" title="16:00 · 1건"></div>
+        </div>
+        <!-- 16:30 : 0 -->
+        <div class="flex-1 flex flex-col items-center gap-1">
+          <div class="w-full bg-muted rounded-sm" style="height: 4px;" title="16:30 · 0건"></div>
+        </div>
+        <!-- 17:00 : 0 -->
+        <div class="flex-1 flex flex-col items-center gap-1">
+          <div class="w-full bg-muted rounded-sm" style="height: 4px;" title="17:00 · 0건"></div>
+        </div>
+        <!-- 17:30 : 1건 -->
+        <div class="flex-1 flex flex-col items-center gap-1">
+          <div class="w-full bg-blue-400 rounded-sm hover:bg-blue-500 transition-colors cursor-pointer" style="height: 14px;" title="17:30 · 1건"></div>
+        </div>
+        <!-- 18:00 : 0 -->
+        <div class="flex-1 flex flex-col items-center gap-1">
+          <div class="w-full bg-muted rounded-sm" style="height: 4px;" title="18:00 · 0건"></div>
+        </div>
+        <!-- 18:30 : 0 -->
+        <div class="flex-1 flex flex-col items-center gap-1">
+          <div class="w-full bg-muted rounded-sm" style="height: 4px;" title="18:30 · 0건"></div>
+        </div>
+        <!-- 19:00 : 0 -->
+        <div class="flex-1 flex flex-col items-center gap-1">
+          <div class="w-full bg-muted rounded-sm" style="height: 4px;" title="19:00 · 0건"></div>
+        </div>
+        <!-- 19:30 : 0 -->
+        <div class="flex-1 flex flex-col items-center gap-1">
+          <div class="w-full bg-muted rounded-sm" style="height: 4px;" title="19:30 · 0건"></div>
+        </div>
+        <!-- 20:00 : 0 -->
+        <div class="flex-1 flex flex-col items-center gap-1">
+          <div class="w-full bg-muted rounded-sm" style="height: 4px;" title="20:00 · 0건"></div>
+        </div>
+        <!-- 20:30 : 1건 -->
+        <div class="flex-1 flex flex-col items-center gap-1">
+          <div class="w-full bg-blue-400 rounded-sm hover:bg-blue-500 transition-colors cursor-pointer" style="height: 14px;" title="20:30 · 1건"></div>
+        </div>
+      </div>
+      <!-- x축 라벨 -->
+      <div class="flex gap-1 mt-1 pl-2 text-[9px] text-muted-foreground font-mono">
+        <div class="flex-1 text-center">9:00</div>
+        <div class="flex-1 text-center"></div>
+        <div class="flex-1 text-center">10</div>
+        <div class="flex-1 text-center"></div>
+        <div class="flex-1 text-center">11</div>
+        <div class="flex-1 text-center"></div>
+        <div class="flex-1 text-center">12</div>
+        <div class="flex-1 text-center"></div>
+        <div class="flex-1 text-center">13</div>
+        <div class="flex-1 text-center"></div>
+        <div class="flex-1 text-center">14</div>
+        <div class="flex-1 text-center"></div>
+        <div class="flex-1 text-center">15</div>
+        <div class="flex-1 text-center"></div>
+        <div class="flex-1 text-center">16</div>
+        <div class="flex-1 text-center"></div>
+        <div class="flex-1 text-center">17</div>
+        <div class="flex-1 text-center"></div>
+        <div class="flex-1 text-center">18</div>
+        <div class="flex-1 text-center"></div>
+        <div class="flex-1 text-center">19</div>
+        <div class="flex-1 text-center"></div>
+        <div class="flex-1 text-center">20</div>
+        <div class="flex-1 text-center">20:30</div>
+      </div>
+
+      <div class="mt-3 flex items-center justify-between text-[11px] text-muted-foreground border-t pt-3">
+        <div class="flex items-center gap-4">
+          <span>피크 시간: <span class="font-semibold text-amber-700">11:00 - 11:30</span></span>
+          <span>유휴 시간: <span class="font-semibold text-muted-foreground">13:30 - 15:30</span></span>
+        </div>
+        <div class="flex items-center gap-1">
+          <i data-lucide="alert-circle" class="w-3 h-3 text-amber-600"></i>
+          <span>11시대 겹침 주의 · 김수지/유소연 동시 임플 상담</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========================= 푸터 ========================= -->
+    <footer class="mt-6 px-6 py-4 border-t text-[11px] text-muted-foreground flex items-center justify-between">
+      <div class="flex items-center gap-4">
+        <span>© 2026 치과 상담 예약 · Counselor Swimlanes v4</span>
+        <span>·</span>
+        <span>단축키: <kbd class="px-1 py-0.5 rounded bg-muted border font-mono text-[10px]">J</kbd> / <kbd class="px-1 py-0.5 rounded bg-muted border font-mono text-[10px]">K</kbd> 카드 이동 · <kbd class="px-1 py-0.5 rounded bg-muted border font-mono text-[10px]">N</kbd> 새 예약</span>
+      </div>
+      <div class="flex items-center gap-3">
+        <button class="hover:text-foreground flex items-center gap-1">
+          <i data-lucide="download" class="w-3 h-3"></i> 엑셀
+        </button>
+        <button class="hover:text-foreground flex items-center gap-1">
+          <i data-lucide="printer" class="w-3 h-3"></i> 인쇄
+        </button>
+        <button class="hover:text-foreground flex items-center gap-1" id="darkToggle">
+          <i data-lucide="moon" class="w-3 h-3"></i> 다크
+        </button>
+      </div>
+    </footer>
+  </main>
+
+  <script>
+    lucide.createIcons();
+
+    // 타임라인 가로 스크롤 동기화 (모든 레인이 같이 스크롤)
+    (function syncScroll() {
+      const scrollables = document.querySelectorAll('[data-sync-scroll="1"]');
+      const header = document.getElementById('timeHeader');
+      let isSyncing = false;
+
+      function onScroll(source) {
+        if (isSyncing) return;
+        isSyncing = true;
+        const left = source.scrollLeft;
+        scrollables.forEach(el => { if (el !== source) el.scrollLeft = left; });
+        if (header && header !== source) header.scrollLeft = left;
+        requestAnimationFrame(() => { isSyncing = false; });
+      }
+
+      scrollables.forEach(el => el.addEventListener('scroll', () => onScroll(el)));
+      if (header) header.addEventListener('scroll', () => onScroll(header));
+    })();
+
+    // 다크 모드 토글
+    document.getElementById('darkToggle')?.addEventListener('click', () => {
+      document.documentElement.classList.toggle('dark');
+    });
+
+    // DnD + localStorage 상태 복원
+    (function() {
+      const STORAGE_KEY = 'kanban-v4-state';
+      const saved = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}');
+      Object.entries(saved).forEach(([cardId, zoneId]) => {
+        const card = document.querySelector(`[data-card-id="${cardId}"]`);
+        const zone = document.querySelector(`[data-drop-zone="${zoneId}"]`);
+        if (card && zone) zone.appendChild(card);
+      });
+      document.querySelectorAll('[draggable="true"]').forEach(card => {
+        card.addEventListener('dragstart', (e) => {
+          e.dataTransfer.setData('text/plain', card.dataset.cardId);
+          e.dataTransfer.effectAllowed = 'move';
+          card.classList.add('opacity-50');
+        });
+        card.addEventListener('dragend', () => card.classList.remove('opacity-50'));
+      });
+      document.querySelectorAll('[data-drop-zone]').forEach(zone => {
+        zone.addEventListener('dragover', (e) => {
+          e.preventDefault();
+          zone.classList.add('bg-primary/5', 'ring-2', 'ring-primary', 'ring-inset');
+        });
+        zone.addEventListener('dragleave', () => {
+          zone.classList.remove('bg-primary/5', 'ring-2', 'ring-primary', 'ring-inset');
+        });
+        zone.addEventListener('drop', (e) => {
+          e.preventDefault();
+          zone.classList.remove('bg-primary/5', 'ring-2', 'ring-primary', 'ring-inset');
+          const cardId = e.dataTransfer.getData('text/plain');
+          const card = document.querySelector(`[data-card-id="${cardId}"]`);
+          if (card) {
+            zone.appendChild(card);
+            const state = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}');
+            state[cardId] = zone.dataset.dropZone;
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+          }
+        });
+      });
+    })();
+  </script>
+</body>
+</html>

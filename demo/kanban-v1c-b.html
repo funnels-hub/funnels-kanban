@@ -1,0 +1,2690 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>v1c-b — 치과 상담 예약 Kanban (2계층 + 그룹별 비즈니스 규칙)</title>
+
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.min.css" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Pretendard Variable', 'ui-sans-serif', 'system-ui', 'sans-serif'],
+          },
+          borderRadius: {
+            lg: 'var(--radius)',
+            md: 'calc(var(--radius) - 2px)',
+            sm: 'calc(var(--radius) - 4px)',
+            xl: 'calc(var(--radius) + 4px)',
+            '2xl': 'calc(var(--radius) + 8px)',
+            '3xl': 'calc(var(--radius) + 12px)',
+            '4xl': 'calc(var(--radius) + 16px)',
+          },
+          colors: {
+            background: 'var(--background)',
+            foreground: 'var(--foreground)',
+            card: { DEFAULT: 'var(--card)', foreground: 'var(--card-foreground)' },
+            popover: { DEFAULT: 'var(--popover)', foreground: 'var(--popover-foreground)' },
+            primary: { DEFAULT: 'var(--primary)', foreground: 'var(--primary-foreground)' },
+            secondary: { DEFAULT: 'var(--secondary)', foreground: 'var(--secondary-foreground)' },
+            muted: { DEFAULT: 'var(--muted)', foreground: 'var(--muted-foreground)' },
+            accent: { DEFAULT: 'var(--accent)', foreground: 'var(--accent-foreground)' },
+            destructive: { DEFAULT: 'var(--destructive)' },
+            border: 'var(--border)',
+            input: 'var(--input)',
+            ring: 'var(--ring)',
+            chart: {
+              1: 'var(--chart-1)',
+              2: 'var(--chart-2)',
+              3: 'var(--chart-3)',
+              4: 'var(--chart-4)',
+              5: 'var(--chart-5)',
+            },
+            sidebar: {
+              DEFAULT: 'var(--sidebar)',
+              foreground: 'var(--sidebar-foreground)',
+              primary: 'var(--sidebar-primary)',
+              'primary-foreground': 'var(--sidebar-primary-foreground)',
+              accent: 'var(--sidebar-accent)',
+              'accent-foreground': 'var(--sidebar-accent-foreground)',
+              border: 'var(--sidebar-border)',
+              ring: 'var(--sidebar-ring)',
+            },
+          },
+        },
+      },
+    }
+  </script>
+  <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+
+  <style>
+    :root {
+      --font-sans: "Pretendard Variable", ui-sans-serif, system-ui, sans-serif;
+      --radius: 0.625rem;
+
+      --background: oklch(1 0 0);
+      --foreground: oklch(0.145 0 0);
+      --card: oklch(1 0 0);
+      --card-foreground: oklch(0.145 0 0);
+      --popover: oklch(1 0 0);
+      --popover-foreground: oklch(0.145 0 0);
+      --primary: oklch(0.205 0 0);
+      --primary-foreground: oklch(0.985 0 0);
+      --secondary: oklch(0.97 0 0);
+      --secondary-foreground: oklch(0.205 0 0);
+      --muted: oklch(0.97 0 0);
+      --muted-foreground: oklch(0.556 0 0);
+      --accent: oklch(0.97 0 0);
+      --accent-foreground: oklch(0.205 0 0);
+      --destructive: oklch(0.577 0.245 27.325);
+      --border: oklch(0.922 0 0);
+      --input: oklch(0.922 0 0);
+      --ring: oklch(0.708 0 0);
+      --chart-1: oklch(0.646 0.222 41.116);
+      --chart-2: oklch(0.6 0.118 184.704);
+      --chart-3: oklch(0.398 0.07 227.392);
+      --chart-4: oklch(0.828 0.189 84.429);
+      --chart-5: oklch(0.769 0.188 70.08);
+      --sidebar: oklch(0.985 0 0);
+      --sidebar-foreground: oklch(0.145 0 0);
+      --sidebar-primary: oklch(0.205 0 0);
+      --sidebar-primary-foreground: oklch(0.985 0 0);
+      --sidebar-accent: oklch(0.97 0 0);
+      --sidebar-accent-foreground: oklch(0.205 0 0);
+      --sidebar-border: oklch(0.922 0 0);
+      --sidebar-ring: oklch(0.708 0 0);
+    }
+
+    .dark {
+      --background: oklch(0.145 0 0);
+      --foreground: oklch(0.985 0 0);
+      --card: oklch(0.205 0 0);
+      --card-foreground: oklch(0.985 0 0);
+      --popover: oklch(0.205 0 0);
+      --popover-foreground: oklch(0.985 0 0);
+      --primary: oklch(0.922 0 0);
+      --primary-foreground: oklch(0.205 0 0);
+      --secondary: oklch(0.269 0 0);
+      --secondary-foreground: oklch(0.985 0 0);
+      --muted: oklch(0.269 0 0);
+      --muted-foreground: oklch(0.708 0 0);
+      --accent: oklch(0.269 0 0);
+      --accent-foreground: oklch(0.985 0 0);
+      --destructive: oklch(0.704 0.191 22.216);
+      --border: oklch(1 0 0 / 10%);
+      --input: oklch(1 0 0 / 15%);
+      --ring: oklch(0.556 0 0);
+      --chart-1: oklch(0.488 0.243 264.376);
+      --chart-2: oklch(0.696 0.17 162.48);
+      --chart-3: oklch(0.769 0.188 70.08);
+      --chart-4: oklch(0.627 0.265 303.9);
+      --chart-5: oklch(0.645 0.246 16.439);
+      --sidebar: oklch(0.205 0 0);
+      --sidebar-foreground: oklch(0.985 0 0);
+      --sidebar-primary: oklch(0.488 0.243 264.376);
+      --sidebar-primary-foreground: oklch(0.985 0 0);
+      --sidebar-accent: oklch(0.269 0 0);
+      --sidebar-accent-foreground: oklch(0.985 0 0);
+      --sidebar-border: oklch(1 0 0 / 10%);
+      --sidebar-ring: oklch(0.556 0 0);
+    }
+
+    * { border-color: var(--border); outline-color: color-mix(in oklch, var(--ring) 50%, transparent); }
+    body {
+      font-family: var(--font-sans);
+      background-color: var(--background);
+      color: var(--foreground);
+    }
+
+    /* v1c-b: Dense grid — JS fully controls grid-template-columns based on COLUMNS model. */
+    .kanban-grid {
+      display: grid;
+      min-width: max-content;
+    }
+
+    .cell {
+      border-right: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
+      min-height: 44px;
+      padding: 2px;
+      position: relative;
+      background: var(--background);
+    }
+
+    .cell-empty:hover {
+      background: color-mix(in oklch, var(--accent) 60%, transparent);
+    }
+
+    .hdr {
+      background: var(--secondary);
+      color: var(--secondary-foreground);
+      border-right: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 11px;
+      font-weight: 600;
+      padding: 4px 2px;
+      text-align: center;
+    }
+
+    .hdr-row1 { position: sticky; top: 0; z-index: 30; height: 28px; }
+    .hdr-row2 { position: sticky; top: 28px; z-index: 29; height: 32px; }
+
+    .time-cell {
+      position: sticky;
+      left: 0;
+      z-index: 20;
+      background: var(--secondary);
+      color: var(--muted-foreground);
+      border-right: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 11px;
+      font-weight: 500;
+      min-height: 44px;
+    }
+
+    .time-cell-hdr {
+      position: sticky;
+      left: 0;
+      z-index: 31;
+    }
+
+    /* Group color accents for header row1 (by palette index 0..5, extra → cycle) */
+    .grp-0 { background: color-mix(in oklch, var(--chart-2) 15%, var(--secondary)); }
+    .grp-1 { background: color-mix(in oklch, var(--chart-1) 15%, var(--secondary)); }
+    .grp-2 { background: color-mix(in oklch, var(--chart-4) 18%, var(--secondary)); }
+    .grp-3 { background: color-mix(in oklch, var(--chart-5) 15%, var(--secondary)); }
+    .grp-4 { background: color-mix(in oklch, var(--chart-3) 15%, var(--secondary)); }
+    .grp-5 { background: color-mix(in oklch, var(--chart-2) 20%, var(--secondary)); }
+    .grp-6 { background: color-mix(in oklch, var(--chart-4) 12%, var(--secondary)); }
+    .grp-7 { background: color-mix(in oklch, var(--chart-1) 10%, var(--secondary)); }
+
+    /* Subtle column group separators */
+    .col-sep-l { border-left: 2px solid color-mix(in oklch, var(--foreground) 15%, transparent); }
+
+    /* Card chip */
+    .chip {
+      border-radius: 3px;
+      border: 1px solid var(--border);
+      border-left-width: 3px;
+      padding: 2px 4px;
+      font-size: 10px;
+      line-height: 1.2;
+      cursor: grab;
+      transition: all 120ms ease;
+    }
+    .chip:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+    }
+
+    /* v1c-b: strong selection visual (chip + empty cell) */
+    .chip.is-selected {
+      outline: 3px solid #2563eb;
+      outline-offset: 2px;
+      box-shadow: 0 0 0 6px rgba(37, 99, 235, 0.25);
+      z-index: 5;
+      position: relative;
+    }
+    .cell.is-selected {
+      background: rgba(37, 99, 235, 0.08);
+      outline: 2px dashed #2563eb;
+      outline-offset: -2px;
+    }
+
+    /* v1c-b: color picker for per-card override */
+    .color-picker { display: flex; flex-wrap: wrap; gap: 6px; }
+    .color-swatch {
+      width: 24px; height: 24px; border-radius: 6px;
+      border: 2px solid transparent; cursor: pointer;
+      padding: 0;
+      transition: transform 120ms, border-color 120ms;
+    }
+    .color-swatch:hover { transform: scale(1.15); }
+    .color-swatch.active { border-color: #2563eb; box-shadow: 0 0 0 2px rgba(37,99,235,0.25); }
+    .color-swatch.color-default {
+      background: repeating-linear-gradient(45deg, #e5e7eb, #e5e7eb 4px, #fff 4px, #fff 8px);
+    }
+
+    /* Scrollbar polish */
+    .kanban-scroll::-webkit-scrollbar { height: 10px; width: 10px; }
+    .kanban-scroll::-webkit-scrollbar-thumb { background: var(--border); border-radius: 6px; }
+    .kanban-scroll::-webkit-scrollbar-track { background: transparent; }
+
+    /* Status legend dots */
+    .dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; margin-right: 6px; vertical-align: middle; }
+
+    /* Implant stats widget (top bar) */
+    #implantStats .implant-stat { display: inline-flex; align-items: center; gap: 4px; white-space: nowrap; }
+    #implantStats .implant-sep { color: var(--muted-foreground); opacity: 0.5; margin: 0 2px; }
+    #implantStats b { font-weight: 600; }
+    #implantStats .stat-zero { color: color-mix(in oklch, var(--muted-foreground) 50%, transparent); }
+    #implantStats .stat-nonzero { color: var(--foreground); }
+
+    /* Dialog overlay (shadcn-style) */
+    .dlg-overlay {
+      position: fixed; inset: 0; background: rgba(0,0,0,0.5);
+      display: none; align-items: center; justify-content: center;
+      z-index: 100;
+      animation: dlg-fade 150ms ease-out;
+    }
+    .dlg-overlay.open { display: flex; }
+    .dlg {
+      background: var(--background);
+      color: var(--foreground);
+      border: 1px solid var(--border);
+      border-radius: calc(var(--radius) + 2px);
+      box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+      width: min(420px, calc(100vw - 2rem));
+      padding: 20px;
+      animation: dlg-pop 150ms ease-out;
+    }
+    .dlg h2 { font-size: 15px; font-weight: 600; margin-bottom: 4px; }
+    .dlg p.dlg-desc { font-size: 12.5px; color: var(--muted-foreground); margin-bottom: 16px; }
+    .dlg-field { display: flex; flex-direction: column; gap: 6px; margin-bottom: 12px; }
+    .dlg-field label { font-size: 12px; font-weight: 500; }
+    .dlg-field select, .dlg-field input {
+      height: 34px; padding: 0 10px;
+      border: 1px solid var(--border); border-radius: var(--radius);
+      background: var(--background); color: var(--foreground);
+      font-size: 13px; outline: none;
+    }
+    .dlg-field select:focus, .dlg-field input:focus { box-shadow: 0 0 0 2px color-mix(in oklch, var(--ring) 50%, transparent); }
+    .dlg-error { font-size: 11.5px; color: #dc2626; margin-top: 4px; min-height: 14px; }
+    .dlg-actions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 16px; }
+    .dlg-btn {
+      height: 34px; padding: 0 14px; border-radius: var(--radius);
+      font-size: 13px; font-weight: 500; cursor: pointer; border: 1px solid var(--border);
+      background: var(--background); color: var(--foreground);
+      transition: background 120ms;
+    }
+    .dlg-btn:hover { background: var(--accent); }
+    .dlg-btn-primary { background: var(--primary); color: var(--primary-foreground); border-color: var(--primary); }
+    .dlg-btn-primary:hover { background: color-mix(in oklch, var(--primary) 88%, #fff); }
+    .dlg-btn-destructive { background: #dc2626; color: #fff; border-color: #dc2626; }
+    .dlg-btn-destructive:hover { background: #b91c1c; }
+    @keyframes dlg-fade { from { opacity: 0; } to { opacity: 1; } }
+    @keyframes dlg-pop { from { opacity: 0; transform: scale(0.96) translateY(4px); } to { opacity: 1; transform: scale(1) translateY(0); } }
+
+    /* v1c-b: Group-end "+" cell (all 3 rows) */
+    .hdr-add {
+      background: var(--muted);
+      color: var(--muted-foreground);
+      cursor: pointer;
+      padding: 0;
+      transition: background 120ms, color 120ms;
+    }
+    .hdr-add:hover {
+      background: var(--accent);
+      color: var(--accent-foreground);
+    }
+    .hdr-add i,
+    .hdr-add svg { width: 14px; height: 14px; }
+
+    /* Data-row placeholder column (non-interactive, just visual) */
+    .cell-add-placeholder {
+      border-right: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
+      background: color-mix(in oklch, var(--muted) 50%, var(--background));
+      min-height: 44px;
+    }
+
+    /* v1c-b: inline editable header (any row) */
+    .hdr-edit {
+      padding: 0 2px !important;
+      background: var(--background) !important;
+    }
+    .hdr-edit input {
+      width: 100%;
+      height: 24px;
+      padding: 0 4px;
+      font-size: 11px;
+      font-weight: 600;
+      text-align: center;
+      border: 1px solid var(--ring);
+      border-radius: 3px;
+      background: var(--background);
+      color: var(--foreground);
+      outline: none;
+      box-shadow: 0 0 0 2px color-mix(in oklch, var(--ring) 40%, transparent);
+    }
+
+    /* v1c-b: delete icon overlay for user-added headers.
+       NOTE: We must NOT override position from `sticky` (set on .hdr-row1/2/3) to
+       `relative` here, because the parent `top: Npx` (used for sticky offset)
+       would then be applied as a visual offset in the flow, pushing the cell into
+       the wrong grid track (Row2 cell visually lands in Row3, Row3 cell in data row).
+       Instead we keep `position: sticky` inherited from the row-level rules — sticky
+       is a positioned element and works as a containing block for the absolutely
+       positioned .hdr-del child, so the delete icon overlay still anchors correctly. */
+    .hdr-del {
+      position: absolute;
+      top: 2px; right: 2px;
+      width: 14px; height: 14px;
+      display: none;
+      align-items: center; justify-content: center;
+      border-radius: 3px;
+      cursor: pointer;
+      color: var(--muted-foreground);
+    }
+    .hdr-del:hover {
+      background: color-mix(in oklch, var(--destructive) 20%, transparent);
+      color: var(--destructive);
+    }
+    .hdr-del[data-disabled="true"] {
+      cursor: not-allowed;
+      opacity: 0.4;
+    }
+    .hdr-del[data-disabled="true"]:hover {
+      background: transparent;
+      color: var(--muted-foreground);
+    }
+    .hdr-del i { width: 11px; height: 11px; }
+    .hdr[data-user-added="true"]:hover .hdr-del { display: inline-flex; }
+
+    /* Toast (bottom-right) */
+    .toast-wrap { position: fixed; bottom: 20px; right: 20px; display: flex; flex-direction: column; gap: 8px; z-index: 120; pointer-events: none; }
+    .toast {
+      background: var(--background); color: var(--foreground);
+      border: 1px solid var(--border); border-radius: var(--radius);
+      padding: 10px 14px; font-size: 13px;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.12);
+      pointer-events: auto;
+      animation: toast-in 180ms ease-out;
+      max-width: 320px;
+    }
+    .toast-error { border-left: 3px solid #dc2626; }
+    .toast-success { border-left: 3px solid #10b981; }
+    @keyframes toast-in { from { opacity: 0; transform: translateX(20px); } to { opacity: 1; transform: translateX(0); } }
+
+    /* ========= Card Side Panel (Sheet) ========= */
+    #cardPanel {
+      position: fixed; top: 0; right: 0; height: 100vh; width: 360px;
+      background: var(--background);
+      color: var(--foreground);
+      border-left: 1px solid var(--border);
+      transform: translateX(100%);
+      transition: transform 200ms ease-out;
+      z-index: 100;
+      box-shadow: -4px 0 20px rgba(0,0,0,0.08);
+      display: flex;
+      flex-direction: column;
+      overflow-x: hidden;
+    }
+    #cardPanel.open { transform: translateX(0); }
+    .card-panel-header {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 14px 16px;
+      border-bottom: 1px solid var(--border);
+    }
+    .card-panel-header h3 { font-size: 14px; font-weight: 600; }
+    .card-panel-close {
+      width: 28px; height: 28px;
+      display: inline-flex; align-items: center; justify-content: center;
+      border-radius: var(--radius);
+      cursor: pointer; color: var(--muted-foreground);
+      border: 1px solid transparent;
+    }
+    .card-panel-close:hover { background: var(--accent); color: var(--foreground); }
+    .card-panel-body {
+      flex: 1;
+      overflow-y: auto;
+      overflow-x: hidden;
+      padding: 16px;
+      display: flex; flex-direction: column; gap: 12px;
+    }
+    .card-panel-field { display: flex; flex-direction: column; gap: 6px; min-width: 0; }
+    .card-panel-field label { font-size: 12px; font-weight: 500; color: var(--foreground); }
+    .card-panel-field input,
+    .card-panel-field select,
+    .card-panel-field textarea {
+      width: 100%;
+      min-width: 0;
+      box-sizing: border-box;
+      padding: 8px 10px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      background: var(--background);
+      color: var(--foreground);
+      font-size: 13px;
+      outline: none;
+      font-family: inherit;
+    }
+    .card-panel-field input:focus,
+    .card-panel-field select:focus,
+    .card-panel-field textarea:focus {
+      box-shadow: 0 0 0 2px color-mix(in oklch, var(--ring) 50%, transparent);
+    }
+    .card-panel-field textarea { min-height: 72px; resize: vertical; }
+    .card-panel-field input[readonly],
+    .card-panel-field input:read-only,
+    .card-panel-field select:disabled {
+      background: var(--muted);
+      color: var(--muted-foreground);
+      cursor: not-allowed;
+    }
+    .card-panel-row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; min-width: 0; }
+    .card-panel-row > .card-panel-field { min-width: 0; }
+    .card-panel-actions {
+      padding: 12px 16px;
+      border-top: 1px solid var(--border);
+      display: flex; justify-content: space-between; gap: 8px;
+    }
+    .card-panel-actions .left { display: flex; gap: 8px; }
+    .card-panel-actions .right { display: flex; gap: 8px; }
+
+    /* ========= Inline add input ========= */
+    .inline-add-input {
+      width: 100%;
+      height: 32px;
+      padding: 2px 6px;
+      font-size: 11px;
+      font-family: inherit;
+      border: 1px solid var(--ring);
+      border-radius: 3px;
+      background: var(--background);
+      color: var(--foreground);
+      outline: none;
+      box-shadow: 0 0 0 2px color-mix(in oklch, var(--ring) 40%, transparent);
+    }
+
+    /* ========= Custom Context Menu ========= */
+    .ctx-menu {
+      position: fixed;
+      background: var(--popover);
+      color: var(--popover-foreground);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      box-shadow: 0 8px 24px rgba(0,0,0,0.15);
+      padding: 4px;
+      min-width: 160px;
+      z-index: 200;
+      font-size: 12.5px;
+      animation: ctx-pop 100ms ease-out;
+    }
+    @keyframes ctx-pop {
+      from { opacity: 0; transform: translateY(-4px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .ctx-item {
+      display: flex; align-items: center; gap: 8px;
+      padding: 7px 10px;
+      border-radius: calc(var(--radius) - 2px);
+      cursor: pointer;
+      user-select: none;
+      position: relative;
+    }
+    .ctx-item:hover { background: var(--accent); }
+    .ctx-item.destructive { color: #dc2626; }
+    .ctx-item.destructive:hover { background: color-mix(in oklch, #dc2626 12%, transparent); }
+    .ctx-item .ctx-arrow { margin-left: auto; opacity: 0.6; }
+    .ctx-item i, .ctx-item svg { width: 14px; height: 14px; }
+    .ctx-sep {
+      height: 1px; background: var(--border);
+      margin: 4px 0;
+    }
+    .ctx-submenu {
+      position: absolute;
+      top: -4px;
+      left: 100%;
+      margin-left: 2px;
+      background: var(--popover);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      box-shadow: 0 8px 24px rgba(0,0,0,0.15);
+      padding: 4px;
+      min-width: 140px;
+      display: none;
+    }
+    .ctx-item-with-sub { position: relative; }
+    .ctx-item-with-sub:hover > .ctx-submenu { display: block; }
+  </style>
+</head>
+<body class="bg-background text-foreground">
+
+  <!-- Top Bar -->
+  <header class="sticky top-0 z-50 h-14 border-b border-border bg-background/95 backdrop-blur flex items-center px-4 gap-3">
+    <div class="flex items-center gap-2 min-w-[260px]">
+      <div class="w-8 h-8 rounded-md bg-primary text-primary-foreground flex items-center justify-center">
+        <i data-lucide="stethoscope" class="w-4 h-4"></i>
+      </div>
+      <div class="flex flex-col leading-tight">
+        <span class="text-sm font-semibold">치과 상담 <span class="text-muted-foreground font-normal">v1c-b 2계층 + 그룹 규칙</span></span>
+        <span class="text-[11px] text-muted-foreground">예약 대시보드</span>
+      </div>
+    </div>
+
+    <!-- Date navigation center -->
+    <div class="flex-1 flex items-center justify-center gap-1.5">
+      <button id="prevDateBtn" class="h-8 w-8 inline-flex items-center justify-center rounded-md border border-border hover:bg-accent" title="이전 날짜">
+        <i data-lucide="chevron-left" class="w-4 h-4"></i>
+      </button>
+      <div id="dateLabel" class="h-8 px-3 inline-flex items-center gap-2 rounded-md border border-border bg-background text-sm font-medium cursor-pointer hover:bg-accent" title="달력 열기">
+        <i data-lucide="calendar" class="w-3.5 h-3.5 text-muted-foreground"></i>
+        <span id="dateLabelText">-</span>
+      </div>
+      <button id="nextDateBtn" class="h-8 w-8 inline-flex items-center justify-center rounded-md border border-border hover:bg-accent" title="다음 날짜">
+        <i data-lucide="chevron-right" class="w-4 h-4"></i>
+      </button>
+      <button id="todayBtn" class="h-8 px-3 inline-flex items-center rounded-md border border-border text-xs font-medium hover:bg-accent">오늘</button>
+      <button id="datePickerBtn" class="h-8 w-8 inline-flex items-center justify-center rounded-md border border-border hover:bg-accent" title="달력 선택">
+        <i data-lucide="calendar-days" class="w-4 h-4"></i>
+      </button>
+      <input type="date" id="datePicker" class="absolute opacity-0" style="width:0;height:0;padding:0;border:0;pointer-events:none" aria-hidden="true" />
+      <div id="implantStats" class="flex items-center flex-wrap gap-x-1 gap-y-1 text-xs text-muted-foreground ml-4"></div>
+    </div>
+
+    <!-- Right side -->
+    <div class="flex items-center gap-2">
+      <a href="kanban-v1c-b-templates.html" class="h-8 px-2 inline-flex items-center gap-1 rounded-md border border-border text-xs hover:bg-accent" title="컬럼 템플릿 관리">
+        <i data-lucide="layout-grid" class="w-3.5 h-3.5"></i>
+        <span>템플릿</span>
+      </a>
+      <button id="darkToggle" class="h-8 w-8 inline-flex items-center justify-center rounded-md border border-border hover:bg-accent" title="다크모드 토글">
+        <i data-lucide="moon" class="w-4 h-4"></i>
+      </button>
+    </div>
+  </header>
+
+  <!-- Main scroll area -->
+  <main class="kanban-scroll overflow-auto" style="height: calc(100vh - 3.5rem - 2.5rem);">
+    <div class="kanban-grid" id="kanbanGrid">
+      <!-- fully rendered by JS -->
+    </div>
+  </main>
+
+  <!-- Bottom Legend Bar -->
+  <footer class="sticky bottom-0 z-40 h-10 border-t border-border bg-background/95 backdrop-blur flex items-center px-4 text-xs">
+    <span class="ml-auto text-muted-foreground">v1c-b · 2계층 + 그룹별 비즈니스 규칙</span>
+  </footer>
+
+  <!-- ================= Dialogs ================= -->
+
+  <!-- Delete card dialog -->
+  <div class="dlg-overlay" id="deleteCardDialog" role="dialog" aria-modal="true" aria-labelledby="deleteCardDialogTitle">
+    <div class="dlg">
+      <h2 id="deleteCardDialogTitle">카드 삭제</h2>
+      <p class="dlg-desc" id="deleteCardDialogDesc">이 카드를 삭제할까요?</p>
+      <div class="dlg-actions">
+        <button type="button" class="dlg-btn" data-dlg-cancel="deleteCardDialog">취소</button>
+        <button type="button" class="dlg-btn dlg-btn-destructive" id="deleteCardConfirm">삭제</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Delete column dialog (all levels) -->
+  <div class="dlg-overlay" id="deleteColumnDialog" role="dialog" aria-modal="true" aria-labelledby="deleteColumnDialogTitle">
+    <div class="dlg">
+      <h2 id="deleteColumnDialogTitle">컬럼 삭제</h2>
+      <p class="dlg-desc" id="deleteColumnDialogDesc">컬럼을 삭제할까요?</p>
+      <div class="dlg-actions">
+        <button type="button" class="dlg-btn" data-dlg-cancel="deleteColumnDialog">취소</button>
+        <button type="button" class="dlg-btn dlg-btn-destructive" id="deleteColumnConfirm">삭제</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast container -->
+  <div class="toast-wrap" id="toastWrap"></div>
+
+  <!-- Card edit side panel (Sheet) -->
+  <aside id="cardPanel" role="dialog" aria-modal="false" aria-labelledby="cardPanelTitle" aria-hidden="true">
+    <div class="card-panel-header">
+      <h3 id="cardPanelTitle">카드 편집</h3>
+      <button type="button" class="card-panel-close" id="cardPanelClose" title="닫기">
+        <i data-lucide="x" class="w-4 h-4"></i>
+      </button>
+    </div>
+    <div class="card-panel-body">
+      <div class="card-panel-field">
+        <label for="cpName">환자명</label>
+        <input type="text" id="cpName" autocomplete="off" />
+      </div>
+      <div class="card-panel-field">
+        <label for="cpChart">차트번호</label>
+        <input type="text" id="cpChart" autocomplete="off" />
+      </div>
+      <div class="card-panel-field">
+        <label for="cpCounselor">담당 상담사</label>
+        <select id="cpCounselor">
+          <option value="">없음</option>
+          <option value="김수지">김수지</option>
+          <option value="라근주">라근주</option>
+          <option value="유소연">유소연</option>
+        </select>
+      </div>
+      <div class="card-panel-row">
+        <div class="card-panel-field">
+          <label for="cpBookTimeSelect">예약시간</label>
+          <select id="cpBookTimeSelect"></select>
+          <input type="text" id="cpBookTimeInput" placeholder="예: 11:30" autocomplete="off" style="display:none" />
+        </div>
+        <div class="card-panel-field">
+          <label for="cpConsultTimeInput">접수시간</label>
+          <input type="text" id="cpConsultTimeInput" placeholder="예: 11:35" autocomplete="off" />
+        </div>
+      </div>
+      <div class="card-panel-field">
+        <label for="cpMemo">메모 <span class="text-muted-foreground font-normal">(선택)</span></label>
+        <textarea id="cpMemo" placeholder="추가 메모 (선택)"></textarea>
+      </div>
+      <div class="card-panel-field">
+        <label>색상</label>
+        <div class="color-picker" id="cpColorPicker">
+          <button type="button" class="color-swatch color-default" data-color="" title="기본 (상태색)"></button>
+          <button type="button" class="color-swatch" data-color="#ef4444" style="background:#ef4444" title="빨강"></button>
+          <button type="button" class="color-swatch" data-color="#f97316" style="background:#f97316" title="주황"></button>
+          <button type="button" class="color-swatch" data-color="#f59e0b" style="background:#f59e0b" title="호박"></button>
+          <button type="button" class="color-swatch" data-color="#10b981" style="background:#10b981" title="녹색"></button>
+          <button type="button" class="color-swatch" data-color="#3b82f6" style="background:#3b82f6" title="파랑"></button>
+          <button type="button" class="color-swatch" data-color="#8b5cf6" style="background:#8b5cf6" title="보라"></button>
+          <button type="button" class="color-swatch" data-color="#ec4899" style="background:#ec4899" title="분홍"></button>
+          <button type="button" class="color-swatch" data-color="#6b7280" style="background:#6b7280" title="회색"></button>
+        </div>
+      </div>
+    </div>
+    <div class="card-panel-actions">
+      <div class="left">
+        <button type="button" class="dlg-btn dlg-btn-destructive" id="cpDelete">삭제</button>
+      </div>
+      <div class="right">
+        <button type="button" class="dlg-btn" id="cpCancel">취소</button>
+        <button type="button" class="dlg-btn dlg-btn-primary" id="cpSave">저장</button>
+      </div>
+    </div>
+  </aside>
+
+  <script>
+    // Lucide icons (re-run after DOM build)
+    // Dark mode toggle
+    const darkToggle = document.getElementById('darkToggle');
+    darkToggle.addEventListener('click', () => {
+      document.documentElement.classList.toggle('dark');
+      const icon = darkToggle.querySelector('i');
+      const isDark = document.documentElement.classList.contains('dark');
+      icon.setAttribute('data-lucide', isDark ? 'sun' : 'moon');
+      lucide.createIcons();
+    });
+
+    (function() {
+      // v1c-b: per-date keyed storage.
+      //   - Legacy un-dated keys are migrated into today's keyed namespace on first load.
+      //   - STORAGE_KEY (zone positions) is derived from CARDS and kept per-date as well for back-compat.
+      const STORAGE_KEY_BASE = 'kanban-v1c-b-state';
+      const COLUMNS_KEY_BASE = 'kanban-v1c-b-columns';
+      const CARDS_KEY_BASE   = 'kanban-v1c-b-cards';
+
+      const DAYS_KR = ['일','월','화','수','목','금','토'];
+      function toDateKey(d) {
+        const y = d.getFullYear();
+        const m = String(d.getMonth()+1).padStart(2,'0');
+        const dd = String(d.getDate()).padStart(2,'0');
+        return `${y}-${m}-${dd}`;
+      }
+      function fromDateKey(s) {
+        const [y,m,d] = s.split('-').map(Number);
+        return new Date(y, m-1, d);
+      }
+      function dateLabel(s) {
+        const d = fromDateKey(s);
+        return `${s} (${DAYS_KR[d.getDay()]})`;
+      }
+      function shiftDateKey(s, deltaDays) {
+        const d = fromDateKey(s);
+        d.setDate(d.getDate() + deltaDays);
+        return toDateKey(d);
+      }
+      function cardsKey(date)    { return `${CARDS_KEY_BASE}-${date}`; }
+      function columnsKey(date)  { return `${COLUMNS_KEY_BASE}-${date}`; }
+      function stateKey(date)    { return `${STORAGE_KEY_BASE}-${date}`; }
+
+      // currentDate — authoritative date for all per-date IO. Initialised in Init block below.
+      let currentDate = toDateKey(new Date());
+
+      // One-time migration: move any legacy un-dated keys into today's namespace.
+      (function migrateOldData() {
+        const today = toDateKey(new Date());
+        const oldCards = localStorage.getItem(CARDS_KEY_BASE);
+        if (oldCards && !localStorage.getItem(cardsKey(today))) {
+          localStorage.setItem(cardsKey(today), oldCards);
+        }
+        const oldCols = localStorage.getItem(COLUMNS_KEY_BASE);
+        if (oldCols && !localStorage.getItem(columnsKey(today))) {
+          localStorage.setItem(columnsKey(today), oldCols);
+        }
+        const oldState = localStorage.getItem(STORAGE_KEY_BASE);
+        if (oldState && !localStorage.getItem(stateKey(today))) {
+          localStorage.setItem(stateKey(today), oldState);
+        }
+        localStorage.removeItem(CARDS_KEY_BASE);
+        localStorage.removeItem(COLUMNS_KEY_BASE);
+        localStorage.removeItem(STORAGE_KEY_BASE);
+      })();
+
+      // Find the most-recent columns snapshot strictly BEFORE `date`. Returns full key or null.
+      function findPrevColumnsKey(date) {
+        const prefix = COLUMNS_KEY_BASE + '-';
+        const dates = [];
+        for (let i = 0; i < localStorage.length; i++) {
+          const k = localStorage.key(i);
+          if (!k || !k.startsWith(prefix)) continue;
+          const d = k.slice(prefix.length);
+          // Basic YYYY-MM-DD shape check to ignore any unrelated keys
+          if (/^\d{4}-\d{2}-\d{2}$/.test(d) && d < date) dates.push(d);
+        }
+        dates.sort();
+        return dates.length > 0 ? prefix + dates[dates.length - 1] : null;
+      }
+
+      // ---------- Time slots ----------
+      const TIME_SLOTS = [
+        '9:00','9:30','10:00','10:30','11:00','11:30','12:00','12:30',
+        '13:00','13:30','14:00','14:30','15:00','15:30','16:00','16:30',
+        '17:00','17:30','18:00','18:30','19:00','19:30','20:00','20:30'
+      ];
+
+      const COUNSELORS = ['김수지', '라근주', '유소연'];
+
+      // Per-row1 leaf width (by row1.id). Missing → default 64.
+      // (Row1 here is the new 대분류 = old row2; Row2 = leaf = old row3.)
+      const R1_LEAF_WIDTH = {
+        r1_구환: 88, r1_신환: 88, r1_예진: 56,
+        r1_임플: 52, r1_일반: 52, r1_전화: 76,
+      };
+      const DEFAULT_LEAF_WIDTH = 64;
+      const ADD_CELL_WIDTH = 30;
+
+      // Business-rule group sets (new row1 IDs)
+      // - single-card cells: 구환 / 신환 (1 cell = 1 card)
+      // - duplicate-allowed: 임플 / 일반 (같은 차트번호 여러 leaf에 독립 카드로 허용)
+      const SINGLE_CARD_R1 = new Set(['r1_구환', 'r1_신환']);
+      const DUP_ALLOWED_R1 = new Set(['r1_임플', 'r1_일반']);
+
+      // ---------- Default column model (v1c-b: 2-tier) ----------
+      // Row1 (대분류): 7 groups. Row2 (leaf): each group's sub-columns.
+      const DEFAULT_COLUMNS = {
+        row1: [
+          { id: 'r1_구환', label: '구환상담', builtIn: true },
+          { id: 'r1_신환', label: '신환상담', builtIn: true },
+          { id: 'r1_예진', label: '예진현황', builtIn: true },
+          { id: 'r1_임플', label: '임플상담', builtIn: true },
+          { id: 'r1_일반', label: '일반상담', builtIn: true },
+          { id: 'r1_전화', label: '전화상담', builtIn: true },
+        ],
+        row2: [
+          { id: 'r2_구환_김수지', row1Id: 'r1_구환', label: '김수지', builtIn: true },
+          { id: 'r2_구환_라근주', row1Id: 'r1_구환', label: '라근주', builtIn: true },
+          { id: 'r2_구환_유소연', row1Id: 'r1_구환', label: '유소연', builtIn: true },
+
+          { id: 'r2_신환_김수지', row1Id: 'r1_신환', label: '김수지', builtIn: true },
+          { id: 'r2_신환_라근주', row1Id: 'r1_신환', label: '라근주', builtIn: true },
+          { id: 'r2_신환_유소연', row1Id: 'r1_신환', label: '유소연', builtIn: true },
+
+          { id: 'r2_예진_예진완', row1Id: 'r1_예진', label: '예진완', builtIn: true },
+          { id: 'r2_예진_예진실', row1Id: 'r1_예진', label: '예진실', builtIn: true },
+          { id: 'r2_예진_사진완', row1Id: 'r1_예진', label: '사진완', builtIn: true },
+          { id: 'r2_예진_신환접', row1Id: 'r1_예진', label: '신환접', builtIn: true },
+
+          { id: 'r2_임플_아웃',      row1Id: 'r1_임플', label: '아웃',      builtIn: true },
+          { id: 'r2_임플_소개',      row1Id: 'r1_임플', label: '소개',      builtIn: true },
+          { id: 'r2_임플_제휴',      row1Id: 'r1_임플', label: '제휴',      builtIn: true },
+          { id: 'r2_임플_그외',      row1Id: 'r1_임플', label: '그외',      builtIn: true },
+          { id: 'r2_임플_재방문',    row1Id: 'r1_임플', label: '재방문',    builtIn: true },
+          { id: 'r2_임플_임플불가',  row1Id: 'r1_임플', label: '임플불가',  builtIn: true },
+          { id: 'r2_임플_날변이탈',  row1Id: 'r1_임플', label: '날변·이탈', builtIn: true },
+          { id: 'r2_임플_상담거부',  row1Id: 'r1_임플', label: '상담거부',  builtIn: true },
+
+          { id: 'r2_일반_아웃',      row1Id: 'r1_일반', label: '아웃',   builtIn: true },
+          { id: 'r2_일반_소개',      row1Id: 'r1_일반', label: '소개',   builtIn: true },
+          { id: 'r2_일반_제휴',      row1Id: 'r1_일반', label: '제휴',   builtIn: true },
+          { id: 'r2_일반_그외',      row1Id: 'r1_일반', label: '그외',   builtIn: true },
+          { id: 'r2_일반_재방문',    row1Id: 'r1_일반', label: '재방문', builtIn: true },
+
+          { id: 'r2_전화_김수지', row1Id: 'r1_전화', label: '김수지', builtIn: true },
+          { id: 'r2_전화_라근주', row1Id: 'r1_전화', label: '라근주', builtIn: true },
+          { id: 'r2_전화_유소연', row1Id: 'r1_전화', label: '유소연', builtIn: true },
+        ],
+      };
+
+      // Legacy leaf ID migration map: old id → { new row2 (leaf) id, counselor }
+      // Covers:
+      //   (a) Old v1c 3-tier IDs that lived in row3
+      //   (b) Pre-v1c combined-label IDs (relabelled long ago but possibly still in localStorage)
+      // We remap to the new v1c-b row2 namespace (r2_*).
+      const LEGACY_R2_MAP = {
+        // old row3 (v1c) → new row2 (v1c-b)
+        'r3_구환_김수지': { row2: 'r2_구환_김수지', counselor: '김수지' },
+        'r3_구환_라근주': { row2: 'r2_구환_라근주', counselor: '라근주' },
+        'r3_구환_유소연': { row2: 'r2_구환_유소연', counselor: '유소연' },
+        'r3_신환_김수지': { row2: 'r2_신환_김수지', counselor: '김수지' },
+        'r3_신환_라근주': { row2: 'r2_신환_라근주', counselor: '라근주' },
+        'r3_신환_유소연': { row2: 'r2_신환_유소연', counselor: '유소연' },
+        'r3_예진_예진완': { row2: 'r2_예진_예진완' },
+        'r3_예진_예진실': { row2: 'r2_예진_예진실' },
+        'r3_예진_사진완': { row2: 'r2_예진_사진완' },
+        'r3_예진_신환접': { row2: 'r2_예진_신환접' },
+        'r3_임플_아웃':     { row2: 'r2_임플_아웃' },
+        'r3_임플_소개':     { row2: 'r2_임플_소개' },
+        'r3_임플_제휴':     { row2: 'r2_임플_제휴' },
+        'r3_임플_그외':     { row2: 'r2_임플_그외' },
+        'r3_임플_재방문':   { row2: 'r2_임플_재방문' },
+        'r3_임플_임플불가': { row2: 'r2_임플_임플불가' },
+        'r3_임플_날변이탈': { row2: 'r2_임플_날변이탈' },
+        'r3_임플_상담거부': { row2: 'r2_임플_상담거부' },
+        'r3_일반_아웃':   { row2: 'r2_일반_아웃' },
+        'r3_일반_소개':   { row2: 'r2_일반_소개' },
+        'r3_일반_제휴':   { row2: 'r2_일반_제휴' },
+        'r3_일반_그외':   { row2: 'r2_일반_그외' },
+        'r3_일반_재방문': { row2: 'r2_일반_재방문' },
+        'r3_전화_김수지': { row2: 'r2_전화_김수지', counselor: '김수지' },
+        'r3_전화_라근주': { row2: 'r2_전화_라근주', counselor: '라근주' },
+        'r3_전화_유소연': { row2: 'r2_전화_유소연', counselor: '유소연' },
+        // very old combined labels
+        'r3_임플_김수지아웃': { row2: 'r2_임플_아웃', counselor: '김수지' },
+        'r3_임플_김수지그외': { row2: 'r2_임플_그외', counselor: '김수지' },
+        'r3_임플_라근주아웃': { row2: 'r2_임플_아웃', counselor: '라근주' },
+        'r3_임플_라근주그외': { row2: 'r2_임플_그외', counselor: '라근주' },
+        'r3_임플_유소연아웃': { row2: 'r2_임플_아웃', counselor: '유소연' },
+        'r3_임플_유소연그외': { row2: 'r2_임플_그외', counselor: '유소연' },
+        'r3_임플_기타':       { row2: 'r2_임플_그외' },
+        'r3_일반_김수지아웃': { row2: 'r2_일반_아웃', counselor: '김수지' },
+        'r3_일반_라근주아웃': { row2: 'r2_일반_아웃', counselor: '라근주' },
+        'r3_일반_유소연아웃': { row2: 'r2_일반_아웃', counselor: '유소연' },
+      };
+
+      // Legacy row2 (old v1c 중분류) → new row1 (v1c-b 대분류) mapping.
+      // Cards in storage may still carry `row2: 'r2_임플'` etc. — promote to `row1: 'r1_임플'`.
+      const LEGACY_R1_MAP = {
+        'r2_구환': 'r1_구환',
+        'r2_신환': 'r1_신환',
+        'r2_예진': 'r1_예진',
+        'r2_임플': 'r1_임플',
+        'r2_일반': 'r1_일반',
+        'r2_전화': 'r1_전화',
+        'r2_취소': 'r1_구환', // 상담취소 그룹 제거 → 구환으로 편입
+      };
+
+      // v1c-b: seed data removed. Each date starts empty; columns fall back to DEFAULT_COLUMNS
+      // (or the nearest previous date's snapshot). Cards are exclusively user-created per date.
+
+      // Migrate legacy card object shape to v1c-b 2-tier schema in-place.
+      // Handles multiple historical shapes:
+      //   - v1c 3-tier: { row2: 'r2_임플', row3: 'r3_임플_아웃' } → { row1: 'r1_임플', row2: 'r2_임플_아웃' }
+      //   - Very old combined-label row3 ids (e.g. 'r3_임플_김수지아웃') → remap + infer counselor
+      //   - timeMemo/type legacy fields
+      function migrateCardShape(c) {
+        if (!c) return c;
+
+        // ---- Tier migration: row3 → row2 (leaf) ----
+        if (c.row3 && LEGACY_R2_MAP[c.row3]) {
+          const mapped = LEGACY_R2_MAP[c.row3];
+          // Prefer the new leaf id from row3 mapping (more specific than row2).
+          c.row2 = mapped.row2;
+          if (!c.counselor && mapped.counselor) c.counselor = mapped.counselor;
+          delete c.row3;
+        } else if (c.row3) {
+          // Unknown row3 — drop it (zone will be corrected below)
+          delete c.row3;
+        }
+
+        // ---- Tier migration: old row2 (중분류) → row1 (대분류) ----
+        // If row2 is still in legacy form (r2_임플, r2_일반, ...), promote it to row1.
+        if (c.row2 && LEGACY_R1_MAP[c.row2]) {
+          // If we also have a proper leaf id in row2 from the row3→row2 step above,
+          // this branch won't trigger (because c.row2 would already be a leaf like r2_임플_아웃).
+          // This only fires when the card had `row2: 'r2_임플'` with no row3.
+          c.row1 = LEGACY_R1_MAP[c.row2];
+          c.row2 = ''; // leaf unknown — caller will handle
+        }
+
+        // If row1 is missing but row2 (leaf) is set, derive row1 from leaf id prefix.
+        if (!c.row1 && c.row2) {
+          // Leaf ids look like r2_{group}_*. Infer group.
+          const m = /^r2_([^_]+)_/.exec(c.row2);
+          if (m) {
+            const candidate = `r1_${m[1]}`;
+            c.row1 = candidate;
+          }
+        }
+
+        // 상담취소 그룹 제거: r1_취소/r2_취소_* 를 r1_구환/r2_구환_김수지 로 리다이렉트.
+        if (c.row1 === 'r1_취소' || (c.row2 && c.row2.startsWith('r2_취소_'))) {
+          c.row1 = 'r1_구환';
+          c.row2 = 'r2_구환_김수지';
+          if (!c.counselor) c.counselor = '김수지';
+        }
+
+        // Ensure counselor field always exists (default empty string)
+        if (c.counselor === undefined || c.counselor === null) c.counselor = '';
+        // Ensure color field always exists (default empty = neutral)
+        if (c.color === undefined || c.color === null) c.color = '';
+        // v1c-b: status 개념 삭제. 레거시 저장본에 남아있으면 제거.
+        if ('status' in c) delete c.status;
+
+        const hasNew = (c.bookTime !== undefined) || (c.consultTime !== undefined);
+        if (hasNew && c.timeMemo === undefined && c.type === undefined) return c; // already new
+        let bookTime = c.bookTime || '';
+        let consultTime = c.consultTime || '';
+        let memo = c.memo || '';
+        if (typeof c.timeMemo === 'string' && c.timeMemo.trim()) {
+          const tm = c.timeMemo.trim();
+          // Split head (time(s)) from trailing free text on first space
+          const spaceIdx = tm.indexOf(' ');
+          const head = spaceIdx >= 0 ? tm.slice(0, spaceIdx) : tm;
+          const tail = spaceIdx >= 0 ? tm.slice(spaceIdx + 1).trim() : '';
+          if (head.includes('/')) {
+            const [a, b] = head.split('/');
+            if (!consultTime) consultTime = (a || '').trim();
+            if (!bookTime) bookTime = (b || '').trim();
+          } else {
+            if (!bookTime) bookTime = head.trim();
+          }
+          if (tail) {
+            memo = memo ? `${tail} ${memo}` : tail;
+          }
+        }
+        c.bookTime = bookTime;
+        c.consultTime = consultTime;
+        c.memo = memo;
+        delete c.timeMemo;
+        delete c.type;
+        return c;
+      }
+
+      // ---------- Card store (id → card object) ----------
+      // Re-populated on init + whenever switchDate() runs via loadCardsForDate(currentDate).
+      // There is no seed data: an untouched date starts with an empty map.
+      let CARDS = {};
+
+      // ---------- Same-patient (same chart) sync ----------
+      // 동일 차트번호 = 동일 환자. 공통 필드 편집 시 모든 복사본에 양방향 반영.
+      // 독립 필드: id, time, row1, row2 (카드마다 자유롭게 다름).
+      const SYNC_FIELDS = ['name', 'counselor', 'bookTime', 'consultTime', 'memo', 'color'];
+
+      function findSiblingCards(chart, excludeId) {
+        if (!chart) return [];
+        const out = [];
+        for (const c of Object.values(CARDS)) {
+          if (c.chart !== chart) continue;
+          if (excludeId && c.id === excludeId) continue;
+          out.push(c);
+        }
+        return out;
+      }
+
+      // Push SYNC_FIELDS from `card` into every sibling sharing the same chart.
+      // Caller's responsibility: caller must still saveCards() once after the batch.
+      // opts.excludeFields: Set of field names to skip (e.g. { 'bookTime' } when only
+      // one card should move rows but other siblings shouldn't inherit the new bookTime).
+      function syncToSiblings(card, opts) {
+        if (!card || !card.chart) return;
+        const skip = (opts && opts.excludeFields) || null;
+        const siblings = findSiblingCards(card.chart, card.id);
+        for (const sib of siblings) {
+          for (const f of SYNC_FIELDS) {
+            if (skip && skip.has(f)) continue;
+            sib[f] = card[f];
+          }
+          refreshChipDom(sib.id);
+        }
+      }
+
+      // Is this chart number already owned by a different patient group?
+      // (We treat "same chart" as one patient, so "taken by another patient" means
+      //  at least one card exists with that chart whose id is not in our group.)
+      function isChartTakenByOther(chart, ourChart) {
+        if (!chart) return false;
+        if (chart === ourChart) return false;
+        for (const c of Object.values(CARDS)) {
+          if (c.chart === chart) return true;
+        }
+        return false;
+      }
+
+      // v1c-b: per-date card load. No DEFAULT_CARDS seeding — an absent key yields an empty map.
+      function loadCardsForDate(date) {
+        const stored = JSON.parse(localStorage.getItem(cardsKey(date)) || 'null');
+        const out = {};
+        if (stored) {
+          for (const [id, c] of Object.entries(stored)) {
+            out[id] = { ...c };
+          }
+        }
+        // Migrate any legacy shape (timeMemo/type/row3) to new 2-tier schema
+        for (const id of Object.keys(out)) {
+          migrateCardShape(out[id]);
+        }
+        // Sync zone fields with per-date state key (positions written by DnD in older saves)
+        const positions = JSON.parse(localStorage.getItem(stateKey(date)) || 'null');
+        if (positions) {
+          for (const [id, zone] of Object.entries(positions)) {
+            if (!out[id]) continue;
+            const parts = parseZone(zone);
+            if (!parts) continue;
+            out[id].time = parts.time;
+            out[id].row1 = parts.row1;
+            out[id].row2 = parts.row2;
+          }
+        }
+        // Re-apply legacy migration in case state positions reintroduced old ids.
+        for (const id of Object.keys(out)) {
+          migrateCardShape(out[id]);
+        }
+        return out;
+      }
+
+      function saveCards() {
+        localStorage.setItem(cardsKey(currentDate), JSON.stringify(CARDS));
+        const positions = {};
+        for (const [id, c] of Object.entries(CARDS)) {
+          positions[id] = `${c.time}-${c.row1}-${c.row2}`;
+        }
+        localStorage.setItem(stateKey(currentDate), JSON.stringify(positions));
+      }
+
+      function parseZone(zoneId) {
+        // zone format: "${time}-${row1Id}-${row2Id}"
+        // row1Id starts with "r1_", row2Id starts with "r2_"
+        if (!zoneId) return null;
+        const r1Idx = zoneId.indexOf('-r1_');
+        if (r1Idx < 0) return null;
+        const time = zoneId.slice(0, r1Idx);
+        const rest = zoneId.slice(r1Idx + 1);
+        const r2Idx = rest.indexOf('-r2_');
+        if (r2Idx < 0) return null;
+        const row1 = rest.slice(0, r2Idx);
+        const row2 = rest.slice(r2Idx + 1);
+        return { time, row1, row2 };
+      }
+
+      // ---------- Model state ----------
+      // Work model is merged from DEFAULT_COLUMNS + the date-scoped snapshot at columnsKey(currentDate)
+      // (or the nearest prior-date snapshot if today has none).
+      // Structure in storage: { row1: [{id,label}], row2: [{id,row1Id,label}], renames: {row1:{id:label},row2:{id:label}} }
+      let MODEL = { row1: [], row2: [] };
+
+      // ---------- Dialog / Toast helpers ----------
+      function openDialog(id) {
+        const overlay = document.getElementById(id);
+        if (!overlay) return;
+        overlay.classList.add('open');
+        const firstField = overlay.querySelector('select, input, button.dlg-btn-primary, button.dlg-btn-destructive');
+        if (firstField) setTimeout(() => firstField.focus(), 0);
+      }
+      function closeDialog(id) {
+        const overlay = document.getElementById(id);
+        if (!overlay) return;
+        overlay.classList.remove('open');
+        const err = overlay.querySelector('.dlg-error');
+        if (err) err.textContent = '';
+      }
+      function closeAllDialogs() {
+        document.querySelectorAll('.dlg-overlay.open').forEach(el => closeDialog(el.id));
+      }
+      function showToast(msg, type) {
+        const wrap = document.getElementById('toastWrap');
+        if (!wrap) return;
+        const t = document.createElement('div');
+        t.className = 'toast' + (type === 'error' ? ' toast-error' : type === 'success' ? ' toast-success' : '');
+        t.textContent = msg;
+        wrap.appendChild(t);
+        setTimeout(() => {
+          t.style.transition = 'opacity 200ms ease';
+          t.style.opacity = '0';
+          setTimeout(() => t.remove(), 220);
+        }, 3000);
+      }
+      document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') closeAllDialogs();
+      });
+      document.querySelectorAll('.dlg-overlay').forEach(overlay => {
+        overlay.addEventListener('click', (e) => {
+          if (e.target === overlay) closeDialog(overlay.id);
+        });
+      });
+      document.querySelectorAll('[data-dlg-cancel]').forEach(btn => {
+        btn.addEventListener('click', () => closeDialog(btn.dataset.dlgCancel));
+      });
+
+      // ---------- Load model from storage (per-date) ----------
+      // Rules:
+      //  1. If a snapshot exists at columnsKey(date), use it verbatim.
+      //  2. Else, find the most recent prior-date snapshot and use it (propagates additions forward).
+      //  3. Else, fall back to DEFAULT_COLUMNS.
+      function loadColumnsForDate(date) {
+        const model = {
+          row1: DEFAULT_COLUMNS.row1.map(x => ({ ...x })),
+          row2: DEFAULT_COLUMNS.row2.map(x => ({ ...x })),
+        };
+        let saved = JSON.parse(localStorage.getItem(columnsKey(date)) || 'null');
+        if (!saved) {
+          const prevKey = findPrevColumnsKey(date);
+          if (prevKey) {
+            saved = JSON.parse(localStorage.getItem(prevKey) || 'null');
+          }
+        }
+        if (!saved) return model;
+
+        // Apply renames on built-in nodes
+        if (saved.renames) {
+          for (const row of ['row1', 'row2']) {
+            const renames = saved.renames[row] || {};
+            for (const n of model[row]) {
+              if (renames[n.id] !== undefined) n.label = renames[n.id];
+            }
+          }
+        }
+        // Append user-added nodes (not built-in)
+        for (const row of ['row1', 'row2']) {
+          const userNodes = (saved[row] || []).filter(n => !n.builtIn);
+          for (const n of userNodes) {
+            model[row].push({ ...n, builtIn: false });
+          }
+        }
+        return model;
+      }
+
+      function saveColumns() {
+        // Serialize: built-in renames + user-added nodes separately
+        const out = { row1: [], row2: [], renames: { row1: {}, row2: {} } };
+        const defaults = DEFAULT_COLUMNS;
+        for (const row of ['row1', 'row2']) {
+          const defMap = new Map(defaults[row].map(n => [n.id, n.label]));
+          for (const n of MODEL[row]) {
+            if (n.builtIn) {
+              if (defMap.has(n.id) && defMap.get(n.id) !== n.label) {
+                out.renames[row][n.id] = n.label;
+              }
+            } else {
+              // Store minimal fields
+              const entry = { id: n.id, label: n.label };
+              if (row === 'row2') entry.row1Id = n.row1Id;
+              out[row].push(entry);
+            }
+          }
+        }
+        localStorage.setItem(columnsKey(currentDate), JSON.stringify(out));
+      }
+
+      // Back-compat alias so existing call sites (`saveModel()` throughout) keep working.
+      const saveModel = saveColumns;
+
+      // ---------- ID generation ----------
+      let idCounter = 0;
+      function newId(prefix) {
+        idCounter += 1;
+        return `${prefix}_${Date.now().toString(36)}_${idCounter}`;
+      }
+
+      // ---------- Model helpers ----------
+      function row2sByRow1(r1Id) {
+        return MODEL.row2.filter(n => n.row1Id === r1Id);
+      }
+      function findR1(id) { return MODEL.row1.find(n => n.id === id); }
+      function findR2(id) { return MODEL.row2.find(n => n.id === id); }
+
+      // ---------- Rendering ----------
+      const grid = document.getElementById('kanbanGrid');
+
+      function rebuildGrid() {
+        grid.innerHTML = '';
+
+        // Layout per r1 group:
+        //   [leaf leaf ... leaf][row2-add "+"]
+        // Then after all r1 groups:
+        //   [row1-add "+" at far right]
+
+        // Compute grid-template-columns
+        let cols = ['64px']; // time cell column
+        for (const r1 of MODEL.row1) {
+          const leaves = row2sByRow1(r1.id);
+          const w = R1_LEAF_WIDTH[r1.id] || DEFAULT_LEAF_WIDTH;
+          for (let i = 0; i < leaves.length; i++) cols.push(w + 'px');
+          cols.push(ADD_CELL_WIDTH + 'px'); // row2-add for this r1
+        }
+        cols.push(ADD_CELL_WIDTH + 'px'); // row1-add at far right
+        grid.style.gridTemplateColumns = cols.join(' ');
+
+        // 1. Row 1 header (대분류)
+        const r1TimeCell = document.createElement('div');
+        r1TimeCell.className = 'hdr hdr-row1 time-cell-hdr';
+        r1TimeCell.style.background = 'var(--secondary)';
+        r1TimeCell.innerHTML = '<i data-lucide="clock" class="w-3.5 h-3.5 text-muted-foreground"></i>';
+        grid.appendChild(r1TimeCell);
+
+        for (let idx = 0; idx < MODEL.row1.length; idx++) {
+          const r1 = MODEL.row1[idx];
+          const leaves = row2sByRow1(r1.id);
+          // Span = leaves + 1 (row2-add)
+          const span = leaves.length + 1;
+          const cell = document.createElement('div');
+          cell.className = `hdr hdr-row1 grp-${idx % 8} col-sep-l`;
+          cell.dataset.row1Id = r1.id;
+          if (!r1.builtIn) cell.dataset.userAdded = 'true';
+          cell.style.gridColumn = 'span ' + span;
+          cell.textContent = r1.label;
+          cell.title = r1.label;
+          if (!r1.builtIn) {
+            const del = document.createElement('span');
+            del.className = 'hdr-del';
+            del.dataset.delLevel = 'row1';
+            del.dataset.delId = r1.id;
+            del.title = '대분류 삭제';
+            del.innerHTML = '<i data-lucide="x"></i>';
+            cell.appendChild(del);
+          }
+          grid.appendChild(cell);
+        }
+        // Row1-add "+" cell at far right
+        const r1Add = document.createElement('div');
+        r1Add.className = 'hdr hdr-row1 hdr-add';
+        r1Add.dataset.addLevel = 'row1';
+        r1Add.title = '대분류 추가';
+        r1Add.innerHTML = '<i data-lucide="plus"></i>';
+        grid.appendChild(r1Add);
+
+        // 2. Row 2 header (leaf — 상담사/서브카테고리)
+        const r2TimeCell = document.createElement('div');
+        r2TimeCell.className = 'hdr hdr-row2 time-cell-hdr';
+        r2TimeCell.style.background = 'var(--secondary)';
+        r2TimeCell.style.fontSize = '10px';
+        r2TimeCell.textContent = '시간';
+        grid.appendChild(r2TimeCell);
+
+        for (let r1Idx = 0; r1Idx < MODEL.row1.length; r1Idx++) {
+          const r1 = MODEL.row1[r1Idx];
+          const leaves = row2sByRow1(r1.id);
+          for (let leafIdx = 0; leafIdx < leaves.length; leafIdx++) {
+            const leaf = leaves[leafIdx];
+            const cell = document.createElement('div');
+            cell.className = 'hdr hdr-row2' + (leafIdx === 0 ? ' col-sep-l' : '');
+            cell.dataset.row2Id = leaf.id;
+            cell.dataset.row1Id = r1.id;
+            if (!leaf.builtIn) cell.dataset.userAdded = 'true';
+            cell.textContent = leaf.label;
+            cell.title = leaf.label;
+            if (!leaf.builtIn) {
+              const del = document.createElement('span');
+              del.className = 'hdr-del';
+              del.dataset.delLevel = 'row2';
+              del.dataset.delId = leaf.id;
+              del.title = '컬럼 삭제';
+              del.innerHTML = '<i data-lucide="x"></i>';
+              // Disable if this is the last leaf in its row1
+              if (leaves.length <= 1) {
+                del.dataset.disabled = 'true';
+                del.title = '최소 1개 필요';
+              }
+              cell.appendChild(del);
+            }
+            grid.appendChild(cell);
+          }
+          // Row2-add "+" for this r1
+          const r2Add = document.createElement('div');
+          r2Add.className = 'hdr hdr-row2 hdr-add';
+          r2Add.dataset.addLevel = 'row2';
+          r2Add.dataset.row1Id = r1.id;
+          r2Add.title = `${r1.label} 컬럼 추가`;
+          r2Add.innerHTML = '<i data-lucide="plus"></i>';
+          grid.appendChild(r2Add);
+        }
+        // Empty cell under Row1-add (visual)
+        const r2UnderR1Add = document.createElement('div');
+        r2UnderR1Add.className = 'hdr hdr-row2';
+        r2UnderR1Add.style.background = 'var(--muted)';
+        grid.appendChild(r2UnderR1Add);
+
+        // 3. Data rows
+        for (const time of TIME_SLOTS) {
+          const tCell = document.createElement('div');
+          tCell.className = 'time-cell';
+          tCell.textContent = time;
+          grid.appendChild(tCell);
+
+          for (let r1Idx = 0; r1Idx < MODEL.row1.length; r1Idx++) {
+            const r1 = MODEL.row1[r1Idx];
+            const leaves = row2sByRow1(r1.id);
+            for (let leafIdx = 0; leafIdx < leaves.length; leafIdx++) {
+              const leaf = leaves[leafIdx];
+              const cell = document.createElement('div');
+              cell.className = 'cell cell-empty' + (leafIdx === 0 ? ' col-sep-l' : '');
+              cell.dataset.dropZone = `${time}-${r1.id}-${leaf.id}`;
+              cell.dataset.row1Id = r1.id;
+              cell.dataset.row2Id = leaf.id;
+              grid.appendChild(cell);
+            }
+            // placeholder under row2-add for this r1
+            const phR2 = document.createElement('div');
+            phR2.className = 'cell-add-placeholder';
+            grid.appendChild(phR2);
+          }
+          // placeholder under row1-add
+          const phR1 = document.createElement('div');
+          phR1.className = 'cell-add-placeholder';
+          grid.appendChild(phR1);
+        }
+
+        lucide.createIcons();
+      }
+
+      function escapeHtml(s) {
+        return String(s).replace(/[&<>"']/g, c => ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[c]));
+      }
+
+      // ---------- Place cards from CARDS store ----------
+      function hexToRgba(hex, a) {
+        const m = String(hex || '').replace('#','').match(/^([0-9a-f]{6})$/i);
+        if (!m) return `rgba(0,0,0,${a})`;
+        const n = parseInt(m[1], 16);
+        const r = (n >> 16) & 255, g = (n >> 8) & 255, b = n & 255;
+        return `rgba(${r},${g},${b},${a})`;
+      }
+
+      function buildChipElement(c) {
+        const chip = document.createElement('div');
+        chip.className = 'chip';
+        chip.draggable = true;
+        chip.dataset.cardId = c.id;
+        chip.dataset.counselor = c.counselor || '';
+        // v1c-b: status 개념 제거. 색은 오직 c.color(팔레트 선택)만.
+        // c.color 빈 값 → neutral (border-left=var(--border), bg=var(--card), color=var(--foreground)).
+        if (c.color) {
+          chip.style.borderLeftColor = c.color;
+          chip.style.background = hexToRgba(c.color, 0.15);
+          chip.style.color = c.color;
+        } else {
+          chip.style.borderLeftColor = 'var(--border)';
+          chip.style.background = 'var(--card)';
+          chip.style.color = 'var(--foreground)';
+        }
+        chip.innerHTML = `
+          <div class="font-medium">${escapeHtml(c.name || '')}</div>
+          <div class="text-[10px] opacity-70">${escapeHtml(c.chart || '')}</div>
+        `;
+        return chip;
+      }
+
+      function placeAllCards() {
+        for (const c of Object.values(CARDS)) {
+          const zoneId = `${c.time}-${c.row1}-${c.row2}`;
+          const zone = document.querySelector(`[data-drop-zone="${cssEscape(zoneId)}"]`);
+          if (!zone) continue;
+          const chip = buildChipElement(c);
+          zone.classList.remove('cell-empty');
+          zone.appendChild(chip);
+        }
+      }
+
+      function refreshChipDom(cardId) {
+        const c = CARDS[cardId];
+        if (!c) return;
+        const existing = document.querySelector(`.chip[data-card-id="${cssEscape(cardId)}"]`);
+        if (!existing) return;
+        const chip = buildChipElement(c);
+        existing.parentElement.replaceChild(chip, existing);
+        // No need to bind individual listeners (event delegation handles all)
+      }
+
+      function cssEscape(s) {
+        if (window.CSS && CSS.escape) return CSS.escape(s);
+        return String(s).replace(/[^a-zA-Z0-9_-]/g, c => '\\' + c);
+      }
+
+      function bindDropListeners(zone) {
+        zone.addEventListener('dragover', (e) => {
+          e.preventDefault();
+          zone.classList.add('bg-primary/10', 'ring-1', 'ring-primary', 'ring-inset');
+        });
+        zone.addEventListener('dragleave', () => {
+          zone.classList.remove('bg-primary/10', 'ring-1', 'ring-primary', 'ring-inset');
+        });
+        zone.addEventListener('drop', (e) => {
+          e.preventDefault();
+          zone.classList.remove('bg-primary/10', 'ring-1', 'ring-primary', 'ring-inset');
+          const cardId = e.dataTransfer.getData('text/plain');
+          const card = document.querySelector(`.chip[data-card-id="${cssEscape(cardId)}"]`);
+          if (!card) return;
+
+          // v1c-b 규칙: 한 셀(time×row1×row2) 에 카드 1장만. 같은 셀로의 드롭(제자리)은 허용.
+          if (cellHasOtherCard(zone, cardId)) {
+            showToast('해당 셀에 이미 카드가 있습니다.', 'error');
+            return;
+          }
+
+          // Mark old parent as empty if it becomes empty
+          const oldParent = card.parentElement;
+          zone.appendChild(card);
+          zone.classList.remove('cell-empty');
+          if (oldParent && oldParent !== zone && oldParent.querySelectorAll('.chip[data-card-id]').length === 0) {
+            oldParent.classList.add('cell-empty');
+          }
+          // Update CARDS model
+          const c = CARDS[cardId];
+          if (c) {
+            const parts = parseZone(zone.dataset.dropZone);
+            if (parts) {
+              c.time = parts.time;
+              c.row1 = parts.row1;
+              c.row2 = parts.row2;
+              // 구환/신환: bookTime(예약시간)을 새 시간 행과 동기화.
+              if (isTimeEditableGroup(parts.row1)) {
+                c.bookTime = parts.time;
+              }
+            }
+          }
+          saveCards();
+          updateImplantStats();
+        });
+      }
+
+      // Drag state used to disambiguate click vs drag on chips
+      let dragMouseDownPos = null;
+      let dragInProgress = false;
+
+      function bindAllDnd() {
+        // Drop zone listeners (one-time per zone)
+        document.querySelectorAll('[data-drop-zone]').forEach(zone => {
+          if (zone.dataset.dropBound) return;
+          zone.dataset.dropBound = 'true';
+          bindDropListeners(zone);
+        });
+      }
+
+      // Global event delegation for chip drag (works across DOM swaps)
+      document.addEventListener('dragstart', (e) => {
+        const chip = e.target.closest('.chip[data-card-id]');
+        if (!chip) return;
+        dragInProgress = true;
+        e.dataTransfer.setData('text/plain', chip.dataset.cardId);
+        e.dataTransfer.effectAllowed = 'move';
+        chip.classList.add('opacity-50');
+      });
+      document.addEventListener('dragend', (e) => {
+        const chip = e.target.closest('.chip[data-card-id]');
+        if (chip) chip.classList.remove('opacity-50');
+        // Reset slightly later so click handler sees dragInProgress=true
+        setTimeout(() => { dragInProgress = false; }, 0);
+      });
+
+      // ---------- Migrate card positions after column changes ----------
+      // When a leaf (row2) or group (row1) is removed, cards in those zones are dropped.
+      function pruneStateForRemoval(removedZonePrefixes) {
+        // removedZonePrefixes: array of substrings to match in zoneId ("${time}-${row1}-${row2}").
+        //   e.g. "r1_임플-" (whole group), or "r1_임플-r2_임플_아웃" (single leaf)
+        let changed = false;
+        for (const cardId of Object.keys(CARDS)) {
+          const c = CARDS[cardId];
+          const zoneId = `${c.time}-${c.row1}-${c.row2}`;
+          for (const prefix of removedZonePrefixes) {
+            if (zoneId.includes(prefix)) {
+              delete CARDS[cardId];
+              changed = true;
+              break;
+            }
+          }
+        }
+        if (changed) saveCards();
+      }
+
+      // ---------- Full re-render (after any column change) ----------
+      function rerender() {
+        rebuildGrid();
+        placeAllCards();
+        bindAllDnd();
+        applyFilters();
+        updateImplantStats();
+      }
+
+      // ---------- 임플상담 현황 위젯 ----------
+      // 상단 날짜 네비게이션 오른쪽에 임플 Row2 leaf별 카드 수를 실시간 표시.
+      function updateImplantStats() {
+        const container = document.getElementById('implantStats');
+        if (!container) return;
+        const implantLeaves = MODEL.row2.filter(r => r.row1Id === 'r1_임플');
+        const counts = {};
+        for (const leaf of implantLeaves) counts[leaf.id] = 0;
+        for (const c of Object.values(CARDS)) {
+          if (c.row1 === 'r1_임플' && Object.prototype.hasOwnProperty.call(counts, c.row2)) {
+            counts[c.row2]++;
+          }
+        }
+        const parts = [`<span class="font-medium text-foreground">임플:</span>`];
+        implantLeaves.forEach((leaf, idx) => {
+          const n = counts[leaf.id];
+          const cls = n > 0 ? 'stat-nonzero' : 'stat-zero';
+          if (idx > 0) parts.push('<span class="implant-sep">·</span>');
+          parts.push(
+            `<span class="implant-stat ${cls}" data-row2="${escapeHtml(leaf.id)}">${escapeHtml(leaf.label)} <b>${n}</b></span>`
+          );
+        });
+        container.innerHTML = parts.join('');
+      }
+
+      // ---------- Inline chain edit ----------
+      // Enter edit mode on a header cell by level + id. Returns a Promise that resolves true (commit) or false (cancel).
+      function editHeader(level, id, opts) {
+        opts = opts || {};
+        return new Promise(resolve => {
+          const selector = level === 'row1' ? `.hdr-row1[data-row1-id="${id}"]`
+                        : `.hdr-row2[data-row2-id="${id}"]`;
+          const cell = grid.querySelector(selector);
+          if (!cell) { resolve(false); return; }
+
+          const originalHTML = cell.innerHTML;
+          const originalLabel = opts.originalLabel !== undefined ? opts.originalLabel : (level === 'row1' ? findR1(id).label : findR2(id).label);
+
+          cell.classList.add('hdr-edit');
+          cell.innerHTML = '';
+          const input = document.createElement('input');
+          input.type = 'text';
+          input.value = opts.startEmpty ? '' : originalLabel;
+          input.placeholder = opts.placeholder || (level === 'row1' ? '대분류 이름' : '컬럼 이름');
+          input.autocomplete = 'off';
+          cell.appendChild(input);
+          setTimeout(() => { input.focus(); input.select(); }, 0);
+
+          let settled = false;
+          function commit() {
+            if (settled) return;
+            settled = true;
+            const newLabel = input.value.trim() || originalLabel;
+            // Duplicate check at same sibling level
+            let siblings = [];
+            if (level === 'row1') siblings = MODEL.row1.filter(n => n.id !== id).map(n => n.label);
+            else {
+              const node = findR2(id);
+              siblings = MODEL.row2.filter(n => n.row1Id === node.row1Id && n.id !== id).map(n => n.label);
+            }
+            if (siblings.includes(newLabel)) {
+              showToast('같은 이름이 이미 있습니다: ' + newLabel, 'error');
+              input.focus(); input.select();
+              settled = false;
+              return;
+            }
+            // Update model
+            if (level === 'row1') findR1(id).label = newLabel;
+            else findR2(id).label = newLabel;
+            saveModel();
+            rerender();
+            resolve(true);
+          }
+          function cancel() {
+            if (settled) return;
+            settled = true;
+            // Restore visual only (model not touched)
+            cell.classList.remove('hdr-edit');
+            cell.innerHTML = originalHTML;
+            lucide.createIcons();
+            resolve(false);
+          }
+          input.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') { e.preventDefault(); commit(); }
+            else if (e.key === 'Escape') { e.preventDefault(); cancel(); }
+          });
+          input.addEventListener('blur', () => {
+            if (!settled) commit();
+          });
+        });
+      }
+
+      // Chain-edit: create nodes one by one, edit each. If Escape at any step, roll back everything created so far.
+      async function startChainEdit(steps) {
+        // steps: array like [{level: 'row1'}] or [{level:'row2', row1Id}] — for row2, parentId auto-filled via created ids when omitted.
+        // We'll create all nodes up-front with default labels, render, then enter edit mode one by one.
+        // On Escape at step i, remove all created nodes from model+save+rerender.
+        const created = []; // ordered: parent-first
+
+        try {
+          for (let i = 0; i < steps.length; i++) {
+            const step = steps[i];
+            let node;
+            if (step.level === 'row1') {
+              node = { id: newId('r1_user'), label: '새 대분류', builtIn: false };
+              MODEL.row1.push(node);
+              // When a new row1 is created without an accompanying row2 step, also create a default leaf
+              // so the group is renderable. The auto-leaf is a built-in placeholder (user-added=false visually
+              // but in practice we mark it user-added for deletability).
+              created.push({ level: 'row1', id: node.id });
+            } else if (step.level === 'row2') {
+              let r1Id = step.row1Id;
+              if (!r1Id) {
+                // parent is the previous step's created row1
+                const prev = created[created.length - 1];
+                r1Id = prev.id;
+              }
+              node = { id: newId('r2_user'), row1Id: r1Id, label: '새 컬럼', builtIn: false };
+              MODEL.row2.push(node);
+              created.push({ level: 'row2', id: node.id });
+            }
+          }
+
+          // Save + render with all default-labeled nodes
+          saveModel();
+          rerender();
+
+          // Now edit each step sequentially
+          for (let i = 0; i < steps.length; i++) {
+            const entry = created[i];
+            const ok = await editHeader(entry.level, entry.id, { startEmpty: true });
+            if (!ok) {
+              // Cancel — rollback everything created
+              rollback(created);
+              return;
+            }
+          }
+          showToast('컬럼을 추가했습니다.', 'success');
+        } catch (err) {
+          rollback(created);
+          throw err;
+        }
+      }
+
+      function rollback(created) {
+        // Collect zone substrings to prune state
+        const zonePrefixes = [];
+        for (const entry of created) {
+          if (entry.level === 'row1') {
+            // Remove r1 + all its r2
+            const r2s = MODEL.row2.filter(n => n.row1Id === entry.id);
+            for (const r2 of r2s) {
+              zonePrefixes.push(`${entry.id}-${r2.id}`);
+              MODEL.row2 = MODEL.row2.filter(n => n.id !== r2.id);
+            }
+            zonePrefixes.push(`-${entry.id}-`);
+            MODEL.row1 = MODEL.row1.filter(n => n.id !== entry.id);
+          } else {
+            const r2 = findR2(entry.id);
+            if (r2) zonePrefixes.push(`${r2.row1Id}-${entry.id}`);
+            MODEL.row2 = MODEL.row2.filter(n => n.id !== entry.id);
+          }
+        }
+        pruneStateForRemoval(zonePrefixes);
+        saveModel();
+        rerender();
+      }
+
+      // ---------- Delete handlers ----------
+      let pendingDelete = null;
+
+      function confirmDelete(level, id) {
+        let desc = '';
+        let label = '';
+        if (level === 'row1') {
+          const n = findR1(id); if (!n) return;
+          const r2Count = row2sByRow1(id).length;
+          label = n.label;
+          desc = `"${n.label}" 대분류를 삭제할까요? 하위 컬럼 ${r2Count}개와 모든 카드도 함께 사라집니다.`;
+        } else {
+          const n = findR2(id); if (!n) return;
+          // Check last leaf guard
+          const siblings = MODEL.row2.filter(x => x.row1Id === n.row1Id);
+          if (siblings.length <= 1) {
+            showToast('마지막 컬럼은 삭제할 수 없습니다. (최소 1개 필요)', 'error');
+            return;
+          }
+          label = n.label;
+          desc = `"${n.label}" 컬럼을 삭제할까요? 컬럼 안의 카드도 함께 사라집니다.`;
+        }
+        pendingDelete = { level, id, label };
+        document.getElementById('deleteColumnDialogDesc').textContent = desc;
+        openDialog('deleteColumnDialog');
+      }
+
+      function performDelete(level, id) {
+        const zonePrefixes = [];
+        if (level === 'row1') {
+          const r2s = MODEL.row2.filter(n => n.row1Id === id);
+          for (const r2 of r2s) {
+            zonePrefixes.push(`${id}-${r2.id}`);
+          }
+          // Safety net in case any card has row1=id but row2=''.
+          zonePrefixes.push(`-${id}-`);
+          MODEL.row2 = MODEL.row2.filter(n => n.row1Id !== id);
+          MODEL.row1 = MODEL.row1.filter(n => n.id !== id);
+        } else {
+          const r2 = findR2(id);
+          if (r2) zonePrefixes.push(`${r2.row1Id}-${id}`);
+          MODEL.row2 = MODEL.row2.filter(n => n.id !== id);
+        }
+        pruneStateForRemoval(zonePrefixes);
+        saveModel();
+        rerender();
+        showToast('삭제되었습니다.', 'success');
+      }
+
+      document.getElementById('deleteColumnConfirm').addEventListener('click', () => {
+        if (pendingDelete) {
+          const { level, id } = pendingDelete;
+          performDelete(level, id);
+          pendingDelete = null;
+        }
+        closeDialog('deleteColumnDialog');
+      });
+
+      // ---------- Click delegation ----------
+      grid.addEventListener('click', (e) => {
+        // Delete icon click
+        const del = e.target.closest('.hdr-del');
+        if (del) {
+          e.stopPropagation();
+          if (del.dataset.disabled === 'true') {
+            showToast('최소 1개 컬럼이 필요합니다.', 'error');
+            return;
+          }
+          confirmDelete(del.dataset.delLevel, del.dataset.delId);
+          return;
+        }
+        // Row2-add (adds a leaf column into an existing row1 group)
+        const r2Add = e.target.closest('.hdr-row2.hdr-add[data-add-level="row2"]');
+        if (r2Add) {
+          startChainEdit([{ level: 'row2', row1Id: r2Add.dataset.row1Id }]);
+          return;
+        }
+        // Row1-add (adds a new 대분류 group with a default leaf column)
+        const r1Add = e.target.closest('.hdr-row1.hdr-add[data-add-level="row1"]');
+        if (r1Add) {
+          startChainEdit([
+            { level: 'row1' },
+            { level: 'row2' },
+          ]);
+          return;
+        }
+      });
+
+      // Double-click to rename user-added header
+      grid.addEventListener('dblclick', (e) => {
+        const cell = e.target.closest('.hdr[data-user-added="true"]');
+        if (!cell) return;
+        if (cell.classList.contains('hdr-row1')) editHeader('row1', cell.dataset.row1Id);
+        else if (cell.classList.contains('hdr-row2')) editHeader('row2', cell.dataset.row2Id);
+      });
+
+      // Filter/summary/reset UI removed in v1c-b cleanup.
+      // applyFilters() kept as no-op so existing call sites (rerender/inline-add) don't break.
+      function applyFilters() { /* no-op */ }
+
+      // ============================================================
+      // ============= Card CRUD: inline add + side panel + ctx menu =
+      // ============================================================
+
+      // ---------- ID helpers ----------
+      function genCardId(seedChart) {
+        const base = (seedChart && String(seedChart).trim())
+          ? `card-${String(seedChart).trim()}`
+          : `card-${Math.floor(100000 + Math.random() * 900000)}`;
+        if (!CARDS[base]) return base;
+        // Suffix -2, -3, ... until free
+        let n = 2;
+        while (CARDS[`${base}-${n}`]) n += 1;
+        return `${base}-${n}`;
+      }
+
+      function parseInline(raw) {
+        // Format: "이름 차트번호" — split on the LAST whitespace.
+        // Returns { name, chart } or null if invalid.
+        const trimmed = String(raw || '').trim();
+        if (!trimmed) return null;
+        const lastSpace = trimmed.lastIndexOf(' ');
+        if (lastSpace < 0) return null;
+        const name = trimmed.slice(0, lastSpace).trim();
+        const chart = trimmed.slice(lastSpace + 1).trim();
+        if (!name || !chart) return null;
+        return { name, chart };
+      }
+
+      // ---------- Inline-add input ----------
+      let activeInlineInput = null;
+
+      function closeInlineInput() {
+        if (!activeInlineInput) return;
+        const { input, zone } = activeInlineInput;
+        activeInlineInput = null;
+        if (input.parentElement) input.parentElement.removeChild(input);
+        if (zone && zone.querySelectorAll('.chip[data-card-id]').length === 0) {
+          zone.classList.add('cell-empty');
+        }
+      }
+
+      function openInlineInput(zone) {
+        if (!zone) return;
+        // v1c-b 규칙: 한 셀(time×row1×row2) 에 카드 1장만.
+        // 대상 셀에 이미 카드가 있으면 인라인 입력 차단.
+        if (cellHasOtherCard(zone)) {
+          showToast('해당 셀에 이미 카드가 있습니다.', 'error');
+          return;
+        }
+        if (activeInlineInput) closeInlineInput();
+        const input = document.createElement('input');
+        input.type = 'text';
+        input.className = 'inline-add-input';
+        input.placeholder = '예: 김철수 12345';
+        input.autocomplete = 'off';
+        zone.classList.remove('cell-empty');
+        zone.appendChild(input);
+        activeInlineInput = { input, zone };
+        setTimeout(() => input.focus(), 0);
+
+        let committed = false;
+        function commit() {
+          if (committed) return;
+          const raw = input.value.trim();
+          if (!raw) { closeInlineInput(); return; }
+          const parsed = parseInline(raw);
+          if (!parsed) {
+            showToast('차트번호를 입력하세요. 형식: "이름 차트번호"', 'error');
+            input.focus();
+            return;
+          }
+          const parts = parseZone(zone.dataset.dropZone);
+          if (!parts) { closeInlineInput(); return; }
+
+          // 동일 환자(같은 차트번호) 감지: 기존 환자 데이터 우선.
+          const existing = findSiblingCards(parsed.chart, null);
+          const src = existing.length > 0 ? existing[0] : null;
+
+          // 구환/신환은 단일 셀 1장 규칙 + "원본 1명"이므로 같은 차트가 이미 구환/신환에 있으면 거부.
+          if (src && SINGLE_CARD_R1.has(parts.row1)) {
+            const dupInSingle = existing.some(x => x.row1 === parts.row1);
+            if (dupInSingle) {
+              showToast('같은 환자가 이미 구환/신환에 있습니다', 'error');
+              input.focus();
+              return;
+            }
+          }
+
+          committed = true;
+          // genCardId will suffix "-2"/"-3"/... automatically when same chart already exists,
+          // which is required for 임플/일반 (duplicate chart allowed across multiple leaves).
+          const id = genCardId(parsed.chart);
+          // v1c-b: 구환/신환 → bookTime = 셀의 시간 행, consultTime = 현재 시각(자동).
+          // 그 외 그룹 → bookTime/consultTime 빈 문자열.
+          const editable = isTimeEditableGroup(parts.row1);
+          // 기존 환자 데이터가 있으면 name/counselor/memo/color 우선 복사 (이름이 달라도 기존 값 사용).
+          const card = {
+            id,
+            name: src ? src.name : parsed.name,
+            chart: parsed.chart,
+            bookTime: editable ? parts.time : (src ? (src.bookTime || '') : ''),
+            consultTime: editable ? formatNow() : (src ? (src.consultTime || '') : ''),
+            memo: src ? (src.memo || '') : '',
+            counselor: src ? (src.counselor || '') : '',
+            color: src ? (src.color || '') : '',
+            time: parts.time,
+            row1: parts.row1,
+            row2: parts.row2,
+          };
+          CARDS[id] = card;
+          saveCards();
+
+          // Replace input with chip
+          const chip = buildChipElement(card);
+          if (input.parentElement) input.parentElement.removeChild(input);
+          activeInlineInput = null;
+          zone.appendChild(chip);
+          applyFilters();
+          updateImplantStats();
+          showToast('카드를 추가했습니다.', 'success');
+        }
+
+        input.addEventListener('keydown', (e) => {
+          if (e.key === 'Enter') { e.preventDefault(); commit(); }
+          else if (e.key === 'Escape') { e.preventDefault(); closeInlineInput(); }
+        });
+        input.addEventListener('blur', () => {
+          // Empty → cancel; non-empty → commit
+          if (!input.value.trim()) closeInlineInput();
+          else commit();
+        });
+      }
+
+      // Double-click empty cell → inline add
+      grid.addEventListener('dblclick', (e) => {
+        // Skip if dblclick was on an existing chip (header dblclick is handled separately)
+        if (e.target.closest('.chip')) return;
+        const zone = e.target.closest('[data-drop-zone]');
+        if (!zone) return;
+        // Only on empty cells (no chip inside)
+        if (zone.querySelector('.chip[data-card-id]')) return;
+        openInlineInput(zone);
+      });
+
+      // ---------- Side Panel ----------
+      const cardPanel = document.getElementById('cardPanel');
+      const cpName = document.getElementById('cpName');
+      const cpChart = document.getElementById('cpChart');
+      const cpCounselor = document.getElementById('cpCounselor');
+      // v1c-b: bookTime = 예약시간 (시간 행, 30분 드롭다운),
+      //        consultTime = 접수시간 (자유 텍스트, 카드 생성 시 현재 시각 자동 기록)
+      const cpBookTimeSelect = document.getElementById('cpBookTimeSelect');
+      const cpBookTimeInput = document.getElementById('cpBookTimeInput');
+      const cpConsultTimeInput = document.getElementById('cpConsultTimeInput');
+      const cpMemo = document.getElementById('cpMemo');
+      const cpColorPicker = document.getElementById('cpColorPicker');
+
+      // Color picker: delegate click to set active swatch.
+      cpColorPicker.addEventListener('click', (e) => {
+        const btn = e.target.closest('.color-swatch');
+        if (!btn) return;
+        cpColorPicker.querySelectorAll('.color-swatch.active').forEach(el => el.classList.remove('active'));
+        btn.classList.add('active');
+      });
+
+      function setActiveColor(color) {
+        const target = cpColorPicker.querySelector(`.color-swatch[data-color="${color || ''}"]`);
+        cpColorPicker.querySelectorAll('.color-swatch.active').forEach(el => el.classList.remove('active'));
+        if (target) target.classList.add('active');
+      }
+      function getActiveColor() {
+        const active = cpColorPicker.querySelector('.color-swatch.active');
+        return active ? (active.dataset.color || '') : '';
+      }
+
+      // Populate 예약시간 dropdown options (30-min slots, reusing TIME_SLOTS)
+      (function populateBookTimeSelect() {
+        cpBookTimeSelect.innerHTML = '';
+        for (const t of TIME_SLOTS) {
+          const opt = document.createElement('option');
+          opt.value = t;
+          opt.textContent = t;
+          cpBookTimeSelect.appendChild(opt);
+        }
+      })();
+
+      // Helper: does this r1 group allow time-field editing (and auto-recording)?
+      function isTimeEditableGroup(row1Id) {
+        return row1Id === 'r1_구환' || row1Id === 'r1_신환';
+      }
+
+      // Helper: current time as "H:MM" (e.g. "14:23")
+      function formatNow() {
+        const now = new Date();
+        return `${now.getHours()}:${String(now.getMinutes()).padStart(2, '0')}`;
+      }
+      const cpClose = document.getElementById('cardPanelClose');
+      const cpCancel = document.getElementById('cpCancel');
+      const cpSave = document.getElementById('cpSave');
+      const cpDelete = document.getElementById('cpDelete');
+
+      let editingCardId = null;
+
+      function openCardPanel(cardId) {
+        const c = CARDS[cardId];
+        if (!c) return;
+        editingCardId = cardId;
+        cpName.value = c.name || '';
+        cpChart.value = c.chart || '';
+        cpCounselor.value = c.counselor || '';
+        cpMemo.value = c.memo || '';
+        setActiveColor(c.color || '');
+
+        // v1c-b 규칙:
+        // - 예약시간(bookTime) = 시간 행. 구환/신환만 드롭다운(30분)으로 편집 가능(변경 시 카드 이동).
+        //   그 외 그룹은 읽기 전용 텍스트로 표시.
+        // - 접수시간(consultTime) = 자유 텍스트(생성 시 현재 시각 자동). 언제든 편집 가능.
+        const editable = isTimeEditableGroup(c.row1);
+        if (editable) {
+          // 예약시간: 드롭다운 사용
+          cpBookTimeSelect.style.display = '';
+          cpBookTimeInput.style.display = 'none';
+          cpBookTimeSelect.disabled = false;
+          const current = c.bookTime && TIME_SLOTS.includes(c.bookTime) ? c.bookTime : c.time;
+          cpBookTimeSelect.value = TIME_SLOTS.includes(current) ? current : TIME_SLOTS[0];
+        } else {
+          // 예약시간: 읽기 전용 텍스트(시간 행 표시)
+          cpBookTimeSelect.style.display = 'none';
+          cpBookTimeInput.style.display = '';
+          cpBookTimeInput.value = c.bookTime || c.time || '';
+          cpBookTimeInput.readOnly = true;
+        }
+        // 접수시간: 항상 자유 텍스트(편집 가능)
+        cpConsultTimeInput.value = c.consultTime || '';
+        cpConsultTimeInput.readOnly = false;
+
+        cardPanel.classList.add('open');
+        cardPanel.setAttribute('aria-hidden', 'false');
+        setTimeout(() => cpName.focus(), 80);
+      }
+
+      function closeCardPanel() {
+        editingCardId = null;
+        cardPanel.classList.remove('open');
+        cardPanel.setAttribute('aria-hidden', 'true');
+      }
+
+      cpClose.addEventListener('click', closeCardPanel);
+      cpCancel.addEventListener('click', closeCardPanel);
+
+      // Side panel keyboard shortcuts:
+      //   Enter  → 저장 (텍스트 영역 안에서는 Shift+Enter로 줄바꿈, 일반 Enter로 저장)
+      //   Escape → 취소 (변경 버림)
+      // NOTE: This listener is scoped to cardPanel so it doesn't collide with other
+      //       global Enter/Escape handlers (dialogs, inline-add inputs, ctx menu).
+      cardPanel.addEventListener('keydown', (e) => {
+        if (!cardPanel.classList.contains('open')) return;
+        if (e.key === 'Escape') {
+          e.preventDefault();
+          e.stopPropagation();
+          closeCardPanel();
+          return;
+        }
+        if (e.key === 'Enter') {
+          // In textarea: Shift+Enter saves; plain Enter = newline (browser default).
+          if (e.target && e.target.tagName === 'TEXTAREA') {
+            if (!e.shiftKey) return; // newline
+            e.preventDefault();
+            cpSave.click();
+            return;
+          }
+          // Other fields (input/select/button) → save
+          e.preventDefault();
+          cpSave.click();
+        }
+      });
+
+      cpSave.addEventListener('click', () => {
+        if (!editingCardId) return;
+        const c = CARDS[editingCardId];
+        if (!c) return;
+        const name = cpName.value.trim();
+        if (!name) {
+          showToast('환자명을 입력해주세요.', 'error');
+          cpName.focus();
+          return;
+        }
+        const chart = cpChart.value.trim();
+        if (!chart) {
+          showToast('차트번호를 입력해주세요.', 'error');
+          cpChart.focus();
+          return;
+        }
+
+        // 차트번호 변경 검사: 다른 환자(= 다른 차트 그룹의 카드)가 이미 이 번호를 점유하고 있으면 거부.
+        if (chart !== c.chart && isChartTakenByOther(chart, c.chart)) {
+          showToast('이미 사용 중인 차트번호입니다', 'error');
+          cpChart.focus();
+          return;
+        }
+
+        const editable = isTimeEditableGroup(c.row1);
+
+        // v1c-b: 예약시간(bookTime) 드롭다운이 시간 행을 결정. 변경 시 카드 이동 + row당 1카드 규칙 검증.
+        // 주의: bookTime 변경 시 "이동"은 이 카드 1장만. 같은 차트의 다른 복사본들은 값만 동기화 (위치 유지).
+        if (editable) {
+          const newTime = cpBookTimeSelect.value;
+          if (newTime && newTime !== c.time) {
+            const targetZoneId = `${newTime}-${c.row1}-${c.row2}`;
+            const targetZone = document.querySelector(
+              `[data-drop-zone="${cssEscape(targetZoneId)}"]`
+            );
+            if (!targetZone) {
+              showToast('이동할 셀을 찾을 수 없습니다.', 'error');
+              cpBookTimeSelect.value = c.time;
+              return;
+            }
+            // 셀당 1카드 규칙: 타겟 셀에 이미 다른 카드가 있으면 거부 + 롤백.
+            if (cellHasOtherCard(targetZone, c.id)) {
+              showToast('해당 셀에 이미 카드가 있습니다.', 'error');
+              cpBookTimeSelect.value = c.time;
+              return;
+            }
+            // Move chip DOM
+            const chip = document.querySelector(
+              `.chip[data-card-id="${cssEscape(c.id)}"]`
+            );
+            if (chip) {
+              const oldParent = chip.parentElement;
+              targetZone.appendChild(chip);
+              targetZone.classList.remove('cell-empty');
+              if (oldParent && oldParent !== targetZone &&
+                  oldParent.querySelectorAll('.chip[data-card-id]').length === 0) {
+                oldParent.classList.add('cell-empty');
+              }
+            }
+            c.time = newTime;
+            c.bookTime = newTime;
+          } else {
+            // No time change, but still sync bookTime with select value
+            c.bookTime = cpBookTimeSelect.value;
+          }
+        }
+        // 접수시간은 모든 그룹 공통 자유 텍스트로 저장
+        c.consultTime = cpConsultTimeInput.value.trim();
+
+        // 차트번호 변경 시: 이 카드와 같은 차트였던 모든 복사본에 새 차트번호 일괄 반영.
+        // (이 카드 자신 포함.) 독립 필드라 SYNC_FIELDS 에 없으므로 명시적으로 처리.
+        if (chart !== c.chart) {
+          const oldChart = c.chart;
+          const groupCards = Object.values(CARDS).filter(x => x.chart === oldChart);
+          for (const sib of groupCards) {
+            sib.chart = chart;
+            if (sib.id !== c.id) refreshChipDom(sib.id);
+          }
+        }
+
+        c.name = name;
+        c.counselor = cpCounselor.value || '';
+        c.memo = cpMemo.value;
+        c.color = getActiveColor();
+
+        // 동일 환자(= 동일 차트번호) 모든 복사본에 공통 필드 전파.
+        // bookTime도 포함 — 다른 복사본의 값은 갱신되지만 위치(time)는 독립 유지.
+        syncToSiblings(c);
+
+        saveCards();
+        refreshChipDom(editingCardId);
+        applyFilters();
+        updateImplantStats();
+        showToast('저장되었습니다.', 'success');
+        closeCardPanel();
+      });
+
+      cpDelete.addEventListener('click', () => {
+        if (!editingCardId) return;
+        pendingCardDelete = editingCardId;
+        const c = CARDS[editingCardId];
+        const label = c ? `${c.name || ''} ${c.chart || ''}`.trim() : '';
+        document.getElementById('deleteCardDialogDesc').textContent =
+          label ? `"${label}" 카드를 삭제할까요?` : '이 카드를 삭제할까요?';
+        openDialog('deleteCardDialog');
+      });
+
+      // ---------- Card delete confirm ----------
+      let pendingCardDelete = null;
+
+      function deleteCard(cardId) {
+        const c = CARDS[cardId];
+        if (!c) return;
+        const chip = document.querySelector(`.chip[data-card-id="${cssEscape(cardId)}"]`);
+        if (chip) {
+          const parent = chip.parentElement;
+          chip.remove();
+          if (parent && parent.dataset.dropZone && parent.querySelectorAll('.chip[data-card-id]').length === 0) {
+            parent.classList.add('cell-empty');
+          }
+        }
+        delete CARDS[cardId];
+        saveCards();
+        applyFilters();
+        updateImplantStats();
+      }
+
+      document.getElementById('deleteCardConfirm').addEventListener('click', () => {
+        if (pendingCardDelete) {
+          deleteCard(pendingCardDelete);
+          pendingCardDelete = null;
+          if (cardPanel.classList.contains('open')) closeCardPanel();
+          showToast('카드를 삭제했습니다.', 'success');
+        }
+        closeDialog('deleteCardDialog');
+      });
+
+      // ---------- Selection state ----------
+      // v1c-b: 카드 단일 클릭 = 선택, 더블클릭 = 사이드 패널. 빈 셀 클릭 = 선택, 더블클릭 = 인라인 추가.
+      let selectedCard = null; // chip DOM element
+      let selectedCell = null; // empty cell DOM element
+
+      function clearSelection() {
+        if (selectedCard) selectedCard.classList.remove('is-selected');
+        if (selectedCell) selectedCell.classList.remove('is-selected');
+        selectedCard = null;
+        selectedCell = null;
+      }
+      function selectCard(el) {
+        clearSelection();
+        selectedCard = el;
+        el.classList.add('is-selected');
+      }
+      function selectCell(el) {
+        clearSelection();
+        selectedCell = el;
+        el.classList.add('is-selected');
+      }
+
+      // ---------- Cell-level card counter (v1c-b: 1 셀 = 1 카드) ----------
+      // 같은 시간 행이어도 다른 leaf(다른 셀)이면 OK. 오직 같은 셀(time×row1×row2 교차)에만 1장 제한.
+      function cellHasOtherCard(cell, excludeCardId) {
+        if (!cell) return false;
+        for (const chip of cell.querySelectorAll('.chip[data-card-id]')) {
+          if (!excludeCardId || chip.dataset.cardId !== excludeCardId) return true;
+        }
+        return false;
+      }
+
+      // ---------- Click vs Drag detection on chips ----------
+      // Track mousedown position on a chip; on mouseup if movement < 3px and no drag fired → treat as click.
+      grid.addEventListener('mousedown', (e) => {
+        if (e.button !== 0) return;
+        const chip = e.target.closest('.chip[data-card-id]');
+        if (!chip) { dragMouseDownPos = null; return; }
+        dragMouseDownPos = { x: e.clientX, y: e.clientY, cardId: chip.dataset.cardId };
+      });
+
+      grid.addEventListener('mouseup', (e) => {
+        if (e.button !== 0) return;
+        const start = dragMouseDownPos;
+        dragMouseDownPos = null;
+        if (!start) return;
+        if (dragInProgress) return;
+        const chip = e.target.closest('.chip[data-card-id]');
+        if (!chip || chip.dataset.cardId !== start.cardId) return;
+        const dx = Math.abs(e.clientX - start.x);
+        const dy = Math.abs(e.clientY - start.y);
+        if (dx <= 3 && dy <= 3) {
+          // Single click on chip → 선택
+          selectCard(chip);
+        }
+      });
+
+      // Double click on chip → open side panel
+      grid.addEventListener('dblclick', (e) => {
+        const chip = e.target.closest('.chip[data-card-id]');
+        if (!chip) return;
+        openCardPanel(chip.dataset.cardId);
+      });
+
+      // Single click on empty cell → 셀 선택
+      grid.addEventListener('click', (e) => {
+        // Ignore clicks that originated inside a header cell or chip (already handled)
+        if (e.target.closest('.hdr')) return;
+        if (e.target.closest('.chip[data-card-id]')) return;
+        const zone = e.target.closest('[data-drop-zone]');
+        if (!zone) return;
+        // Only empty cells are selectable
+        if (zone.querySelector('.chip[data-card-id]')) return;
+        // Skip while inline add input is open in this zone
+        if (zone.querySelector('.inline-add-input')) return;
+        selectCell(zone);
+      });
+
+      // ---------- Custom Context Menu ----------
+      let activeCtxMenu = null;
+
+      function closeCtxMenu() {
+        if (activeCtxMenu) {
+          activeCtxMenu.remove();
+          activeCtxMenu = null;
+        }
+      }
+
+      function openCtxMenu(x, y, cardId) {
+        closeCtxMenu();
+        const menu = document.createElement('div');
+        menu.className = 'ctx-menu';
+        menu.innerHTML = `
+          <div class="ctx-item" data-act="edit">
+            <i data-lucide="pencil"></i><span>편집</span>
+          </div>
+          <div class="ctx-sep"></div>
+          <div class="ctx-item destructive" data-act="delete">
+            <i data-lucide="trash-2"></i><span>삭제</span>
+          </div>
+        `;
+        document.body.appendChild(menu);
+        // Position with viewport clamp
+        const rect = menu.getBoundingClientRect();
+        const maxX = window.innerWidth - rect.width - 8;
+        const maxY = window.innerHeight - rect.height - 8;
+        menu.style.left = Math.min(x, maxX) + 'px';
+        menu.style.top = Math.min(y, maxY) + 'px';
+        activeCtxMenu = menu;
+        lucide.createIcons();
+
+        menu.addEventListener('click', (ev) => {
+          const act = ev.target.closest('.ctx-item[data-act]');
+          if (!act) return;
+          const action = act.dataset.act;
+          if (action === 'edit') {
+            closeCtxMenu();
+            openCardPanel(cardId);
+          } else if (action === 'delete') {
+            closeCtxMenu();
+            pendingCardDelete = cardId;
+            const c = CARDS[cardId];
+            const label = c ? `${c.name || ''} ${c.chart || ''}`.trim() : '';
+            document.getElementById('deleteCardDialogDesc').textContent =
+              label ? `"${label}" 카드를 삭제할까요?` : '이 카드를 삭제할까요?';
+            openDialog('deleteCardDialog');
+          }
+        });
+      }
+
+      grid.addEventListener('contextmenu', (e) => {
+        const chip = e.target.closest('.chip[data-card-id]');
+        if (!chip) return;
+        e.preventDefault();
+        openCtxMenu(e.clientX, e.clientY, chip.dataset.cardId);
+      });
+
+      document.addEventListener('click', (e) => {
+        if (activeCtxMenu && !e.target.closest('.ctx-menu')) closeCtxMenu();
+      });
+      document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') closeCtxMenu();
+      });
+      // Close menu on scroll inside the kanban
+      document.querySelector('main.kanban-scroll')?.addEventListener('scroll', closeCtxMenu, true);
+
+      // ---------- Keyboard shortcuts (Ctrl+C / Ctrl+V / Delete / Esc) ----------
+      // copiedCard: 복사 시점 스냅샷. 붙여넣기 시에는 CARDS에서 같은 chart의 최신 데이터를 재조회해 사용.
+      let copiedCard = null; // { chart, fallbackName, ... }
+
+      function copySelectedCard() {
+        if (!selectedCard) return;
+        const cardId = selectedCard.dataset.cardId;
+        const c = CARDS[cardId];
+        if (!c) return;
+        // 구환/신환만 복사 허용
+        if (c.row1 !== 'r1_구환' && c.row1 !== 'r1_신환') {
+          showToast('구환/신환에서만 복사 가능', 'error');
+          return;
+        }
+        copiedCard = {
+          name: c.name || '',
+          chart: c.chart || '',
+          counselor: c.counselor || '',
+          memo: c.memo || '',
+          color: c.color || '',
+        };
+        showToast(`복사됨 · ${c.name || ''}`, 'success');
+      }
+
+      function pasteIntoSelectedCell() {
+        if (!selectedCell || !copiedCard) return;
+        const parts = parseZone(selectedCell.dataset.dropZone);
+        if (!parts) return;
+        // 대상 셀의 row1이 구환/신환이면 붙여넣기 금지
+        if (parts.row1 === 'r1_구환' || parts.row1 === 'r1_신환') {
+          showToast('구환/신환에는 붙여넣을 수 없습니다', 'error');
+          return;
+        }
+        // 대상 셀에 이미 카드가 있으면 거부
+        if (cellHasOtherCard(selectedCell)) {
+          showToast('해당 셀에 이미 카드가 있습니다', 'error');
+          return;
+        }
+        // 최신 형제 데이터 재조회 (원본이 편집됐을 수 있음). 없으면 copiedCard 스냅샷 사용.
+        const siblings = findSiblingCards(copiedCard.chart, null);
+        const src = siblings.length > 0 ? siblings[0] : copiedCard;
+        // 신규 카드 생성
+        const id = genCardId(copiedCard.chart);
+        const card = {
+          id,
+          name: src.name || '',
+          chart: copiedCard.chart,
+          counselor: src.counselor || '',
+          memo: src.memo || '',
+          bookTime: parts.time,
+          consultTime: '',
+          color: src.color || '',
+          time: parts.time,
+          row1: parts.row1,
+          row2: parts.row2,
+        };
+        CARDS[id] = card;
+        saveCards();
+        const chip = buildChipElement(card);
+        selectedCell.classList.remove('cell-empty', 'is-selected');
+        selectedCell.appendChild(chip);
+        // 셀 선택 해제하고 방금 붙여넣은 카드를 선택
+        selectedCell = null;
+        selectCard(chip);
+        updateImplantStats();
+        showToast('붙여넣기 완료', 'success');
+      }
+
+      function requestDeleteSelectedCard() {
+        if (!selectedCard) return;
+        const cardId = selectedCard.dataset.cardId;
+        pendingCardDelete = cardId;
+        const c = CARDS[cardId];
+        const label = c ? `${c.name || ''} ${c.chart || ''}`.trim() : '';
+        document.getElementById('deleteCardDialogDesc').textContent =
+          label ? `"${label}" 카드를 삭제하시겠습니까?` : '이 카드를 삭제하시겠습니까?';
+        openDialog('deleteCardDialog');
+      }
+
+      function isTypingInField(el) {
+        if (!el) return false;
+        const tag = (el.tagName || '').toUpperCase();
+        if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT') return true;
+        if (el.isContentEditable) return true;
+        return false;
+      }
+
+      document.addEventListener('keydown', (e) => {
+        // 입력 포커스 중에는 단축키 무시 (dialog/side panel 입력 포함)
+        if (isTypingInField(document.activeElement)) return;
+        const isMod = e.ctrlKey || e.metaKey;
+        if (isMod && (e.key === 'c' || e.key === 'C')) {
+          if (selectedCard) {
+            e.preventDefault();
+            copySelectedCard();
+          }
+          return;
+        }
+        if (isMod && (e.key === 'v' || e.key === 'V')) {
+          if (selectedCell && copiedCard) {
+            e.preventDefault();
+            pasteIntoSelectedCell();
+          }
+          return;
+        }
+        if (e.key === 'Delete' || e.key === 'Backspace') {
+          if (selectedCard) {
+            e.preventDefault();
+            requestDeleteSelectedCard();
+          }
+          return;
+        }
+        if (e.key === 'Escape') {
+          // 사이드 패널/다이얼로그/컨텍스트 메뉴가 열려있으면 그쪽이 먼저 처리 (다른 listener가 있음).
+          // 그 외에는 선택 해제.
+          if (!cardPanel.classList.contains('open') &&
+              !document.querySelector('.dlg-overlay.open') &&
+              !activeCtxMenu) {
+            clearSelection();
+          }
+        }
+      });
+
+      // 빈 공간 클릭 시 선택 해제 (카드/셀/헤더/패널/다이얼로그/컨텍스트메뉴 밖 클릭)
+      document.addEventListener('click', (e) => {
+        if (e.target.closest('.chip[data-card-id]')) return;
+        if (e.target.closest('[data-drop-zone]')) return;
+        if (e.target.closest('.hdr')) return;
+        if (e.target.closest('#cardPanel')) return;
+        if (e.target.closest('.dlg-overlay')) return;
+        if (e.target.closest('.ctx-menu')) return;
+        if (e.target.closest('.toast')) return;
+        clearSelection();
+      });
+
+      // 카드 삭제 confirm 후 선택 해제
+      const origDeleteCard = deleteCard;
+      deleteCard = function(cardId) {
+        if (selectedCard && selectedCard.dataset.cardId === cardId) {
+          selectedCard = null;
+        }
+        origDeleteCard(cardId);
+      };
+
+      // ---------- Date switching ----------
+      // Save current date, load new date, and fully re-render the grid.
+      function switchDate(newDate) {
+        // Persist current state under the outgoing date before changing currentDate.
+        saveCards();
+        saveColumns();
+
+        currentDate = newDate;
+        updateDateLabel();
+
+        // Load per-date data under the new currentDate.
+        CARDS = loadCardsForDate(currentDate);
+        MODEL = loadColumnsForDate(currentDate);
+
+        clearSelection();
+        rerender();
+      }
+
+      function updateDateLabel() {
+        const labelEl = document.getElementById('dateLabelText');
+        if (labelEl) labelEl.textContent = dateLabel(currentDate);
+        const picker = document.getElementById('datePicker');
+        if (picker) picker.value = currentDate;
+      }
+
+      // ---------- Date navigation wiring ----------
+      (function wireDateNav() {
+        const prevBtn   = document.getElementById('prevDateBtn');
+        const nextBtn   = document.getElementById('nextDateBtn');
+        const todayBtn  = document.getElementById('todayBtn');
+        const pickerBtn = document.getElementById('datePickerBtn');
+        const picker    = document.getElementById('datePicker');
+        const labelEl   = document.getElementById('dateLabel');
+
+        if (prevBtn)  prevBtn.addEventListener('click',  () => switchDate(shiftDateKey(currentDate, -1)));
+        if (nextBtn)  nextBtn.addEventListener('click',  () => switchDate(shiftDateKey(currentDate, +1)));
+        if (todayBtn) todayBtn.addEventListener('click', () => switchDate(toDateKey(new Date())));
+
+        function openPicker() {
+          if (!picker) return;
+          picker.value = currentDate;
+          // showPicker() is the modern API; fall back to .click() / focus otherwise.
+          if (typeof picker.showPicker === 'function') {
+            try { picker.showPicker(); return; } catch (_) { /* fall through */ }
+          }
+          picker.focus();
+          picker.click();
+        }
+        if (pickerBtn) pickerBtn.addEventListener('click', openPicker);
+        if (labelEl)   labelEl.addEventListener('click', openPicker);
+        if (picker) {
+          picker.addEventListener('change', () => {
+            if (picker.value && picker.value !== currentDate) switchDate(picker.value);
+          });
+        }
+      })();
+
+      // ---------- Column Templates: bootstrap + apply-if-requested ----------
+      // Storage: 'kanban-v1c-b-templates' → { [tplId]: { id, name, createdAt, row1, row2 } }
+      // row1/row2 shape matches MODEL exactly.
+      const TEMPLATES_KEY = 'kanban-v1c-b-templates';
+      const APPLY_TEMPLATE_KEY = 'kanban-v1c-b-apply-template';
+      let toastAfterLoad = '';
+
+      // Ensure at least the "기본 치과" template exists. Seeds from the most recent
+      // saved columns snapshot if any, otherwise from DEFAULT_COLUMNS.
+      (function ensureDefaultTemplate() {
+        const all = JSON.parse(localStorage.getItem(TEMPLATES_KEY) || '{}');
+        if (Object.keys(all).length > 0) return;
+        // Seed rows: prefer latest columns snapshot in storage, else DEFAULT.
+        let seedRow1 = DEFAULT_COLUMNS.row1.map(n => ({ id: n.id, label: n.label }));
+        let seedRow2 = DEFAULT_COLUMNS.row2.map(n => ({ id: n.id, row1Id: n.row1Id, label: n.label }));
+        const prefix = COLUMNS_KEY_BASE + '-';
+        const dates = [];
+        for (let i = 0; i < localStorage.length; i++) {
+          const k = localStorage.key(i);
+          if (!k || !k.startsWith(prefix)) continue;
+          const d = k.slice(prefix.length);
+          if (/^\d{4}-\d{2}-\d{2}$/.test(d)) dates.push(d);
+        }
+        if (dates.length > 0) {
+          dates.sort();
+          const latest = dates[dates.length - 1];
+          const saved = JSON.parse(localStorage.getItem(prefix + latest) || 'null');
+          if (saved) {
+            // Reconstruct merged rows (DEFAULT + renames + user-added), same as loadColumnsForDate.
+            const merged = {
+              row1: DEFAULT_COLUMNS.row1.map(x => ({ id: x.id, label: x.label })),
+              row2: DEFAULT_COLUMNS.row2.map(x => ({ id: x.id, row1Id: x.row1Id, label: x.label })),
+            };
+            if (saved.renames) {
+              for (const row of ['row1','row2']) {
+                const renames = saved.renames[row] || {};
+                for (const n of merged[row]) {
+                  if (renames[n.id] !== undefined) n.label = renames[n.id];
+                }
+              }
+            }
+            for (const row of ['row1','row2']) {
+              const userNodes = (saved[row] || []);
+              for (const n of userNodes) {
+                const entry = { id: n.id, label: n.label };
+                if (row === 'row2') entry.row1Id = n.row1Id;
+                merged[row].push(entry);
+              }
+            }
+            seedRow1 = merged.row1;
+            seedRow2 = merged.row2;
+          }
+        }
+        const tpl = {
+          id: 'tpl-default',
+          name: '기본 치과',
+          createdAt: new Date().toISOString(),
+          row1: seedRow1,
+          row2: seedRow2,
+        };
+        localStorage.setItem(TEMPLATES_KEY, JSON.stringify({ [tpl.id]: tpl }));
+      })();
+
+      // If we arrived here because the Templates page asked us to apply a template,
+      // wipe today's cards+state and overwrite today's columns with the template rows.
+      (function applyTemplateIfRequested() {
+        const tplId = localStorage.getItem(APPLY_TEMPLATE_KEY);
+        if (!tplId) return;
+        localStorage.removeItem(APPLY_TEMPLATE_KEY);
+        const all = JSON.parse(localStorage.getItem(TEMPLATES_KEY) || '{}');
+        const tpl = all[tplId];
+        if (!tpl) return;
+        const today = toDateKey(new Date());
+        // Wipe cards + positions for today.
+        localStorage.removeItem(cardsKey(today));
+        localStorage.removeItem(stateKey(today));
+        // Build a columns snapshot that loadColumnsForDate understands:
+        // tpl rows contain builtIn defaults + user-added mixed. We serialize as:
+        //   - renames: built-in rows whose label differs from DEFAULT
+        //   - row1/row2 arrays: non-builtIn nodes
+        const defaults = DEFAULT_COLUMNS;
+        const out = { row1: [], row2: [], renames: { row1: {}, row2: {} } };
+        for (const row of ['row1','row2']) {
+          const defMap = new Map(defaults[row].map(n => [n.id, n.label]));
+          for (const n of tpl[row] || []) {
+            if (defMap.has(n.id)) {
+              if (defMap.get(n.id) !== n.label) {
+                out.renames[row][n.id] = n.label;
+              }
+            } else {
+              const entry = { id: n.id, label: n.label };
+              if (row === 'row2') entry.row1Id = n.row1Id;
+              out[row].push(entry);
+            }
+          }
+        }
+        localStorage.setItem(columnsKey(today), JSON.stringify(out));
+        toastAfterLoad = `'${tpl.name}' 템플릿이 적용되었습니다`;
+      })();
+
+      // ---------- Init ----------
+      currentDate = toDateKey(new Date());
+      updateDateLabel();
+      MODEL = loadColumnsForDate(currentDate);
+      CARDS = loadCardsForDate(currentDate);
+      rerender();
+      if (toastAfterLoad) {
+        showToast(toastAfterLoad, 'success');
+        toastAfterLoad = '';
+      }
+    })();
+  </script>
+</body>
+</html>
