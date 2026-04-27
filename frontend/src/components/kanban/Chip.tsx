@@ -48,7 +48,9 @@ export function Chip({ card }: { card: Card }) {
     } },
   ];
 
-  const display = card.name || card.chart || "(빈 카드)";
+  const name = card.name || "";
+  const chart = card.chart || "";
+  const fallback = !name && !chart ? "(빈 카드)" : "";
 
   return (
     <>
@@ -62,10 +64,15 @@ export function Chip({ card }: { card: Card }) {
         onDragStart={handleDragStart}
         data-card-id={card.id}
       >
-        <div className="flex items-center justify-between gap-1">
-          <span className="font-medium truncate">{display}</span>
-          {card.chart && card.name && (
-            <span className="text-[9px] opacity-60 shrink-0">{card.chart}</span>
+        <div className="flex items-center gap-1 whitespace-nowrap overflow-hidden">
+          {fallback ? (
+            <span className="text-muted-foreground">{fallback}</span>
+          ) : (
+            <>
+              <span className="font-medium truncate">{name || "·"}</span>
+              <span className="opacity-50 shrink-0">/</span>
+              <span className="opacity-70 shrink-0">{chart || "·"}</span>
+            </>
           )}
         </div>
       </div>

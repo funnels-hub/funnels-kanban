@@ -9,7 +9,7 @@ export function Cell({
   row2Id,
   time,
   cards,
-  groupIndex,
+  groupIndex: _groupIndex,
   isFirstLeaf,
 }: {
   row1Id: string;
@@ -30,7 +30,7 @@ export function Cell({
 
   return (
     <div
-      className={`cell ${empty ? "cell-empty" : ""} ${isSelected ? "is-selected" : ""} grp-${groupIndex % 8} ${isFirstLeaf ? "col-sep-l" : ""}`}
+      className={`cell ${empty ? "cell-empty" : ""} ${isSelected ? "is-selected" : ""} ${isFirstLeaf ? "col-sep-l" : ""}`}
       data-row1={row1Id}
       data-row2={row2Id}
       data-time={time}

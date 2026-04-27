@@ -37,10 +37,10 @@ export const DEFAULT_ROW2 = [
 ] as const;
 
 export const R1_LEAF_WIDTH: Record<string, number> = {
-  r1_구환: 88, r1_신환: 88, r1_예진: 56,
-  r1_임플: 52, r1_일반: 52, r1_전화: 76,
+  r1_구환: 110, r1_신환: 110, r1_예진: 110,
+  r1_임플: 110, r1_일반: 110, r1_전화: 110,
 };
-export const DEFAULT_LEAF_WIDTH = 64;
+export const DEFAULT_LEAF_WIDTH = 110;
 export const ADD_CELL_WIDTH = 30;
 export const TIME_CELL_WIDTH = 64;
 

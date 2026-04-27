@@ -70,6 +70,17 @@ def main(
                     if values.get(field, "") == "" and sibling.get(field):
                         values[field] = sibling[field]
 
+        # 4-2. counselor 자동 배정: 상담사 분류 그룹(구환/신환/전화)에서는 row2 label을 counselor로
+        COUNSELOR_GROUPS = {"r1_구환", "r1_신환", "r1_전화"}
+        if not values["counselor"] and row1_id in COUNSELOR_GROUPS:
+            cur.execute(
+                "SELECT label FROM column_row2 WHERE date = %s AND id = %s",
+                (date, row2_id),
+            )
+            row2 = cur.fetchone()
+            if row2:
+                values["counselor"] = row2["label"]
+
         # 5. 새 id
         new_id = f"c_{uuid4().hex[:12]}"
 

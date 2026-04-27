@@ -24,8 +24,9 @@ export function CardSidePanel() {
     color: "",
   });
 
-  // 외부에서 selectedCardId 변경 시 form 동기화
+  // 외부에서 카드 데이터 변경 시 form 동기화 (패널 닫혀있을 때만 — 열려있으면 사용자 입력 보존)
   useEffect(() => {
+    if (open) return;
     if (card) {
       setForm({
         name: card.name,
@@ -37,7 +38,17 @@ export function CardSidePanel() {
         color: card.color,
       });
     }
-  }, [card?.id]);
+  }, [
+    card?.id,
+    card?.name,
+    card?.chart,
+    card?.counselor,
+    card?.book_time,
+    card?.consult_time,
+    card?.memo,
+    card?.color,
+    open,
+  ]);
 
   // ESC 닫기
   useEffect(() => {
@@ -112,18 +123,18 @@ export function CardSidePanel() {
         </div>
         <div className="card-panel-row grid grid-cols-2 gap-2">
           <div className="card-panel-field">
-            <label>예약시간</label>
-            <Input
-              value={form.book_time}
-              onChange={(e) => setForm({ ...form, book_time: e.target.value })}
-              placeholder="HH:MM"
-            />
-          </div>
-          <div className="card-panel-field">
             <label>접수시간</label>
             <Input
               value={form.consult_time}
               onChange={(e) => setForm({ ...form, consult_time: e.target.value })}
+              placeholder="HH:MM"
+            />
+          </div>
+          <div className="card-panel-field">
+            <label>예약시간</label>
+            <Input
+              value={form.book_time}
+              onChange={(e) => setForm({ ...form, book_time: e.target.value })}
               placeholder="HH:MM"
             />
           </div>

@@ -59,11 +59,23 @@ def main(
         else:
             new_book_time = existing["book_time"]
 
+        # 5-2. counselor 자동 배정: 상담사 분류 그룹(구환/신환/전화)으로 이동 시 row2 label로
+        COUNSELOR_GROUPS = {"r1_구환", "r1_신환", "r1_전화"}
+        new_counselor = existing["counselor"]
+        if new_row1 in COUNSELOR_GROUPS and new_row2 != existing["row2_id"]:
+            cur.execute(
+                "SELECT label FROM column_row2 WHERE date = %s AND id = %s",
+                (card_date, new_row2),
+            )
+            row2 = cur.fetchone()
+            if row2:
+                new_counselor = row2["label"]
+
         # 6. UPDATE
         cur.execute(
             "UPDATE cards SET time = %s, row1_id = %s, row2_id = %s, "
-            "book_time = %s, updated_at = NOW() WHERE id = %s",
-            (new_time, new_row1, new_row2, new_book_time, card_id),
+            "book_time = %s, counselor = %s, updated_at = NOW() WHERE id = %s",
+            (new_time, new_row1, new_row2, new_book_time, new_counselor, card_id),
         )
 
         # 7. commit
