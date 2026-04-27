@@ -15,8 +15,8 @@ export function DialogContainer() {
   if (!dialog) return null;
 
   return (
-    <div className="dlg-overlay" onClick={(e) => { if (e.target === e.currentTarget) closeDialog(); }}>
-      <div className="dlg-card" onClick={(e) => e.stopPropagation()}>
+    <div className="dlg-overlay open" onClick={(e) => { if (e.target === e.currentTarget) closeDialog(); }}>
+      <div onClick={(e) => e.stopPropagation()}>
         {dialog}
       </div>
     </div>
