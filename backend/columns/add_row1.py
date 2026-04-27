@@ -10,8 +10,9 @@ from backend.utils.propagation import ensure_columns_for_date
 
 
 def main(date: str, label: str, position: int | None = None) -> dict:
-    """추가된 ColumnRow1 dict 반환."""
+    """추가된 ColumnRow1 dict 반환 (기본 leaf 1개도 함께 생성)."""
     new_id = f"r1_user_{uuid4().hex[:8]}"
+    new_leaf_id = f"r2_user_{uuid4().hex[:8]}"
     conn = get_db_connection()
     ensure_columns_for_date(conn, date)
     with conn.cursor(cursor_factory=RealDictCursor) as cur:
@@ -29,6 +30,11 @@ def main(date: str, label: str, position: int | None = None) -> dict:
             (new_id, date, label, position, False),
         )
         row = dict(cur.fetchone())
+        cur.execute(
+            "INSERT INTO column_row2 (id, date, row1_id, label, position, built_in) "
+            "VALUES (%s, %s, %s, %s, %s, %s)",
+            (new_leaf_id, date, new_id, "컬럼1", 0, False),
+        )
     conn.commit()
     conn.close()
     if isinstance(row["date"], date_type):

@@ -1,5 +1,7 @@
+import { useTemplates } from "@/contexts/TemplateContext";
 import type { Template } from "@/types/templates";
 import { Check, Pencil, Star, Trash2 } from "lucide-react";
+import { useEffect, useState } from "react";
 
 export function TemplateCard({
   template,
@@ -14,6 +16,14 @@ export function TemplateCard({
   onDelete: () => void;
   onSetDefault: () => void;
 }) {
+  const { updateTemplate } = useTemplates();
+  const [editing, setEditing] = useState(false);
+  const [draft, setDraft] = useState(template.name);
+
+  useEffect(() => {
+    setDraft(template.name);
+  }, [template.name]);
+
   // group leaves by row1_id
   const leavesByR1 = new Map<string, string[]>();
   for (const r2 of template.row2) {
@@ -28,8 +38,40 @@ export function TemplateCard({
     <div className="tpl-card">
       <div className="tpl-card-head">
         <div className="tpl-card-title">
-          <span>{template.name}</span>
-          {template.is_default && <span className="tpl-card-default-badge">· 기본</span>}
+          {editing ? (
+            <input
+              className="tpl-card-title-input"
+              value={draft}
+              onChange={(e) => setDraft(e.target.value)}
+              onBlur={async () => {
+                if (draft.trim() && draft !== template.name) {
+                  await updateTemplate(template.id, { name: draft.trim() });
+                } else {
+                  setDraft(template.name);
+                }
+                setEditing(false);
+              }}
+              onKeyDown={(e) => {
+                if (e.key === "Enter") (e.target as HTMLInputElement).blur();
+                if (e.key === "Escape") {
+                  setDraft(template.name);
+                  setEditing(false);
+                }
+              }}
+              autoFocus
+            />
+          ) : (
+            <>
+              <span
+                onDoubleClick={() => setEditing(true)}
+                style={{ cursor: "text" }}
+                title="더블클릭하여 이름 변경"
+              >
+                {template.name}
+              </span>
+              {template.is_default && <span className="tpl-card-default-badge">· 기본</span>}
+            </>
+          )}
         </div>
         <div className="tpl-actions">
           <button type="button" className="tpl-btn tpl-btn-primary" onClick={onApply}>

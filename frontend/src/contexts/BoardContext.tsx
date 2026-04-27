@@ -74,10 +74,10 @@ export function BoardProvider({ children }: { children: ReactNode }) {
   // ---------- columns ----------
   const addRow1 = useCallback(
     async (input: ColumnRow1Create) => {
-      const created = await api.post<ColumnRow1>("/api/columns/row1", {
-        ...input,
-        date,
-      });
+      const created = await api.post<ColumnRow1>(
+        `/api/columns/${date}/row1`,
+        input,
+      );
       await refetch();
       return created;
     },
@@ -87,29 +87,29 @@ export function BoardProvider({ children }: { children: ReactNode }) {
   const renameRow1 = useCallback(
     async (r1Id: string, input: ColumnRow1Update) => {
       const updated = await api.patch<ColumnRow1>(
-        `/api/columns/row1/${r1Id}`,
+        `/api/columns/${date}/row1/${r1Id}`,
         input,
       );
       await refetch();
       return updated;
     },
-    [refetch],
+    [date, refetch],
   );
 
   const deleteRow1 = useCallback(
     async (r1Id: string) => {
-      await api.delete(`/api/columns/row1/${r1Id}`);
+      await api.delete(`/api/columns/${date}/row1/${r1Id}`);
       await refetch();
     },
-    [refetch],
+    [date, refetch],
   );
 
   const addRow2 = useCallback(
     async (input: ColumnRow2Create) => {
-      const created = await api.post<ColumnRow2>("/api/columns/row2", {
-        ...input,
-        date,
-      });
+      const created = await api.post<ColumnRow2>(
+        `/api/columns/${date}/row2`,
+        input,
+      );
       await refetch();
       return created;
     },
@@ -119,26 +119,26 @@ export function BoardProvider({ children }: { children: ReactNode }) {
   const renameRow2 = useCallback(
     async (r2Id: string, input: ColumnRow2Update) => {
       const updated = await api.patch<ColumnRow2>(
-        `/api/columns/row2/${r2Id}`,
+        `/api/columns/${date}/row2/${r2Id}`,
         input,
       );
       await refetch();
       return updated;
     },
-    [refetch],
+    [date, refetch],
   );
 
   const deleteRow2 = useCallback(
     async (r2Id: string) => {
-      await api.delete(`/api/columns/row2/${r2Id}`);
+      await api.delete(`/api/columns/${date}/row2/${r2Id}`);
       await refetch();
     },
-    [refetch],
+    [date, refetch],
   );
 
   const reorder = useCallback(
     async (input: ReorderRequest) => {
-      await api.post(`/api/columns/reorder`, { ...input, date });
+      await api.put(`/api/columns/${date}/reorder`, input);
       await refetch();
     },
     [date, refetch],
