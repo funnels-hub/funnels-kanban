@@ -9,6 +9,7 @@ from backend.utils.defaults import DUP_ALLOWED_R1, SINGLE_CARD_R1
 
 
 def main(
+    hospital_id: str,
     card_id: str,
     time: str | None = None,
     row1_id: str | None = None,
@@ -18,7 +19,10 @@ def main(
     conn = get_db_connection()
     with conn.cursor(cursor_factory=RealDictCursor) as cur:
         # 1. SELECT 카드
-        cur.execute("SELECT * FROM cards WHERE id = %s", (card_id,))
+        cur.execute(
+            "SELECT * FROM cards WHERE hospital_id = %s AND id = %s",
+            (hospital_id, card_id),
+        )
         existing = cur.fetchone()
         if not existing:
             raise ValueError("NOT_FOUND")
@@ -36,8 +40,9 @@ def main(
         if chart:
             cur.execute(
                 "SELECT 1 FROM cards "
-                "WHERE date = %s AND chart = %s AND id != %s LIMIT 1",
-                (card_date, chart, card_id),
+                "WHERE hospital_id = %s AND date = %s AND chart = %s "
+                "AND id != %s LIMIT 1",
+                (hospital_id, card_date, chart, card_id),
             )
             if cur.fetchone():
                 raise ValueError("CHART_ALREADY_EXISTS")
@@ -46,9 +51,9 @@ def main(
         if new_row1 not in DUP_ALLOWED_R1:
             cur.execute(
                 "SELECT 1 FROM cards "
-                "WHERE date = %s AND row1_id = %s AND row2_id = %s AND time = %s "
-                "AND id != %s LIMIT 1",
-                (card_date, new_row1, new_row2, new_time, card_id),
+                "WHERE hospital_id = %s AND date = %s AND row1_id = %s "
+                "AND row2_id = %s AND time = %s AND id != %s LIMIT 1",
+                (hospital_id, card_date, new_row1, new_row2, new_time, card_id),
             )
             if cur.fetchone():
                 raise ValueError("CELL_OCCUPIED")
@@ -62,15 +67,19 @@ def main(
         # 6. UPDATE
         cur.execute(
             "UPDATE cards SET time = %s, row1_id = %s, row2_id = %s, "
-            "book_time = %s, updated_at = NOW() WHERE id = %s",
-            (new_time, new_row1, new_row2, new_book_time, card_id),
+            "book_time = %s, updated_at = NOW() "
+            "WHERE hospital_id = %s AND id = %s",
+            (new_time, new_row1, new_row2, new_book_time, hospital_id, card_id),
         )
 
         # 7. commit
         conn.commit()
 
         # 8. SELECT 후 dict 반환
-        cur.execute("SELECT * FROM cards WHERE id = %s", (card_id,))
+        cur.execute(
+            "SELECT * FROM cards WHERE hospital_id = %s AND id = %s",
+            (hospital_id, card_id),
+        )
         card = dict(cur.fetchone())
     conn.close()
 
@@ -85,13 +94,16 @@ def main(
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
+    parser.add_argument("--hospital-id", dest="hospital_id", required=True)
     parser.add_argument("--card-id", dest="card_id", required=True)
     parser.add_argument("--time", default=None)
     parser.add_argument("--row1-id", dest="row1_id", default=None)
     parser.add_argument("--row2-id", dest="row2_id", default=None)
     args = parser.parse_args()
 
-    result = main(args.card_id, args.time, args.row1_id, args.row2_id)
+    result = main(
+        args.hospital_id, args.card_id, args.time, args.row1_id, args.row2_id
+    )
 
     output_dir = Path(__file__).parent / "output"
     output_dir.mkdir(exist_ok=True)

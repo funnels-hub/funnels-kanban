@@ -1,4 +1,4 @@
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, Depends, HTTPException
 
 from backend.cards.create_card import main as create_card_main
 from backend.cards.delete_card import main as delete_card_main
@@ -8,6 +8,7 @@ from backend.cards.list_cards import main as list_cards_main
 from backend.cards.model import CardCreate, CardMove, CardUpdate
 from backend.cards.move_card import main as move_card_main
 from backend.cards.update_card import main as update_card_main
+from backend.utils.auth_helper import CurrentHospital, get_current_hospital
 
 router = APIRouter(prefix="/api", tags=["cards"])
 
@@ -22,33 +23,47 @@ def _handle(e: ValueError):
 
 
 @router.get("/cards/by-chart")
-async def get_by_chart_endpoint(chart: str, date: str | None = None):
+async def get_by_chart_endpoint(
+    chart: str,
+    date: str | None = None,
+    current: CurrentHospital = Depends(get_current_hospital),
+):
     try:
-        return get_by_chart_main(chart, date)
+        return get_by_chart_main(current["id"], chart, date)
     except ValueError as e:
         _handle(e)
 
 
 @router.get("/stats/implant")
-async def implant_stats_endpoint(date: str):
+async def implant_stats_endpoint(
+    date: str,
+    current: CurrentHospital = Depends(get_current_hospital),
+):
     try:
-        return implant_stats_main(date)
+        return implant_stats_main(current["id"], date)
     except ValueError as e:
         _handle(e)
 
 
 @router.get("/cards")
-async def list_cards_endpoint(date: str):
+async def list_cards_endpoint(
+    date: str,
+    current: CurrentHospital = Depends(get_current_hospital),
+):
     try:
-        return list_cards_main(date)
+        return list_cards_main(current["id"], date)
     except ValueError as e:
         _handle(e)
 
 
 @router.post("/cards")
-async def create_card_endpoint(body: CardCreate):
+async def create_card_endpoint(
+    body: CardCreate,
+    current: CurrentHospital = Depends(get_current_hospital),
+):
     try:
         return create_card_main(
+            current["id"],
             str(body.date),
             body.row1_id,
             body.row2_id,
@@ -66,17 +81,26 @@ async def create_card_endpoint(body: CardCreate):
 
 
 @router.patch("/cards/{card_id}/move")
-async def move_card_endpoint(card_id: str, body: CardMove):
+async def move_card_endpoint(
+    card_id: str,
+    body: CardMove,
+    current: CurrentHospital = Depends(get_current_hospital),
+):
     try:
-        return move_card_main(card_id, body.time, body.row1_id, body.row2_id)
+        return move_card_main(current["id"], card_id, body.time, body.row1_id, body.row2_id)
     except ValueError as e:
         _handle(e)
 
 
 @router.patch("/cards/{card_id}")
-async def update_card_endpoint(card_id: str, body: CardUpdate):
+async def update_card_endpoint(
+    card_id: str,
+    body: CardUpdate,
+    current: CurrentHospital = Depends(get_current_hospital),
+):
     try:
         return update_card_main(
+            current["id"],
             card_id,
             body.name,
             body.chart,
@@ -92,8 +116,11 @@ async def update_card_endpoint(card_id: str, body: CardUpdate):
 
 
 @router.delete("/cards/{card_id}")
-async def delete_card_endpoint(card_id: str):
+async def delete_card_endpoint(
+    card_id: str,
+    current: CurrentHospital = Depends(get_current_hospital),
+):
     try:
-        return delete_card_main(card_id)
+        return delete_card_main(current["id"], card_id)
     except ValueError as e:
         _handle(e)

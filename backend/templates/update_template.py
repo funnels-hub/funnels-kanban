@@ -20,6 +20,7 @@ def _serialize(row: dict) -> dict:
 
 
 def main(
+    hospital_id: str,
     tpl_id: str,
     name: str | None = None,
     row1: list[dict] | None = None,
@@ -57,7 +58,10 @@ def main(
 
     conn = get_db_connection()
     with conn.cursor(cursor_factory=RealDictCursor) as cur:
-        cur.execute("SELECT id FROM templates WHERE id = %s", (tpl_id,))
+        cur.execute(
+            "SELECT id FROM templates WHERE hospital_id = %s AND id = %s",
+            (hospital_id, tpl_id),
+        )
         if cur.fetchone() is None:
             conn.close()
             raise ValueError("NOT_FOUND")
@@ -66,7 +70,9 @@ def main(
         # 기존 row1을 SELECT해서 보호 row1(r1_구환/r1_신환) 누락 시 자동 추가
         if is_default is True and row1 is None:
             cur.execute(
-                "SELECT row1, row2 FROM templates WHERE id = %s", (tpl_id,)
+                "SELECT row1, row2 FROM templates "
+                "WHERE hospital_id = %s AND id = %s",
+                (hospital_id, tpl_id),
             )
             cur_row = cur.fetchone()
             if cur_row:
@@ -113,21 +119,24 @@ def main(
 
         if sets:
             sets.append("updated_at = NOW()")
+            params.append(hospital_id)
             params.append(tpl_id)
             cur.execute(
-                f"UPDATE templates SET {', '.join(sets)} WHERE id = %s",
+                f"UPDATE templates SET {', '.join(sets)} "
+                "WHERE hospital_id = %s AND id = %s",
                 tuple(params),
             )
 
         if is_default is True:
             cur.execute(
                 "UPDATE templates SET is_default = false "
-                "WHERE id != %s AND is_default = true",
-                (tpl_id,),
+                "WHERE hospital_id = %s AND id != %s AND is_default = true",
+                (hospital_id, tpl_id),
             )
             cur.execute(
-                "UPDATE templates SET is_default = true WHERE id = %s",
-                (tpl_id,),
+                "UPDATE templates SET is_default = true "
+                "WHERE hospital_id = %s AND id = %s",
+                (hospital_id, tpl_id),
             )
 
         if sets or is_default is True:
@@ -135,8 +144,8 @@ def main(
 
         cur.execute(
             "SELECT id, name, row1, row2, is_default, created_at, updated_at "
-            "FROM templates WHERE id = %s",
-            (tpl_id,),
+            "FROM templates WHERE hospital_id = %s AND id = %s",
+            (hospital_id, tpl_id),
         )
         row = dict(cur.fetchone())
     conn.close()
@@ -145,6 +154,7 @@ def main(
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
+    parser.add_argument("--hospital-id", required=True, dest="hospital_id")
     parser.add_argument("--tpl-id", required=True, dest="tpl_id")
     parser.add_argument("--name")
     parser.add_argument("--row1", help="JSON string: list[{id,label}]")
@@ -163,7 +173,9 @@ if __name__ == "__main__":
         None if args.is_default is None else (args.is_default == "true")
     )
 
-    result = main(args.tpl_id, args.name, row1_val, row2_val, is_default_val)
+    result = main(
+        args.hospital_id, args.tpl_id, args.name, row1_val, row2_val, is_default_val
+    )
 
     output_dir = Path(__file__).parent / "output"
     output_dir.mkdir(exist_ok=True)

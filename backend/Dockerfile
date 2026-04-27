@@ -11,6 +11,6 @@ RUN uv sync --no-dev
 
 COPY backend/ ./backend/
 
-EXPOSE 8000
+EXPOSE 9000
 
 CMD ["uv", "run", "python", "-m", "backend.main"]

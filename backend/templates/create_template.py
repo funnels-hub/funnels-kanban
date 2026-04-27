@@ -20,7 +20,7 @@ def _serialize(row: dict) -> dict:
     return out
 
 
-def main(name: str, source_date: str | None = None) -> dict:
+def main(hospital_id: str, name: str, source_date: str | None = None) -> dict:
     """source_date 명시되면 그 date의 컬럼, 없으면 가장 최근 date의 columns,
     둘 다 없으면 DEFAULT.
     is_default=false. 새 id: tpl_{uuid4().hex[:12]}.
@@ -29,7 +29,10 @@ def main(name: str, source_date: str | None = None) -> dict:
     conn = get_db_connection()
     with conn.cursor(cursor_factory=RealDictCursor) as cur:
         if source_date is None:
-            cur.execute("SELECT MAX(date) AS max_date FROM column_row1")
+            cur.execute(
+                "SELECT MAX(date) AS max_date FROM column_row1 WHERE hospital_id = %s",
+                (hospital_id,),
+            )
             res = cur.fetchone()
             max_date = res["max_date"] if res else None
             if max_date is not None:
@@ -41,14 +44,15 @@ def main(name: str, source_date: str | None = None) -> dict:
 
         if source_date is not None:
             cur.execute(
-                "SELECT id, label FROM column_row1 WHERE date = %s ORDER BY position ASC",
-                (source_date,),
+                "SELECT id, label FROM column_row1 "
+                "WHERE hospital_id = %s AND date = %s ORDER BY position ASC",
+                (hospital_id, source_date),
             )
             row1 = [{"id": r["id"], "label": r["label"]} for r in cur.fetchall()]
             cur.execute(
-                "SELECT id, row1_id, label FROM column_row2 WHERE date = %s "
-                "ORDER BY position ASC",
-                (source_date,),
+                "SELECT id, row1_id, label FROM column_row2 "
+                "WHERE hospital_id = %s AND date = %s ORDER BY position ASC",
+                (hospital_id, source_date),
             )
             row2 = [
                 {"id": r["id"], "row1_id": r["row1_id"], "label": r["label"]}
@@ -85,9 +89,9 @@ def main(name: str, source_date: str | None = None) -> dict:
                             )
 
         cur.execute(
-            "INSERT INTO templates (id, name, row1, row2, is_default) "
-            "VALUES (%s, %s, %s, %s, %s)",
-            (new_id, name, Json(row1), Json(row2), False),
+            "INSERT INTO templates (hospital_id, id, name, row1, row2, is_default) "
+            "VALUES (%s, %s, %s, %s, %s, %s)",
+            (hospital_id, new_id, name, Json(row1), Json(row2), False),
         )
         conn.commit()
 
@@ -103,11 +107,12 @@ def main(name: str, source_date: str | None = None) -> dict:
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
+    parser.add_argument("--hospital-id", dest="hospital_id", required=True)
     parser.add_argument("--name", required=True)
     parser.add_argument("--source-date", dest="source_date")
     args = parser.parse_args()
 
-    result = main(args.name, args.source_date)
+    result = main(args.hospital_id, args.name, args.source_date)
 
     output_dir = Path(__file__).parent / "output"
     output_dir.mkdir(exist_ok=True)

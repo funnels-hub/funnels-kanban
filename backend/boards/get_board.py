@@ -7,22 +7,23 @@ from backend.cards import list_cards
 from backend.utils.propagation import get_columns_for_date
 
 
-def main(date: str) -> dict:
+def main(hospital_id: str, date: str) -> dict:
     """BoardSnapshot dict: {date, columns: ColumnsBundle, cards: Card[]}.
 
     columns은 propagation 적용, cards는 list_cards 사용.
     """
-    columns = get_columns_for_date(date)
-    cards = list_cards.main(date)
+    columns = get_columns_for_date(hospital_id, date)
+    cards = list_cards.main(hospital_id, date)
     return {"date": date, "columns": columns, "cards": cards}
 
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
+    parser.add_argument("--hospital-id", required=True)
     parser.add_argument("--date", required=True)
     args = parser.parse_args()
 
-    result = main(args.date)
+    result = main(args.hospital_id, args.date)
 
     output_dir = Path(__file__).parent / "output"
     output_dir.mkdir(exist_ok=True)

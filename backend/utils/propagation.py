@@ -23,14 +23,15 @@ def _to_date_str(target_date: str | date_type) -> str:
     return target_date
 
 
-def find_prev_columns_date(target_date: str | date_type) -> str | None:
+def find_prev_columns_date(hospital_id: str, target_date: str | date_type) -> str | None:
     """Return the most recent date < target_date with column_row1 rows, else None."""
     date_str = _to_date_str(target_date)
     conn = get_db_connection()
     with conn.cursor(cursor_factory=RealDictCursor) as cur:
         cur.execute(
-            "SELECT MAX(date) AS prev_date FROM column_row1 WHERE date < %s",
-            (date_str,),
+            "SELECT MAX(date) AS prev_date FROM column_row1 "
+            "WHERE hospital_id = %s AND date < %s",
+            (hospital_id, date_str),
         )
         row = cur.fetchone()
     conn.close()
@@ -39,17 +40,17 @@ def find_prev_columns_date(target_date: str | date_type) -> str | None:
     return row["prev_date"].isoformat()
 
 
-def _fetch_columns_at(cur, date_str: str) -> tuple[list[dict], list[dict]]:
+def _fetch_columns_at(cur, hospital_id: str, date_str: str) -> tuple[list[dict], list[dict]]:
     cur.execute(
         "SELECT id, date, label, position, built_in FROM column_row1 "
-        "WHERE date = %s ORDER BY position ASC",
-        (date_str,),
+        "WHERE hospital_id = %s AND date = %s ORDER BY position ASC",
+        (hospital_id, date_str),
     )
     row1 = [dict(r) for r in cur.fetchall()]
     cur.execute(
         "SELECT id, date, row1_id, label, position, built_in FROM column_row2 "
-        "WHERE date = %s ORDER BY position ASC",
-        (date_str,),
+        "WHERE hospital_id = %s AND date = %s ORDER BY position ASC",
+        (hospital_id, date_str),
     )
     row2 = [dict(r) for r in cur.fetchall()]
     return row1, row2
@@ -66,10 +67,14 @@ def _serialize_row(items: list[dict]) -> list[dict]:
     return out
 
 
-def _get_default_template_columns(cur) -> tuple[list[dict], list[dict]] | None:
+def _get_default_template_columns(
+    cur, hospital_id: str
+) -> tuple[list[dict], list[dict]] | None:
     """Return (row1, row2) JSONB lists from the default template, or None if absent."""
     cur.execute(
-        "SELECT row1, row2 FROM templates WHERE is_default = true LIMIT 1"
+        "SELECT row1, row2 FROM templates "
+        "WHERE hospital_id = %s AND is_default = true LIMIT 1",
+        (hospital_id,),
     )
     row = cur.fetchone()
     if not row:
@@ -129,7 +134,7 @@ def _default_snapshot(date_str: str) -> tuple[list[dict], list[dict]]:
     return row1, row2
 
 
-def get_columns_for_date(target_date: str | date_type) -> dict:
+def get_columns_for_date(hospital_id: str, target_date: str | date_type) -> dict:
     """Return {date, row1, row2} for `target_date`.
 
     Falls back to the nearest prior-date snapshot, then to DEFAULT_ROW1/2.
@@ -140,19 +145,20 @@ def get_columns_for_date(target_date: str | date_type) -> dict:
     conn = get_db_connection()
     template_columns: tuple[list[dict], list[dict]] | None = None
     with conn.cursor(cursor_factory=RealDictCursor) as cur:
-        row1, row2 = _fetch_columns_at(cur, date_str)
+        row1, row2 = _fetch_columns_at(cur, hospital_id, date_str)
         if not row1:
             cur.execute(
-                "SELECT MAX(date) AS prev_date FROM column_row1 WHERE date < %s",
-                (date_str,),
+                "SELECT MAX(date) AS prev_date FROM column_row1 "
+                "WHERE hospital_id = %s AND date < %s",
+                (hospital_id, date_str),
             )
             prev = cur.fetchone()
             prev_date = prev["prev_date"] if prev else None
             if prev_date is not None:
                 prev_str = prev_date.isoformat()
-                row1, row2 = _fetch_columns_at(cur, prev_str)
+                row1, row2 = _fetch_columns_at(cur, hospital_id, prev_str)
             else:
-                template_columns = _get_default_template_columns(cur)
+                template_columns = _get_default_template_columns(cur, hospital_id)
     conn.close()
 
     if not row1:
@@ -172,7 +178,7 @@ def get_columns_for_date(target_date: str | date_type) -> dict:
     return {"date": date_str, "row1": row1, "row2": row2}
 
 
-def ensure_columns_for_date(conn, target_date: str | date_type) -> None:
+def ensure_columns_for_date(conn, hospital_id: str, target_date: str | date_type) -> None:
     """Insert column_row1/row2 rows for `target_date` if absent.
 
     Picks the nearest prior-date snapshot if any, otherwise DEFAULT_ROW1/2.
@@ -180,20 +186,25 @@ def ensure_columns_for_date(conn, target_date: str | date_type) -> None:
     """
     date_str = _to_date_str(target_date)
     with conn.cursor(cursor_factory=RealDictCursor) as cur:
-        cur.execute("SELECT 1 FROM column_row1 WHERE date = %s LIMIT 1", (date_str,))
+        cur.execute(
+            "SELECT 1 FROM column_row1 "
+            "WHERE hospital_id = %s AND date = %s LIMIT 1",
+            (hospital_id, date_str),
+        )
         if cur.fetchone():
             return
 
         cur.execute(
-            "SELECT MAX(date) AS prev_date FROM column_row1 WHERE date < %s",
-            (date_str,),
+            "SELECT MAX(date) AS prev_date FROM column_row1 "
+            "WHERE hospital_id = %s AND date < %s",
+            (hospital_id, date_str),
         )
         prev = cur.fetchone()
         prev_date = prev["prev_date"] if prev else None
 
         if prev_date is not None:
             prev_str = prev_date.isoformat()
-            src_row1, src_row2 = _fetch_columns_at(cur, prev_str)
+            src_row1, src_row2 = _fetch_columns_at(cur, hospital_id, prev_str)
             row1_to_insert = [
                 {
                     "id": r["id"],
@@ -212,7 +223,7 @@ def ensure_columns_for_date(conn, target_date: str | date_type) -> None:
                 for r in src_row2
             ]
         else:
-            template_columns = _get_default_template_columns(cur)
+            template_columns = _get_default_template_columns(cur, hospital_id)
             if template_columns is not None:
                 tpl_row1, tpl_row2 = template_columns
                 row1_to_insert = [
@@ -245,13 +256,13 @@ def ensure_columns_for_date(conn, target_date: str | date_type) -> None:
 
         for idx, r in enumerate(row1_to_insert):
             cur.execute(
-                "INSERT INTO column_row1 (id, date, label, position, built_in) "
-                "VALUES (%s, %s, %s, %s, %s)",
-                (r["id"], date_str, r["label"], idx, r["built_in"]),
+                "INSERT INTO column_row1 (id, hospital_id, date, label, position, built_in) "
+                "VALUES (%s, %s, %s, %s, %s, %s)",
+                (r["id"], hospital_id, date_str, r["label"], idx, r["built_in"]),
             )
         for idx, r in enumerate(row2_to_insert):
             cur.execute(
-                "INSERT INTO column_row2 (id, date, row1_id, label, position, built_in) "
-                "VALUES (%s, %s, %s, %s, %s, %s)",
-                (r["id"], date_str, r["row1_id"], r["label"], idx, r["built_in"]),
+                "INSERT INTO column_row2 (id, hospital_id, date, row1_id, label, position, built_in) "
+                "VALUES (%s, %s, %s, %s, %s, %s, %s)",
+                (r["id"], hospital_id, date_str, r["row1_id"], r["label"], idx, r["built_in"]),
             )

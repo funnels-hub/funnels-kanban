@@ -9,6 +9,7 @@ from backend.utils.defaults import SYNC_FIELDS
 
 
 def main(
+    hospital_id: str,
     card_id: str,
     name: str | None = None,
     chart: str | None = None,
@@ -23,7 +24,10 @@ def main(
     conn = get_db_connection()
     with conn.cursor(cursor_factory=RealDictCursor) as cur:
         # 1. SELECT 카드 (없으면 NOT_FOUND). 기존 chart 기록.
-        cur.execute("SELECT * FROM cards WHERE id = %s", (card_id,))
+        cur.execute(
+            "SELECT * FROM cards WHERE hospital_id = %s AND id = %s",
+            (hospital_id, card_id),
+        )
         existing = cur.fetchone()
         if not existing:
             raise ValueError("NOT_FOUND")
@@ -46,8 +50,11 @@ def main(
         if changed:
             set_clauses = [f"{k} = %s" for k in changed.keys()]
             set_clauses.append("updated_at = now()")
-            sql = f"UPDATE cards SET {', '.join(set_clauses)} WHERE id = %s"
-            params = list(changed.values()) + [card_id]
+            sql = (
+                f"UPDATE cards SET {', '.join(set_clauses)} "
+                f"WHERE hospital_id = %s AND id = %s"
+            )
+            params = list(changed.values()) + [hospital_id, card_id]
             cur.execute(sql, params)
 
         # 4. sibling sync
@@ -58,16 +65,24 @@ def main(
             sib_set_clauses.append("updated_at = now()")
             sib_sql = (
                 f"UPDATE cards SET {', '.join(sib_set_clauses)} "
-                f"WHERE date = %s AND chart = %s AND id <> %s"
+                f"WHERE hospital_id = %s AND date = %s AND chart = %s AND id <> %s"
             )
-            sib_params = list(sync_changed.values()) + [existing_date, existing_chart, card_id]
+            sib_params = list(sync_changed.values()) + [
+                hospital_id,
+                existing_date,
+                existing_chart,
+                card_id,
+            ]
             cur.execute(sib_sql, sib_params)
 
         # 5. commit
         conn.commit()
 
         # 6. SELECT 후 dict 반환
-        cur.execute("SELECT * FROM cards WHERE id = %s", (card_id,))
+        cur.execute(
+            "SELECT * FROM cards WHERE hospital_id = %s AND id = %s",
+            (hospital_id, card_id),
+        )
         card = dict(cur.fetchone())
     conn.close()
 
@@ -82,6 +97,7 @@ def main(
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
+    parser.add_argument("--hospital-id", dest="hospital_id", required=True)
     parser.add_argument("--card-id", dest="card_id", required=True)
     parser.add_argument("--name", default=None)
     parser.add_argument("--chart", default=None)
@@ -95,6 +111,7 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     result = main(
+        args.hospital_id,
         args.card_id,
         args.name,
         args.chart,

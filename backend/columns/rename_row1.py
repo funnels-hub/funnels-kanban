@@ -4,7 +4,7 @@ import json
 from backend.conn import RealDictCursor, get_db_connection
 
 
-def main(date: str, r1_id: str, label: str | None = None, position: int | None = None) -> dict:
+def main(hospital_id: str, date: str, r1_id: str, label: str | None = None, position: int | None = None) -> dict:
     """업데이트된 ColumnRow1 dict 반환. 없으면 ValueError('NOT_FOUND')."""
     sets = []
     params: list = []
@@ -19,10 +19,10 @@ def main(date: str, r1_id: str, label: str | None = None, position: int | None =
     sql = f"""
         UPDATE column_row1
         SET {", ".join(sets)}
-        WHERE date = %s AND id = %s
+        WHERE hospital_id = %s AND date = %s AND id = %s
         RETURNING id, date, label, position, built_in
     """
-    params.extend([date, r1_id])
+    params.extend([hospital_id, date, r1_id])
 
     conn = get_db_connection()
     with conn:
@@ -45,11 +45,12 @@ def main(date: str, r1_id: str, label: str | None = None, position: int | None =
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
+    parser.add_argument("--hospital-id", required=True)
     parser.add_argument("--date", required=True)
     parser.add_argument("--r1-id", required=True)
     parser.add_argument("--label")
     parser.add_argument("--position", type=int)
     args = parser.parse_args()
 
-    result = main(args.date, args.r1_id, args.label, args.position)
+    result = main(args.hospital_id, args.date, args.r1_id, args.label, args.position)
     print(json.dumps(result, ensure_ascii=False, indent=2))

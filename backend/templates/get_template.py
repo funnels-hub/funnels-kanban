@@ -16,14 +16,14 @@ def _serialize(row: dict) -> dict:
     return out
 
 
-def main(tpl_id: str) -> dict:
+def main(hospital_id: str, tpl_id: str) -> dict:
     """없으면 ValueError('NOT_FOUND')."""
     conn = get_db_connection()
     with conn.cursor(cursor_factory=RealDictCursor) as cur:
         cur.execute(
             "SELECT id, name, row1, row2, is_default, created_at, updated_at "
-            "FROM templates WHERE id = %s",
-            (tpl_id,),
+            "FROM templates WHERE hospital_id = %s AND id = %s",
+            (hospital_id, tpl_id),
         )
         row = cur.fetchone()
     conn.close()
@@ -34,10 +34,11 @@ def main(tpl_id: str) -> dict:
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
+    parser.add_argument("--hospital-id", required=True, dest="hospital_id")
     parser.add_argument("--tpl-id", required=True, dest="tpl_id")
     args = parser.parse_args()
 
-    result = main(args.tpl_id)
+    result = main(args.hospital_id, args.tpl_id)
 
     output_dir = Path(__file__).parent / "output"
     output_dir.mkdir(exist_ok=True)

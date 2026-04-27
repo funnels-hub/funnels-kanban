@@ -11,6 +11,7 @@ from backend.utils.propagation import ensure_columns_for_date
 
 
 def main(
+    hospital_id: str,
     date: str,
     row1_id: str,
     row2_id: str,
@@ -27,13 +28,13 @@ def main(
     conn = get_db_connection()
     with conn.cursor(cursor_factory=RealDictCursor) as cur:
         # 1. boards/columns ensure
-        ensure_columns_for_date(conn, date)
+        ensure_columns_for_date(conn, hospital_id, date)
 
-        # 2. chart 중복 검사: 같은 (date, chart) 카드가 이미 있으면 거부 (그룹 무관)
+        # 2. chart 중복 검사: 같은 (hospital_id, date, chart) 카드가 이미 있으면 거부 (그룹 무관)
         if chart:
             cur.execute(
-                "SELECT 1 FROM cards WHERE date = %s AND chart = %s LIMIT 1",
-                (date, chart),
+                "SELECT 1 FROM cards WHERE hospital_id = %s AND date = %s AND chart = %s LIMIT 1",
+                (hospital_id, date, chart),
             )
             if cur.fetchone():
                 raise ValueError("CHART_ALREADY_EXISTS")
@@ -41,13 +42,13 @@ def main(
         # 3. 셀 점유 검증 (DUP_ALLOWED_R1은 skip)
         if row1_id not in DUP_ALLOWED_R1:
             cur.execute(
-                "SELECT 1 FROM cards WHERE date = %s AND row1_id = %s AND row2_id = %s AND time = %s LIMIT 1",
-                (date, row1_id, row2_id, time),
+                "SELECT 1 FROM cards WHERE hospital_id = %s AND date = %s AND row1_id = %s AND row2_id = %s AND time = %s LIMIT 1",
+                (hospital_id, date, row1_id, row2_id, time),
             )
             if cur.fetchone():
                 raise ValueError("CELL_OCCUPIED")
 
-        # 4. chart sync: 동일 (date, chart) sibling 1개 SELECT → 입력 빈값을 sibling 값으로 보완
+        # 4. chart sync: 동일 (hospital_id, date, chart) sibling 1개 SELECT → 입력 빈값을 sibling 값으로 보완
         values = {
             "name": name,
             "counselor": counselor,
@@ -59,8 +60,8 @@ def main(
         if chart:
             cur.execute(
                 "SELECT name, counselor, book_time, consult_time, memo, color "
-                "FROM cards WHERE date = %s AND chart = %s LIMIT 1",
-                (date, chart),
+                "FROM cards WHERE hospital_id = %s AND date = %s AND chart = %s LIMIT 1",
+                (hospital_id, date, chart),
             )
             sibling = cur.fetchone()
             if sibling:
@@ -75,11 +76,12 @@ def main(
 
         # 6. INSERT
         cur.execute(
-            "INSERT INTO cards (id, date, row1_id, row2_id, time, name, chart, "
+            "INSERT INTO cards (id, hospital_id, date, row1_id, row2_id, time, name, chart, "
             "counselor, book_time, consult_time, memo, color) "
-            "VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)",
+            "VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)",
             (
                 new_id,
+                hospital_id,
                 date,
                 row1_id,
                 row2_id,
@@ -113,6 +115,7 @@ def main(
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
+    parser.add_argument("--hospital-id", dest="hospital_id", required=True)
     parser.add_argument("--date", required=True)
     parser.add_argument("--row1-id", dest="row1_id", required=True)
     parser.add_argument("--row2-id", dest="row2_id", required=True)
@@ -127,6 +130,7 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     result = main(
+        args.hospital_id,
         args.date,
         args.row1_id,
         args.row2_id,

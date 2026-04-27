@@ -1,8 +1,9 @@
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, Depends, HTTPException
 
 from backend.boards.apply_template import main as apply_template_main
 from backend.boards.get_board import main as get_board_main
 from backend.boards.model import ApplyTemplateRequest
+from backend.utils.auth_helper import CurrentHospital, get_current_hospital
 from backend.utils.defaults import (
     COLOR_PALETTE,
     COUNSELORS,
@@ -25,23 +26,32 @@ def _handle(e: ValueError):
 
 
 @router.get("/boards/{date}")
-async def get_board_endpoint(date: str):
+async def get_board_endpoint(
+    date: str,
+    current: CurrentHospital = Depends(get_current_hospital),
+):
     try:
-        return get_board_main(date)
+        return get_board_main(current["id"], date)
     except ValueError as e:
         _handle(e)
 
 
 @router.post("/boards/{date}/apply-template")
-async def apply_template_endpoint(date: str, body: ApplyTemplateRequest):
+async def apply_template_endpoint(
+    date: str,
+    body: ApplyTemplateRequest,
+    current: CurrentHospital = Depends(get_current_hospital),
+):
     try:
-        return apply_template_main(date, body.template_id)
+        return apply_template_main(current["id"], date, body.template_id)
     except ValueError as e:
         _handle(e)
 
 
 @router.get("/defaults")
-async def get_defaults():
+async def get_defaults(
+    current: CurrentHospital = Depends(get_current_hospital),
+):
     return {
         "row1": list(DEFAULT_ROW1),
         "row2": list(DEFAULT_ROW2),

@@ -7,11 +7,14 @@ from uuid import uuid4
 from backend.conn import RealDictCursor, get_db_connection
 
 
-def main(tpl_id: str) -> dict:
+def main(hospital_id: str, tpl_id: str) -> dict:
     """원본 복제 → 새 id, name=원본+' 사본', is_default=false. 새 row dict 반환."""
     conn = get_db_connection()
     with conn.cursor(cursor_factory=RealDictCursor) as cur:
-        cur.execute("SELECT * FROM templates WHERE id = %s", (tpl_id,))
+        cur.execute(
+            "SELECT * FROM templates WHERE hospital_id = %s AND id = %s",
+            (hospital_id, tpl_id),
+        )
         original = cur.fetchone()
         if original is None:
             conn.close()
@@ -21,9 +24,10 @@ def main(tpl_id: str) -> dict:
         new_name = f"{original['name']} 사본"
 
         cur.execute(
-            "INSERT INTO templates (id, name, row1, row2, is_default) "
-            "VALUES (%s, %s, %s, %s, %s)",
+            "INSERT INTO templates (hospital_id, id, name, row1, row2, is_default) "
+            "VALUES (%s, %s, %s, %s, %s, %s)",
             (
+                hospital_id,
                 new_id,
                 new_name,
                 json.dumps(original["row1"], ensure_ascii=False),
@@ -33,7 +37,10 @@ def main(tpl_id: str) -> dict:
         )
         conn.commit()
 
-        cur.execute("SELECT * FROM templates WHERE id = %s", (new_id,))
+        cur.execute(
+            "SELECT * FROM templates WHERE hospital_id = %s AND id = %s",
+            (hospital_id, new_id),
+        )
         tpl = dict(cur.fetchone())
     conn.close()
 
@@ -46,10 +53,11 @@ def main(tpl_id: str) -> dict:
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
+    parser.add_argument("--hospital-id", dest="hospital_id", required=True)
     parser.add_argument("--tpl-id", dest="tpl_id", required=True)
     args = parser.parse_args()
 
-    result = main(args.tpl_id)
+    result = main(args.hospital_id, args.tpl_id)
 
     output_dir = Path(__file__).parent / "output"
     output_dir.mkdir(exist_ok=True)

@@ -1,13 +1,15 @@
 import { Link } from "react-router-dom";
-import { Stethoscope, LayoutGrid } from "lucide-react";
+import { Stethoscope, LayoutGrid, Building2, LogOut } from "lucide-react";
 import { DateNav } from "./DateNav";
 import { ImplantStats } from "./ImplantStats";
 import { DarkModeToggle } from "@/components/ui/DarkModeToggle";
 import { Button } from "@/components/ui/Button";
 import { useBoard } from "@/contexts/BoardContext";
+import { useAuth } from "@/contexts/AuthContext";
 
 export function TopBar() {
   const { addRow1 } = useBoard();
+  const { hospital, isAdmin, logout } = useAuth();
 
   const handleAddRow1 = async () => {
     const label = window.prompt("새 그룹 이름");
@@ -37,7 +39,32 @@ export function TopBar() {
           <LayoutGrid className="w-3.5 h-3.5" />
           템플릿
         </Link>
+        {isAdmin && (
+          <Link
+            to="/admin/hospitals"
+            className="dlg-btn flex items-center gap-1 text-xs"
+          >
+            <Building2 className="w-3.5 h-3.5" />
+            병원 관리
+          </Link>
+        )}
         <DarkModeToggle />
+        {hospital && (
+          <span
+            className="text-xs text-muted-foreground"
+            title={hospital.email}
+          >
+            {hospital.name}
+          </span>
+        )}
+        <button
+          type="button"
+          className="hdr-icon-btn"
+          onClick={logout}
+          title="로그아웃"
+        >
+          <LogOut className="w-4 h-4" />
+        </button>
       </div>
     </header>
   );

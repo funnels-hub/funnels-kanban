@@ -7,15 +7,15 @@ from backend.conn import RealDictCursor, get_db_connection
 from backend.utils.defaults import DEFAULT_ROW2
 
 
-def main(date: str) -> dict:
+def main(hospital_id: str, date: str) -> dict:
     """ImplantStats dict."""
     conn = get_db_connection()
     with conn.cursor(cursor_factory=RealDictCursor) as cur:
         cur.execute(
             "SELECT id, label FROM column_row2 "
-            "WHERE date = %s AND row1_id = 'r1_임플' "
+            "WHERE hospital_id = %s AND date = %s AND row1_id = 'r1_임플' "
             "ORDER BY position",
-            (date,),
+            (hospital_id, date),
         )
         leaves = [dict(r) for r in cur.fetchall()]
 
@@ -30,9 +30,9 @@ def main(date: str) -> dict:
 
         cur.execute(
             "SELECT row2_id, COUNT(*) AS cnt FROM cards "
-            "WHERE date = %s AND row1_id = 'r1_임플' "
+            "WHERE hospital_id = %s AND date = %s AND row1_id = 'r1_임플' "
             "GROUP BY row2_id",
-            (date,),
+            (hospital_id, date),
         )
         counts = cur.fetchall()
     conn.close()
@@ -49,10 +49,11 @@ def main(date: str) -> dict:
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
+    parser.add_argument("--hospital-id", required=True)
     parser.add_argument("--date", required=True)
     args = parser.parse_args()
 
-    result = main(args.date)
+    result = main(args.hospital_id, args.date)
 
     output_dir = Path(__file__).parent / "output"
     output_dir.mkdir(exist_ok=True)

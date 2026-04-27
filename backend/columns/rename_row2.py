@@ -7,6 +7,7 @@ from backend.utils.propagation import ensure_columns_for_date
 
 
 def main(
+    hospital_id: str,
     date: str,
     r2_id: str,
     label: str | None = None,
@@ -16,12 +17,13 @@ def main(
     """업데이트된 ColumnRow2 dict. 없으면 ValueError('NOT_FOUND')."""
     conn = get_db_connection()
     try:
-        ensure_columns_for_date(conn, date)
+        ensure_columns_for_date(conn, hospital_id, date)
 
         with conn.cursor(cursor_factory=RealDictCursor) as cur:
             cur.execute(
-                "SELECT id FROM column_row2 WHERE date = %s AND id = %s",
-                (date, r2_id),
+                "SELECT id FROM column_row2 "
+                "WHERE hospital_id = %s AND date = %s AND id = %s",
+                (hospital_id, date, r2_id),
             )
             if not cur.fetchone():
                 raise ValueError("NOT_FOUND")
@@ -36,8 +38,9 @@ def main(
                 params.append(position)
             if row1_id is not None:
                 cur.execute(
-                    "SELECT id FROM column_row1 WHERE date = %s AND id = %s",
-                    (date, row1_id),
+                    "SELECT id FROM column_row1 "
+                    "WHERE hospital_id = %s AND date = %s AND id = %s",
+                    (hospital_id, date, row1_id),
                 )
                 if not cur.fetchone():
                     raise ValueError("NOT_FOUND")
@@ -45,17 +48,18 @@ def main(
                 params.append(row1_id)
 
             if sets:
-                params.extend([date, r2_id])
+                params.extend([hospital_id, date, r2_id])
                 cur.execute(
                     f"UPDATE column_row2 SET {', '.join(sets)} "
-                    "WHERE date = %s AND id = %s",
+                    "WHERE hospital_id = %s AND date = %s AND id = %s",
                     tuple(params),
                 )
 
             cur.execute(
-                "SELECT id, date, row1_id, label, position, built_in "
-                "FROM column_row2 WHERE date = %s AND id = %s",
-                (date, r2_id),
+                "SELECT id, hospital_id, date, row1_id, label, position, built_in "
+                "FROM column_row2 "
+                "WHERE hospital_id = %s AND date = %s AND id = %s",
+                (hospital_id, date, r2_id),
             )
             row = cur.fetchone()
 
@@ -71,6 +75,7 @@ def main(
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
+    parser.add_argument("--hospital-id", required=True)
     parser.add_argument("--date", required=True)
     parser.add_argument("--r2-id", required=True)
     parser.add_argument("--label")
@@ -79,6 +84,7 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     result = main(
+        args.hospital_id,
         args.date,
         args.r2_id,
         label=args.label,
