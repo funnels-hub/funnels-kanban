@@ -6,6 +6,7 @@ import { Textarea } from "@/components/ui/Textarea";
 import { Button } from "@/components/ui/Button";
 import { ColorPicker } from "./ColorPicker";
 import { COUNSELORS } from "@/lib/constants";
+import { isTimeEditableGroup } from "@/lib/business-rules";
 import { X } from "lucide-react";
 
 export function CardSidePanel() {
@@ -69,6 +70,8 @@ export function CardSidePanel() {
 
   if (!card) return null;
 
+  const timeEditable = card ? isTimeEditableGroup(card.row1_id) : false;
+
   const handleSave = async () => {
     await updateCard(card.id, { ...form, sync_siblings: true });
     setOpen(false);
@@ -128,6 +131,8 @@ export function CardSidePanel() {
               value={form.consult_time}
               onChange={(e) => setForm({ ...form, consult_time: e.target.value })}
               placeholder="HH:MM"
+              disabled={!timeEditable}
+              className="disabled:opacity-50 disabled:cursor-not-allowed"
             />
           </div>
           <div className="card-panel-field">
@@ -136,6 +141,8 @@ export function CardSidePanel() {
               value={form.book_time}
               onChange={(e) => setForm({ ...form, book_time: e.target.value })}
               placeholder="HH:MM"
+              disabled={!timeEditable}
+              className="disabled:opacity-50 disabled:cursor-not-allowed"
             />
           </div>
         </div>

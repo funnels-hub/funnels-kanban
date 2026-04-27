@@ -61,7 +61,16 @@ export const TIME_SLOTS: string[] = (() => {
 export const COUNSELORS = ["김수지", "라근주", "유소연"] as const;
 
 export const COLOR_PALETTE = [
+  // 기존 옅은 톤 (9)
   "#fde68a", "#fca5a5", "#a7f3d0",
   "#bfdbfe", "#c4b5fd", "#f9a8d4",
   "#fdba74", "#86efac", "#fcd34d",
+  // 진한 톤 (8) — 같은 hue family 다른 채도
+  "#ef4444", "#f97316", "#eab308",
+  "#22c55e", "#06b6d4", "#3b82f6",
+  "#8b5cf6", "#ec4899",
+  // 중간 톤 / 추가 hue (7)
+  "#f59e0b", "#10b981", "#0ea5e9",
+  "#6366f1", "#a855f7", "#d946ef",
+  "#64748b",
 ];
