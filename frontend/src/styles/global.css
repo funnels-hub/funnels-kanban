@@ -750,20 +750,22 @@
   padding: 4px;
   z-index: 20;
   display: none;
+  flex-direction: column;
+  gap: 2px;
 }
-.r1-menu.open { display: block; }
+.r1-menu.open { display: flex; }
 .r1-menu-item {
+  display: block;
   width: 100%; text-align: left;
-  padding: 7px 10px; font-size: 13px;
+  padding: 8px 12px; font-size: 13px;
   border: none; background: transparent;
   border-radius: calc(var(--radius) - 2px);
   cursor: pointer;
-  display: flex; align-items: center; gap: 6px;
   color: inherit;
 }
 .r1-menu-item:hover { background: var(--accent); }
 .r1-menu-item.destructive { color: #dc2626; }
-.r1-menu-item.destructive:hover { background: color-mix(in oklch, #dc2626 10%, transparent); }
+.r1-menu-item.destructive:hover { background: color-mix(in oklch, #dc2626 12%, transparent); }
 .r1-menu-item svg { width: 13px; height: 13px; }
 
 /* Row2 leaves container */

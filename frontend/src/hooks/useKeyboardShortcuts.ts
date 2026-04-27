@@ -1,7 +1,7 @@
 import { useEffect } from "react";
 import { useBoard } from "@/contexts/BoardContext";
 import { useSelection } from "@/contexts/SelectionContext";
-import { useToast } from "@/contexts/ToastContext";
+import { useAlert } from "@/hooks/useAlert";
 import { SINGLE_CARD_R1 } from "@/lib/constants";
 import { formatNowHHMM, isTimeEditableGroup } from "@/lib/business-rules";
 
@@ -13,7 +13,7 @@ function isTyping(target: EventTarget | null): boolean {
 export function useKeyboardShortcuts() {
   const { snapshot, deleteCard, createCard, getCardsByChart } = useBoard();
   const { selectedCardId, selectedCell, copiedCardId, selectCard, copyCard, clearSelection } = useSelection();
-  const { showToast } = useToast();
+  const showAlert = useAlert();
 
   useEffect(() => {
     const handler = async (e: KeyboardEvent) => {
@@ -43,12 +43,12 @@ export function useKeyboardShortcuts() {
         const card = snapshot?.cards.find((c) => c.id === selectedCardId);
         if (!card) return;
         if (!SINGLE_CARD_R1.has(card.row1_id)) {
-          showToast("구환/신환 카드만 복사할 수 있습니다", "error");
+          showAlert("구환/신환 카드만 복사할 수 있습니다", "error");
           return;
         }
         e.preventDefault();
         copyCard(selectedCardId);
-        showToast("복사됨", "success");
+        showAlert("복사됨", "success");
         return;
       }
 
@@ -56,11 +56,11 @@ export function useKeyboardShortcuts() {
       if (isCtrl && e.key.toLowerCase() === "v" && copiedCardId && selectedCell) {
         e.preventDefault();
         if (SINGLE_CARD_R1.has(selectedCell.row1_id)) {
-          showToast("구환/신환 셀에는 붙여넣기 불가", "error");
+          showAlert("구환/신환 셀에는 붙여넣기 불가", "error");
           return;
         }
         const source = snapshot?.cards.find((c) => c.id === copiedCardId);
-        if (!source) { showToast("복사 원본을 찾을 수 없음", "error"); return; }
+        if (!source) { showAlert("복사 원본을 찾을 수 없음", "error"); return; }
 
         // sibling lookup for latest data (might have changed since copy)
         let name = source.name, counselor = source.counselor, memo = source.memo, color = source.color;
@@ -86,12 +86,12 @@ export function useKeyboardShortcuts() {
             time: selectedCell.time,
             name, chart: source.chart, counselor, book_time, consult_time, memo, color,
           });
-          showToast("붙여넣기 완료", "success");
+          showAlert("붙여넣기 완료", "success");
         } catch (err) {
           const msg = err instanceof Error ? err.message : "오류";
-          if (msg.includes("CELL_OCCUPIED")) showToast("이미 카드가 있는 셀입니다", "error");
-          else if (msg.includes("CHART_ALREADY_EXISTS")) showToast("이미 같은 차트가 있습니다", "error");
-          else showToast(msg, "error");
+          if (msg.includes("CELL_OCCUPIED")) showAlert("이미 카드가 있는 셀입니다", "error");
+          else if (msg.includes("CHART_ALREADY_EXISTS")) showAlert("이미 같은 차트가 있습니다", "error");
+          else showAlert(msg, "error");
         }
         return;
       }
@@ -99,5 +99,5 @@ export function useKeyboardShortcuts() {
 
     window.addEventListener("keydown", handler);
     return () => window.removeEventListener("keydown", handler);
-  }, [snapshot, selectedCardId, selectedCell, copiedCardId, deleteCard, createCard, getCardsByChart, selectCard, copyCard, clearSelection, showToast]);
+  }, [snapshot, selectedCardId, selectedCell, copiedCardId, deleteCard, createCard, getCardsByChart, selectCard, copyCard, clearSelection, showAlert]);
 }

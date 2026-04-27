@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { useBoard } from "@/contexts/BoardContext";
-import { useToast } from "@/contexts/ToastContext";
+import { useAlert } from "@/hooks/useAlert";
 import { parseInlineAdd, formatNowHHMM, isTimeEditableGroup } from "@/lib/business-rules";
 
 export function InlineAddInput({
@@ -15,7 +15,7 @@ export function InlineAddInput({
   onClose: () => void;
 }) {
   const { createCard, getCardsByChart } = useBoard();
-  const { showToast } = useToast();
+  const showAlert = useAlert();
   const [value, setValue] = useState("");
   const ref = useRef<HTMLInputElement>(null);
 
@@ -64,9 +64,9 @@ export function InlineAddInput({
       onClose();
     } catch (e) {
       const msg = e instanceof Error ? e.message : "오류";
-      if (msg.includes("CHART_ALREADY_EXISTS")) showToast("이미 같은 차트가 그룹에 존재합니다", "error");
-      else if (msg.includes("CELL_OCCUPIED")) showToast("이미 카드가 있는 셀입니다", "error");
-      else showToast(msg, "error");
+      if (msg.includes("CHART_ALREADY_EXISTS")) showAlert("이미 같은 차트가 그룹에 존재합니다", "error");
+      else if (msg.includes("CELL_OCCUPIED")) showAlert("이미 카드가 있는 셀입니다", "error");
+      else showAlert(msg, "error");
     }
   };
 

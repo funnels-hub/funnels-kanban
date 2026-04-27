@@ -1,16 +1,16 @@
 import { useCallback, useRef } from "react";
 import { useBoard } from "@/contexts/BoardContext";
-import { useToast } from "@/contexts/ToastContext";
+import { useAlert } from "@/hooks/useAlert";
 
 export function useDragDrop() {
   const { moveCard } = useBoard();
-  const { showToast } = useToast();
+  const showAlert = useAlert();
 
   // 최신 의존성 참조 보존 (handler 재생성 없이도 최신 함수 호출)
   const moveCardRef = useRef(moveCard);
-  const showToastRef = useRef(showToast);
+  const showAlertRef = useRef(showAlert);
   moveCardRef.current = moveCard;
-  showToastRef.current = showToast;
+  showAlertRef.current = showAlert;
 
   // attach: 한번 부착하면 element가 unmount되거나 변경될 때 떼고 새로 붙임
   const cleanupRef = useRef<(() => void) | null>(null);
@@ -41,9 +41,9 @@ export function useDragDrop() {
         await moveCardRef.current(cardId, { row1_id, row2_id, time });
       } catch (err) {
         const msg = err instanceof Error ? err.message : "오류";
-        if (msg.includes("CELL_OCCUPIED")) showToastRef.current("이미 카드가 있는 셀입니다", "error");
-        else if (msg.includes("CHART_ALREADY_EXISTS")) showToastRef.current("같은 차트가 그룹에 이미 있습니다", "error");
-        else showToastRef.current(msg, "error");
+        if (msg.includes("CELL_OCCUPIED")) showAlertRef.current("이미 카드가 있는 셀입니다", "error");
+        else if (msg.includes("CHART_ALREADY_EXISTS")) showAlertRef.current("같은 차트가 그룹에 이미 있습니다", "error");
+        else showAlertRef.current(msg, "error");
       }
     };
 

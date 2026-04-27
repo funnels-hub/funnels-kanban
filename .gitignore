@@ -22,3 +22,9 @@ credentials.json
 # Misc
 .DS_Store
 *.log
+
+# Frontend build artifacts
+*.tsbuildinfo
+vite.config.d.ts
+vite.config.js
+

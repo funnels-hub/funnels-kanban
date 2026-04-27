@@ -7,7 +7,7 @@ import type {
 import { useTemplates } from "@/contexts/TemplateContext";
 import { useBoard } from "@/contexts/BoardContext";
 import { useCurrentDate } from "@/contexts/DateContext";
-import { useToast } from "@/contexts/ToastContext";
+import { useAlert } from "@/hooks/useAlert";
 import {
   ArrowLeft,
   GripVertical,
@@ -32,7 +32,7 @@ export function TemplateEditView({
   const { updateTemplate, duplicateTemplate, deleteTemplate } = useTemplates();
   const { applyTemplate } = useBoard();
   const { date } = useCurrentDate();
-  const { showToast } = useToast();
+  const showAlert = useAlert();
 
   const [row1, setRow1] = useState<TemplateColumnItem[]>(template.row1);
   const [row2, setRow2] = useState<TemplateLeafItem[]>(template.row2);
@@ -60,7 +60,7 @@ export function TemplateEditView({
     try {
       await updateTemplate(template.id, { name: n, row1: r1, row2: r2 });
     } catch (e) {
-      showToast(e instanceof Error ? e.message : "저장 실패", "error");
+      showAlert(e instanceof Error ? e.message : "저장 실패", "error");
     }
   };
 
@@ -80,9 +80,9 @@ export function TemplateEditView({
   const handleDuplicate = async () => {
     try {
       const dup = await duplicateTemplate(template.id);
-      showToast(`"${dup.name}" 복제됨`, "success");
+      showAlert(`"${dup.name}" 복제됨`, "success");
     } catch (e) {
-      showToast(e instanceof Error ? e.message : "복제 실패", "error");
+      showAlert(e instanceof Error ? e.message : "복제 실패", "error");
     }
   };
 
@@ -95,10 +95,10 @@ export function TemplateEditView({
       return;
     try {
       await applyTemplate(template.id);
-      showToast("템플릿 적용 완료", "success");
+      showAlert("템플릿 적용 완료", "success");
       onBack();
     } catch (e) {
-      showToast(e instanceof Error ? e.message : "적용 실패", "error");
+      showAlert(e instanceof Error ? e.message : "적용 실패", "error");
     }
   };
 
@@ -109,7 +109,7 @@ export function TemplateEditView({
       onBack();
     } catch (e) {
       const msg = e instanceof Error ? e.message : "오류";
-      showToast(
+      showAlert(
         msg.includes("CANNOT_DELETE_DEFAULT")
           ? "기본 템플릿은 삭제할 수 없습니다"
           : msg,

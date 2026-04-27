@@ -1,7 +1,7 @@
 import { useTemplates } from "@/contexts/TemplateContext";
 import { useBoard } from "@/contexts/BoardContext";
 import { useCurrentDate } from "@/contexts/DateContext";
-import { useToast } from "@/contexts/ToastContext";
+import { useAlert } from "@/hooks/useAlert";
 import { TemplateCard } from "./TemplateCard";
 import { Plus } from "lucide-react";
 import type { Template } from "@/types/templates";
@@ -10,23 +10,23 @@ export function TemplateListView({ onSelectEdit }: { onSelectEdit: (tpl: Templat
   const { templates, status, createTemplate, deleteTemplate } = useTemplates();
   const { applyTemplate } = useBoard();
   const { date } = useCurrentDate();
-  const { showToast } = useToast();
+  const showAlert = useAlert();
 
   const handleNew = async () => {
     const name = window.prompt("새 템플릿 이름");
     if (!name?.trim()) return;
     await createTemplate({ name: name.trim(), source_date: date });
-    showToast("템플릿 생성됨", "success");
+    showAlert("템플릿 생성됨", "success");
   };
 
   const handleApply = async (tpl: Template) => {
     if (!window.confirm(`"${tpl.name}"을(를) ${date} 보드에 적용할까요? 현재 카드와 컬럼이 모두 삭제됩니다.`)) return;
     try {
       await applyTemplate(tpl.id);
-      showToast("템플릿 적용 완료", "success");
+      showAlert("템플릿 적용 완료", "success");
     } catch (e) {
       const msg = e instanceof Error ? e.message : "오류";
-      showToast(msg, "error");
+      showAlert(msg, "error");
     }
   };
 
@@ -34,11 +34,11 @@ export function TemplateListView({ onSelectEdit }: { onSelectEdit: (tpl: Templat
     if (!window.confirm(`"${tpl.name}" 삭제?`)) return;
     try {
       await deleteTemplate(tpl.id);
-      showToast("삭제됨", "success");
+      showAlert("삭제됨", "success");
     } catch (e) {
       const msg = e instanceof Error ? e.message : "오류";
-      if (msg.includes("CANNOT_DELETE_DEFAULT")) showToast("기본 템플릿은 삭제할 수 없습니다", "error");
-      else showToast(msg, "error");
+      if (msg.includes("CANNOT_DELETE_DEFAULT")) showAlert("기본 템플릿은 삭제할 수 없습니다", "error");
+      else showAlert(msg, "error");
     }
   };
 
