@@ -20,15 +20,7 @@ export function TopBar() {
         <div className="w-9 h-9 rounded-full bg-gradient-to-br from-violet-500 to-emerald-400 flex items-center justify-center text-white">
           <Stethoscope className="w-5 h-5" />
         </div>
-        <div className="leading-tight">
-          <div className="text-sm font-semibold flex items-center gap-1.5">
-            <span>치과 상담</span>
-            <span className="text-xs text-muted-foreground font-normal">
-              v1c-b · 2계층 + 그룹 규칙
-            </span>
-          </div>
-          <div className="text-xs text-muted-foreground">예약 대시보드</div>
-        </div>
+        <div className="text-base font-semibold">치과상담 예약 대시보드</div>
       </div>
 
       <DateNav />
