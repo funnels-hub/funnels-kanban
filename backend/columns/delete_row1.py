@@ -2,10 +2,13 @@ import argparse
 import json
 
 from backend.conn import get_db_connection
+from backend.utils.defaults import PROTECTED_ROW1_IDS
 
 
 def main(date: str, r1_id: str) -> dict:
     """{'deleted': True, 'cards_deleted': N}"""
+    if r1_id in PROTECTED_ROW1_IDS:
+        raise ValueError("PROTECTED_ROW1")
     conn = get_db_connection()
     with conn.cursor() as cur:
         cur.execute(

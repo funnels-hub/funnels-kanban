@@ -80,3 +80,6 @@ COLOR_PALETTE = [
     "#bfdbfe", "#c4b5fd", "#f9a8d4",
     "#fdba74", "#86efac", "#fcd34d",
 ]
+
+# 모든 템플릿/보드에 항상 존재해야 하는 row1 (삭제 불가)
+PROTECTED_ROW1_IDS = ["r1_구환", "r1_신환"]

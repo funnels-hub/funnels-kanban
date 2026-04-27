@@ -4,6 +4,8 @@ import { useBoard } from "@/contexts/BoardContext";
 import { Input } from "@/components/ui/Input";
 import { MoreHorizontal } from "lucide-react";
 
+const PROTECTED_ROW1_IDS = ["r1_구환", "r1_신환"];
+
 export function HeaderRow1({
   row1,
   span,
@@ -66,7 +68,7 @@ export function HeaderRow1({
           </span>
         )}
 
-        {!row1.built_in && (
+        {!row1.built_in && !PROTECTED_ROW1_IDS.includes(row1.id) && (
           <div ref={menuRef} className="relative">
             <button type="button" className="hdr-edit" onClick={() => setMenuOpen((v) => !v)}>
               <MoreHorizontal className="w-3 h-3" />

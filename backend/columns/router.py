@@ -23,7 +23,10 @@ def _handle(e: ValueError):
     msg = str(e)
     if "NOT_FOUND" in msg:
         raise HTTPException(404, msg)
-    if any(k in msg for k in ["LAST_LEAF", "CONFLICT", "OCCUPIED", "ALREADY_EXISTS"]):
+    if any(
+        k in msg
+        for k in ["LAST_LEAF", "CONFLICT", "OCCUPIED", "ALREADY_EXISTS", "PROTECTED"]
+    ):
         raise HTTPException(409, msg)
     raise HTTPException(400, msg)
 

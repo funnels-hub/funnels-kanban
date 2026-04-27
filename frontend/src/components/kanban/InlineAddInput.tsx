@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { useBoard } from "@/contexts/BoardContext";
 import { useAlert } from "@/hooks/useAlert";
-import { parseInlineAdd, formatNowHHMM, isTimeEditableGroup } from "@/lib/business-rules";
+import { parseInlineAdd } from "@/lib/business-rules";
 
 export function InlineAddInput({
   row1Id,
@@ -43,10 +43,6 @@ export function InlineAddInput({
       } catch {}
     }
 
-    const isTimeEditable = isTimeEditableGroup(row1Id);
-    const book_time = isTimeEditable ? time : "";
-    const consult_time = isTimeEditable ? formatNowHHMM() : "";
-
     try {
       await createCard({
         date: "",  // BoardContext가 자동 주입
@@ -56,8 +52,8 @@ export function InlineAddInput({
         name,
         chart,
         counselor,
-        book_time,
-        consult_time,
+        book_time: "",
+        consult_time: "",
         memo,
         color,
       } as any);

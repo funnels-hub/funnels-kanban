@@ -8,7 +8,7 @@ from uuid import uuid4
 from psycopg2.extras import Json
 
 from backend.conn import RealDictCursor, get_db_connection
-from backend.utils.defaults import DEFAULT_ROW1, DEFAULT_ROW2
+from backend.utils.defaults import DEFAULT_ROW1, DEFAULT_ROW2, PROTECTED_ROW1_IDS
 
 
 def _serialize(row: dict) -> dict:
@@ -64,6 +64,25 @@ def main(name: str, source_date: str | None = None) -> dict:
                 {"id": r["id"], "row1_id": r["row1_id"], "label": r["label"]}
                 for r in DEFAULT_ROW2
             ]
+
+        # 누락된 protected r1 자동 추가
+        existing_r1_ids = {r["id"] for r in row1}
+        for protected_id in PROTECTED_ROW1_IDS:
+            if protected_id not in existing_r1_ids:
+                default = next(
+                    (r for r in DEFAULT_ROW1 if r["id"] == protected_id), None
+                )
+                if default:
+                    row1.insert(0, {"id": default["id"], "label": default["label"]})
+                    for d in DEFAULT_ROW2:
+                        if d["row1_id"] == protected_id:
+                            row2.append(
+                                {
+                                    "id": d["id"],
+                                    "row1_id": d["row1_id"],
+                                    "label": d["label"],
+                                }
+                            )
 
         cur.execute(
             "INSERT INTO templates (id, name, row1, row2, is_default) "

@@ -6,7 +6,7 @@ from pathlib import Path
 from uuid import uuid4
 
 from backend.conn import RealDictCursor, get_db_connection
-from backend.utils.defaults import DUP_ALLOWED_R1, SINGLE_CARD_R1, SYNC_FIELDS
+from backend.utils.defaults import DUP_ALLOWED_R1, SYNC_FIELDS
 from backend.utils.propagation import ensure_columns_for_date
 
 
@@ -23,17 +23,17 @@ def main(
     memo: str = "",
     color: str = "",
 ) -> dict:
-    """카드 생성. SINGLE_CARD_R1 / 셀 점유 / chart sync 룰 적용. 생성된 Card dict 반환."""
+    """카드 생성. chart 중복 / 셀 점유 / chart sync 룰 적용. 생성된 Card dict 반환."""
     conn = get_db_connection()
     with conn.cursor(cursor_factory=RealDictCursor) as cur:
         # 1. boards/columns ensure
         ensure_columns_for_date(conn, date)
 
-        # 2. SINGLE_CARD_R1: 같은 chart가 이미 그룹에 있으면 거부
-        if row1_id in SINGLE_CARD_R1 and chart:
+        # 2. chart 중복 검사: 같은 (date, chart) 카드가 이미 있으면 거부 (그룹 무관)
+        if chart:
             cur.execute(
-                "SELECT 1 FROM cards WHERE date = %s AND row1_id = %s AND chart = %s LIMIT 1",
-                (date, row1_id, chart),
+                "SELECT 1 FROM cards WHERE date = %s AND chart = %s LIMIT 1",
+                (date, chart),
             )
             if cur.fetchone():
                 raise ValueError("CHART_ALREADY_EXISTS")
@@ -69,17 +69,6 @@ def main(
                         continue
                     if values.get(field, "") == "" and sibling.get(field):
                         values[field] = sibling[field]
-
-        # 4-2. counselor 자동 배정: 상담사 분류 그룹(구환/신환/전화)에서는 row2 label을 counselor로
-        COUNSELOR_GROUPS = {"r1_구환", "r1_신환", "r1_전화"}
-        if not values["counselor"] and row1_id in COUNSELOR_GROUPS:
-            cur.execute(
-                "SELECT label FROM column_row2 WHERE date = %s AND id = %s",
-                (date, row2_id),
-            )
-            row2 = cur.fetchone()
-            if row2:
-                values["counselor"] = row2["label"]
 
         # 5. 새 id
         new_id = f"c_{uuid4().hex[:12]}"

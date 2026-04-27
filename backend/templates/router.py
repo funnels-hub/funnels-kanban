@@ -15,7 +15,7 @@ def _handle(e: ValueError):
     msg = str(e)
     if "NOT_FOUND" in msg:
         raise HTTPException(404, msg)
-    if "CANNOT_DELETE_DEFAULT" in msg:
+    if "CANNOT_DELETE_DEFAULT" in msg or "DEFAULT_REQUIRED" in msg:
         raise HTTPException(409, msg)
     raise HTTPException(400, msg)
 
@@ -50,7 +50,9 @@ async def update_template_endpoint(tpl_id: str, body: TemplateUpdate):
     try:
         row1 = [r.model_dump() for r in body.row1] if body.row1 is not None else None
         row2 = [r.model_dump() for r in body.row2] if body.row2 is not None else None
-        return update_template_main(tpl_id, body.name, row1, row2)
+        return update_template_main(
+            tpl_id, body.name, row1, row2, body.is_default
+        )
     except ValueError as e:
         _handle(e)
 

@@ -28,4 +28,5 @@ export interface TemplateUpdate {
   name?: string;
   row1?: TemplateColumnItem[];
   row2?: TemplateLeafItem[];
+  is_default?: boolean;
 }

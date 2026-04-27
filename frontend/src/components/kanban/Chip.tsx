@@ -64,17 +64,14 @@ export function Chip({ card }: { card: Card }) {
         onDragStart={handleDragStart}
         data-card-id={card.id}
       >
-        <div className="flex items-center gap-1 whitespace-nowrap overflow-hidden">
-          {fallback ? (
-            <span className="text-muted-foreground">{fallback}</span>
-          ) : (
-            <>
-              <span className="font-medium truncate">{name || "·"}</span>
-              <span className="opacity-50 shrink-0">/</span>
-              <span className="opacity-70 shrink-0">{chart || "·"}</span>
-            </>
-          )}
-        </div>
+        {fallback ? (
+          <div className="chip-name text-muted-foreground">{fallback}</div>
+        ) : (
+          <>
+            <div className="chip-name">{name || "·"}</div>
+            <div className="chip-chart">{chart || "·"}</div>
+          </>
+        )}
       </div>
       {ctxMenu && (
         <ContextMenu x={ctxMenu.x} y={ctxMenu.y} items={items} onClose={() => setCtxMenu(null)} />

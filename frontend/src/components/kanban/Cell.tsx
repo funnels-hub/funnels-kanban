@@ -1,6 +1,7 @@
 import { useState } from "react";
 import type { Card } from "@/types/cards";
 import { useSelection } from "@/contexts/SelectionContext";
+import { SINGLE_CARD_R1 } from "@/lib/constants";
 import { Chip } from "./Chip";
 import { InlineAddInput } from "./InlineAddInput";
 
@@ -27,6 +28,7 @@ export function Cell({
     selectedCell?.row2_id === row2Id &&
     selectedCell?.time === time;
   const empty = cards.length === 0;
+  const canAddInline = SINGLE_CARD_R1.has(row1Id);
 
   return (
     <div
@@ -35,15 +37,18 @@ export function Cell({
       data-row2={row2Id}
       data-time={time}
       onClick={(e) => {
-        if (e.target !== e.currentTarget) return;
+        const target = e.target as HTMLElement;
+        if (target.closest(".chip") || target.closest(".inline-add-input")) return;
         selectCell({ row1_id: row1Id, row2_id: row2Id, time });
       }}
       onDoubleClick={(e) => {
-        if (e.target !== e.currentTarget) return;
+        const target = e.target as HTMLElement;
+        if (target.closest(".chip") || target.closest(".inline-add-input")) return;
+        if (!canAddInline) return;
         setAdding(true);
       }}
     >
-      <div className="flex flex-col gap-0.5">
+      <div className="flex flex-col gap-0.5 h-full">
         {cards.map((c) => (
           <Chip key={c.id} card={c} />
         ))}

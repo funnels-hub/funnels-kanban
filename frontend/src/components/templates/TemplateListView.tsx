@@ -7,7 +7,7 @@ import { Plus } from "lucide-react";
 import type { Template } from "@/types/templates";
 
 export function TemplateListView({ onSelectEdit }: { onSelectEdit: (tpl: Template) => void }) {
-  const { templates, status, createTemplate, deleteTemplate } = useTemplates();
+  const { templates, status, createTemplate, deleteTemplate, updateTemplate } = useTemplates();
   const { applyTemplate } = useBoard();
   const { date } = useCurrentDate();
   const showAlert = useAlert();
@@ -42,6 +42,17 @@ export function TemplateListView({ onSelectEdit }: { onSelectEdit: (tpl: Templat
     }
   };
 
+  const handleSetDefault = async (tpl: Template) => {
+    if (tpl.is_default) return;
+    if (!window.confirm(`"${tpl.name}"을(를) 기본 템플릿으로 설정할까요?`)) return;
+    try {
+      await updateTemplate(tpl.id, { is_default: true });
+    } catch (e) {
+      const msg = e instanceof Error ? e.message : "오류";
+      showAlert(msg, "error");
+    }
+  };
+
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
@@ -61,6 +72,7 @@ export function TemplateListView({ onSelectEdit }: { onSelectEdit: (tpl: Templat
             onApply={() => handleApply(t)}
             onEdit={() => onSelectEdit(t)}
             onDelete={() => handleDelete(t)}
+            onSetDefault={() => handleSetDefault(t)}
           />
         ))}
       </div>

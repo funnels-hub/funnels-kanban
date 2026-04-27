@@ -16,8 +16,11 @@ import {
   MoreHorizontal,
   Copy,
   Check,
+  Star,
   Trash2,
 } from "lucide-react";
+
+const PROTECTED_ROW1_IDS = ["r1_구환", "r1_신환"];
 
 const newId = (prefix: string) =>
   `${prefix}_${crypto.randomUUID().slice(0, 8)}`;
@@ -118,6 +121,16 @@ export function TemplateEditView({
     }
   };
 
+  const handleSetDefault = async () => {
+    if (template.is_default) return;
+    if (!window.confirm(`"${name}"을(를) 기본 템플릿으로 설정할까요?`)) return;
+    try {
+      await updateTemplate(template.id, { is_default: true });
+    } catch (e) {
+      showAlert(e instanceof Error ? e.message : "오류", "error");
+    }
+  };
+
   const handleAddRow1 = async () => {
     const label = window.prompt("새 대분류 이름");
     if (!label?.trim()) return;
@@ -184,6 +197,19 @@ export function TemplateEditView({
           </button>
           <button
             type="button"
+            className="tpl-btn"
+            onClick={handleSetDefault}
+            disabled={template.is_default}
+            title={template.is_default ? "이미 기본 템플릿" : "기본 템플릿으로 설정"}
+          >
+            <Star
+              className="w-3.5 h-3.5"
+              fill={template.is_default ? "currentColor" : "none"}
+            />
+            <span>{template.is_default ? "기본" : "기본 설정"}</span>
+          </button>
+          <button
+            type="button"
             className="tpl-btn tpl-btn-destructive"
             disabled={template.is_default}
             onClick={handleDelete}
@@ -204,6 +230,7 @@ export function TemplateEditView({
             key={r1.id}
             r1={r1}
             leaves={leaves}
+            protected={PROTECTED_ROW1_IDS.includes(r1.id)}
             onRenameR1={async (label) =>
               persist(
                 row1.map((x) => (x.id === r1.id ? { ...x, label } : x)),
@@ -251,6 +278,7 @@ export function TemplateEditView({
 function Row1Section({
   r1,
   leaves,
+  protected: isProtected,
   onRenameR1,
   onDeleteR1,
   onAddLeaf,
@@ -259,6 +287,7 @@ function Row1Section({
 }: {
   r1: TemplateColumnItem;
   leaves: TemplateLeafItem[];
+  protected: boolean;
   onRenameR1: (label: string) => void;
   onDeleteR1: () => void;
   onAddLeaf: () => void;
@@ -353,7 +382,11 @@ function Row1Section({
               <button
                 type="button"
                 className="r1-menu-item destructive"
+                disabled={isProtected}
+                style={isProtected ? { opacity: 0.5, cursor: "not-allowed" } : undefined}
+                title={isProtected ? "보호된 그룹은 삭제할 수 없습니다" : undefined}
                 onClick={() => {
+                  if (isProtected) return;
                   setMenuOpen(false);
                   onDeleteR1();
                 }}

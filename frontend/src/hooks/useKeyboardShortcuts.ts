@@ -48,7 +48,6 @@ export function useKeyboardShortcuts() {
         }
         e.preventDefault();
         copyCard(selectedCardId);
-        showAlert("복사됨", "success");
         return;
       }
 
@@ -86,7 +85,6 @@ export function useKeyboardShortcuts() {
             time: selectedCell.time,
             name, chart: source.chart, counselor, book_time, consult_time, memo, color,
           });
-          showAlert("붙여넣기 완료", "success");
         } catch (err) {
           const msg = err instanceof Error ? err.message : "오류";
           if (msg.includes("CELL_OCCUPIED")) showAlert("이미 카드가 있는 셀입니다", "error");

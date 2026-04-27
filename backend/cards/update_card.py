@@ -51,7 +51,7 @@ def main(
             cur.execute(sql, params)
 
         # 4. sibling sync
-        chart_changed = chart is not None
+        chart_changed = chart is not None and chart != existing_chart
         sync_changed = {k: v for k, v in changed.items() if k in SYNC_FIELDS and k != "chart"}
         if sync_siblings and not chart_changed and sync_changed and existing_chart:
             sib_set_clauses = [f"{k} = %s" for k in sync_changed.keys()]

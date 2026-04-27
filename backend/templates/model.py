@@ -35,3 +35,4 @@ class TemplateUpdate(BaseModel):
     name: Optional[str] = None
     row1: Optional[List[TemplateColumnItem]] = None
     row2: Optional[List[TemplateLeafItem]] = None
+    is_default: Optional[bool] = None

@@ -1,16 +1,18 @@
 import type { Template } from "@/types/templates";
-import { Check, Pencil, Trash2 } from "lucide-react";
+import { Check, Pencil, Star, Trash2 } from "lucide-react";
 
 export function TemplateCard({
   template,
   onApply,
   onEdit,
   onDelete,
+  onSetDefault,
 }: {
   template: Template;
   onApply: () => void;
   onEdit: () => void;
   onDelete: () => void;
+  onSetDefault: () => void;
 }) {
   // group leaves by row1_id
   const leavesByR1 = new Map<string, string[]>();
@@ -35,6 +37,19 @@ export function TemplateCard({
           </button>
           <button type="button" className="tpl-btn" onClick={onEdit}>
             <Pencil className="w-3.5 h-3.5" /> 편집
+          </button>
+          <button
+            type="button"
+            className="tpl-btn"
+            onClick={onSetDefault}
+            disabled={template.is_default}
+            title={template.is_default ? "이미 기본 템플릿" : "기본 템플릿으로 설정"}
+          >
+            <Star
+              className="w-3.5 h-3.5"
+              fill={template.is_default ? "currentColor" : "none"}
+            />{" "}
+            {template.is_default ? "기본" : "기본 설정"}
           </button>
           <button
             type="button"
