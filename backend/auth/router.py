@@ -1,9 +1,9 @@
 from fastapi import APIRouter, Depends, HTTPException
 
-from backend.auth.login import main as login_main
-from backend.auth.me import main as me_main
-from backend.auth.model import AuthResponse, HospitalPublic, LoginRequest
-from backend.utils.auth_helper import CurrentHospital, get_current_hospital
+from auth.login import main as login_main
+from auth.me import main as me_main
+from auth.model import AuthResponse, HospitalPublic, LoginRequest
+from utils.auth_helper import CurrentHospital, get_current_hospital
 
 router = APIRouter(prefix="/api/auth", tags=["auth"])
 

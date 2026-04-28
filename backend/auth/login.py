@@ -1,8 +1,8 @@
 import argparse
 import bcrypt
 
-from backend.conn import RealDictCursor, get_db_connection
-from backend.utils.auth_helper import create_access_token
+from conn import RealDictCursor, get_db_connection
+from utils.auth_helper import create_access_token
 
 
 def main(email: str, password: str) -> dict:

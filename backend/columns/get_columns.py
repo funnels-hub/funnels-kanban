@@ -1,7 +1,7 @@
 import argparse
 import json
 
-from backend.utils.propagation import get_columns_for_date
+from utils.propagation import get_columns_for_date
 
 
 def main(hospital_id: str, date: str) -> dict:

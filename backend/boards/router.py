@@ -1,10 +1,10 @@
 from fastapi import APIRouter, Depends, HTTPException
 
-from backend.boards.apply_template import main as apply_template_main
-from backend.boards.get_board import main as get_board_main
-from backend.boards.model import ApplyTemplateRequest
-from backend.utils.auth_helper import CurrentHospital, get_current_hospital
-from backend.utils.defaults import (
+from boards.apply_template import main as apply_template_main
+from boards.get_board import main as get_board_main
+from boards.model import ApplyTemplateRequest
+from utils.auth_helper import CurrentHospital, get_current_hospital
+from utils.defaults import (
     COLOR_PALETTE,
     COUNSELORS,
     DEFAULT_ROW1,

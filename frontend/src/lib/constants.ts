@@ -45,7 +45,7 @@ export const ADD_CELL_WIDTH = 30;
 export const TIME_CELL_WIDTH = 64;
 
 export const SINGLE_CARD_R1 = new Set(["r1_구환", "r1_신환"]);
-export const DUP_ALLOWED_R1 = new Set(["r1_임플", "r1_일반"]);
+export const DUP_ALLOWED_R1 = new Set(["r1_예진", "r1_임플", "r1_일반", "r1_전화"]);
 
 export const SYNC_FIELDS = ["name", "counselor", "book_time", "consult_time", "memo", "color"] as const;
 

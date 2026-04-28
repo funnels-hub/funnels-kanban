@@ -3,8 +3,8 @@ import json
 from datetime import datetime
 from pathlib import Path
 
-from backend.boards import get_board
-from backend.conn import RealDictCursor, get_db_connection
+from boards import get_board
+from conn import RealDictCursor, get_db_connection
 
 
 def main(hospital_id: str, date: str, template_id: str) -> dict:

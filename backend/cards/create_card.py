@@ -5,9 +5,9 @@ from datetime import datetime
 from pathlib import Path
 from uuid import uuid4
 
-from backend.conn import RealDictCursor, get_db_connection
-from backend.utils.defaults import DUP_ALLOWED_R1, SYNC_FIELDS
-from backend.utils.propagation import ensure_columns_for_date
+from conn import RealDictCursor, get_db_connection
+from utils.defaults import SINGLE_CARD_R1, SYNC_FIELDS
+from utils.propagation import ensure_columns_for_date
 
 
 def main(
@@ -30,23 +30,22 @@ def main(
         # 1. boards/columns ensure
         ensure_columns_for_date(conn, hospital_id, date)
 
-        # 2. chart 중복 검사: 같은 (hospital_id, date, chart) 카드가 이미 있으면 거부 (그룹 무관)
-        if chart:
+        # 2. chart 중복 검사: SINGLE_CARD_R1 내부 한정 (같은 row1_id 안에서만 unique)
+        if chart and row1_id in SINGLE_CARD_R1:
             cur.execute(
-                "SELECT 1 FROM cards WHERE hospital_id = %s AND date = %s AND chart = %s LIMIT 1",
-                (hospital_id, date, chart),
+                "SELECT 1 FROM cards WHERE hospital_id = %s AND date = %s AND chart = %s AND row1_id = %s LIMIT 1",
+                (hospital_id, date, chart, row1_id),
             )
             if cur.fetchone():
                 raise ValueError("CHART_ALREADY_EXISTS")
 
-        # 3. 셀 점유 검증 (DUP_ALLOWED_R1은 skip)
-        if row1_id not in DUP_ALLOWED_R1:
-            cur.execute(
-                "SELECT 1 FROM cards WHERE hospital_id = %s AND date = %s AND row1_id = %s AND row2_id = %s AND time = %s LIMIT 1",
-                (hospital_id, date, row1_id, row2_id, time),
-            )
-            if cur.fetchone():
-                raise ValueError("CELL_OCCUPIED")
+        # 3. 셀 점유 검증: 모든 row1 셀당 1카드 (row1 무관, 항상 검사)
+        cur.execute(
+            "SELECT 1 FROM cards WHERE hospital_id = %s AND date = %s AND row1_id = %s AND row2_id = %s AND time = %s LIMIT 1",
+            (hospital_id, date, row1_id, row2_id, time),
+        )
+        if cur.fetchone():
+            raise ValueError("CELL_OCCUPIED")
 
         # 4. chart sync: 동일 (hospital_id, date, chart) sibling 1개 SELECT → 입력 빈값을 sibling 값으로 보완
         values = {

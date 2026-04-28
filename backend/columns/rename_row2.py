@@ -2,8 +2,8 @@ import argparse
 import json
 from datetime import date as date_type
 
-from backend.conn import RealDictCursor, get_db_connection
-from backend.utils.propagation import ensure_columns_for_date
+from conn import RealDictCursor, get_db_connection
+from utils.propagation import ensure_columns_for_date
 
 
 def main(

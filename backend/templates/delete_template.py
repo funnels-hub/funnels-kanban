@@ -3,7 +3,7 @@ import json
 from datetime import datetime
 from pathlib import Path
 
-from backend.conn import get_db_connection
+from conn import get_db_connection
 
 
 def main(hospital_id: str, tpl_id: str) -> dict:

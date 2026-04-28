@@ -1,11 +1,11 @@
 from fastapi import APIRouter, Depends, HTTPException
 
-from backend.hospitals.create_hospital import main as create_main
-from backend.hospitals.delete_hospital import main as delete_main
-from backend.hospitals.list_hospitals import main as list_main
-from backend.hospitals.model import Hospital, HospitalCreate, HospitalUpdate
-from backend.hospitals.update_hospital import main as update_main
-from backend.utils.auth_helper import CurrentHospital, get_current_hospital, require_admin
+from hospitals.create_hospital import main as create_main
+from hospitals.delete_hospital import main as delete_main
+from hospitals.list_hospitals import main as list_main
+from hospitals.model import Hospital, HospitalCreate, HospitalUpdate
+from hospitals.update_hospital import main as update_main
+from utils.auth_helper import CurrentHospital, get_current_hospital, require_admin
 
 router = APIRouter(prefix="/api/admin/hospitals", tags=["admin"])
 

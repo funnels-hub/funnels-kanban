@@ -4,7 +4,7 @@ from datetime import date as date_type
 from datetime import datetime
 from pathlib import Path
 
-from backend.conn import RealDictCursor, get_db_connection
+from conn import RealDictCursor, get_db_connection
 
 
 def main(hospital_id: str, date: str) -> list[dict]:

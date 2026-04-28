@@ -1,14 +1,14 @@
 from fastapi import APIRouter, Depends, HTTPException
 
-from backend.cards.create_card import main as create_card_main
-from backend.cards.delete_card import main as delete_card_main
-from backend.cards.get_by_chart import main as get_by_chart_main
-from backend.cards.implant_stats import main as implant_stats_main
-from backend.cards.list_cards import main as list_cards_main
-from backend.cards.model import CardCreate, CardMove, CardUpdate
-from backend.cards.move_card import main as move_card_main
-from backend.cards.update_card import main as update_card_main
-from backend.utils.auth_helper import CurrentHospital, get_current_hospital
+from cards.create_card import main as create_card_main
+from cards.delete_card import main as delete_card_main
+from cards.get_by_chart import main as get_by_chart_main
+from cards.implant_stats import main as implant_stats_main
+from cards.list_cards import main as list_cards_main
+from cards.model import CardCreate, CardMove, CardUpdate
+from cards.move_card import main as move_card_main
+from cards.update_card import main as update_card_main
+from utils.auth_helper import CurrentHospital, get_current_hospital
 
 router = APIRouter(prefix="/api", tags=["cards"])
 

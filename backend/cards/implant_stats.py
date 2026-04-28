@@ -3,8 +3,8 @@ import json
 from datetime import datetime
 from pathlib import Path
 
-from backend.conn import RealDictCursor, get_db_connection
-from backend.utils.defaults import DEFAULT_ROW2
+from conn import RealDictCursor, get_db_connection
+from utils.defaults import DEFAULT_ROW2
 
 
 def main(hospital_id: str, date: str) -> dict:

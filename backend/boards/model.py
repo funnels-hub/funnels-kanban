@@ -3,8 +3,8 @@ from typing import Any, Dict, List
 
 from pydantic import BaseModel
 
-from backend.cards.model import Card
-from backend.columns.model import ColumnsBundle
+from cards.model import Card
+from columns.model import ColumnsBundle
 
 
 class BoardSnapshot(BaseModel):

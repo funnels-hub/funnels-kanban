@@ -6,11 +6,11 @@ WORKDIR /app
 
 RUN apt-get update && apt-get install -y --no-install-recommends libpq-dev && rm -rf /var/lib/apt/lists/*
 
-COPY pyproject.toml ./
-RUN uv sync --no-dev
+COPY pyproject.toml uv.lock ./
+RUN uv sync --no-dev --frozen
 
-COPY backend/ ./backend/
+COPY . .
 
 EXPOSE 9000
 
-CMD ["uv", "run", "python", "-m", "backend.main"]
+CMD ["uv", "run", "uvicorn", "main:app", "--host", "0.0.0.0", "--port", "9000"]

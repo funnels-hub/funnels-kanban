@@ -3,8 +3,8 @@ import json
 from datetime import datetime
 from pathlib import Path
 
-from backend.conn import get_db_connection
-from backend.utils.propagation import ensure_columns_for_date, get_columns_for_date
+from conn import get_db_connection
+from utils.propagation import ensure_columns_for_date, get_columns_for_date
 
 
 def main(

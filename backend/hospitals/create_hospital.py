@@ -4,7 +4,7 @@ from uuid import uuid4
 import bcrypt
 import psycopg2
 
-from backend.conn import RealDictCursor, get_db_connection
+from conn import RealDictCursor, get_db_connection
 
 
 def main(name: str, email: str, password: str) -> dict:

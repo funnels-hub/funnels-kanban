@@ -3,7 +3,7 @@ from dotenv import load_dotenv
 load_dotenv("backend/.env")
 
 import bcrypt
-from backend.conn import RealDictCursor, get_db_connection
+from conn import RealDictCursor, get_db_connection
 
 ADMIN_ID = "hospital-admin"
 ADMIN_NAME = "Funnels Admin"

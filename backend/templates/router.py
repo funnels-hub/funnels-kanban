@@ -1,13 +1,13 @@
 from fastapi import APIRouter, Depends, HTTPException
 
-from backend.templates.create_template import main as create_template_main
-from backend.templates.delete_template import main as delete_template_main
-from backend.templates.duplicate_template import main as duplicate_template_main
-from backend.templates.get_template import main as get_template_main
-from backend.templates.list_templates import main as list_templates_main
-from backend.templates.model import TemplateCreate, TemplateUpdate
-from backend.templates.update_template import main as update_template_main
-from backend.utils.auth_helper import CurrentHospital, get_current_hospital
+from templates.create_template import main as create_template_main
+from templates.delete_template import main as delete_template_main
+from templates.duplicate_template import main as duplicate_template_main
+from templates.get_template import main as get_template_main
+from templates.list_templates import main as list_templates_main
+from templates.model import TemplateCreate, TemplateUpdate
+from templates.update_template import main as update_template_main
+from utils.auth_helper import CurrentHospital, get_current_hospital
 
 router = APIRouter(prefix="/api/templates", tags=["templates"])
 

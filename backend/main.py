@@ -1,15 +1,15 @@
 import os
 from dotenv import load_dotenv
-load_dotenv("backend/.env")
+load_dotenv(".env")
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from backend.columns.router import router as columns_router
-from backend.cards.router import router as cards_router
-from backend.templates.router import router as templates_router
-from backend.boards.router import router as boards_router
-from backend.auth.router import router as auth_router
-from backend.hospitals.router import router as hospitals_router
+from columns.router import router as columns_router
+from cards.router import router as cards_router
+from templates.router import router as templates_router
+from boards.router import router as boards_router
+from auth.router import router as auth_router
+from hospitals.router import router as hospitals_router
 
 app = FastAPI(title="치과 상담 예약 칸반 API", version="0.1.0")
 
@@ -37,4 +37,4 @@ async def health():
 
 if __name__ == "__main__":
     import uvicorn
-    uvicorn.run("backend.main:app", host="0.0.0.0", port=9000, reload=True)
+    uvicorn.run("main:app", host="0.0.0.0", port=9000, reload=True)

@@ -4,8 +4,8 @@ from datetime import date as date_type
 from datetime import datetime
 from pathlib import Path
 
-from backend.conn import RealDictCursor, get_db_connection
-from backend.utils.defaults import DUP_ALLOWED_R1, SINGLE_CARD_R1
+from conn import RealDictCursor, get_db_connection
+from utils.defaults import SINGLE_CARD_R1
 
 
 def main(
@@ -35,28 +35,28 @@ def main(
         card_date = existing["date"]
         chart = existing["chart"]
 
-        # 3. chart 중복 검사: chart 비어있지 않으면 같은 (date, chart) 카드가
-        #    자기 외에 있는지 검사 (그룹 무관)
-        if chart:
+        # 3. chart 중복 검사: chart가 있고 new_row1이 SINGLE_CARD_R1일 때만,
+        #    같은 (date, chart, row1=new_row1) 카드가 자기 외에 있는지 검사
+        if chart and new_row1 in SINGLE_CARD_R1:
             cur.execute(
                 "SELECT 1 FROM cards "
                 "WHERE hospital_id = %s AND date = %s AND chart = %s "
-                "AND id != %s LIMIT 1",
-                (hospital_id, card_date, chart, card_id),
+                "AND row1_id = %s AND id != %s LIMIT 1",
+                (hospital_id, card_date, chart, new_row1, card_id),
             )
             if cur.fetchone():
                 raise ValueError("CHART_ALREADY_EXISTS")
 
-        # 4. 셀 점유 체크 (DUP_ALLOWED_R1은 skip)
-        if new_row1 not in DUP_ALLOWED_R1:
-            cur.execute(
-                "SELECT 1 FROM cards "
-                "WHERE hospital_id = %s AND date = %s AND row1_id = %s "
-                "AND row2_id = %s AND time = %s AND id != %s LIMIT 1",
-                (hospital_id, card_date, new_row1, new_row2, new_time, card_id),
-            )
-            if cur.fetchone():
-                raise ValueError("CELL_OCCUPIED")
+        # 4. 셀 점유 체크: 모든 row1에 대해 (hospital_id, date, row1, row2, time)
+        #    동일 셀에 자기 외 카드가 있으면 CELL_OCCUPIED
+        cur.execute(
+            "SELECT 1 FROM cards "
+            "WHERE hospital_id = %s AND date = %s AND row1_id = %s "
+            "AND row2_id = %s AND time = %s AND id != %s LIMIT 1",
+            (hospital_id, card_date, new_row1, new_row2, new_time, card_id),
+        )
+        if cur.fetchone():
+            raise ValueError("CELL_OCCUPIED")
 
         # 5. book_time 동기화: SINGLE_CARD_R1이고 new_time이 변경된 경우 new_time으로
         if new_row1 in SINGLE_CARD_R1 and new_time != existing["time"]:

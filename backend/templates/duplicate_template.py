@@ -4,7 +4,7 @@ from datetime import datetime
 from pathlib import Path
 from uuid import uuid4
 
-from backend.conn import RealDictCursor, get_db_connection
+from conn import RealDictCursor, get_db_connection
 
 
 def main(hospital_id: str, tpl_id: str) -> dict:

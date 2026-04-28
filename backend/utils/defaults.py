@@ -59,7 +59,7 @@ ADD_CELL_WIDTH = 30
 # ---------- Business-rule group sets ----------
 # Demo line 809-810
 SINGLE_CARD_R1 = ["r1_구환", "r1_신환"]
-DUP_ALLOWED_R1 = ["r1_임플", "r1_일반"]
+DUP_ALLOWED_R1 = ["r1_예진", "r1_임플", "r1_일반", "r1_전화"]
 
 # ---------- Sibling sync fields ----------
 # Demo SYNC_FIELDS

@@ -1,8 +1,8 @@
 import argparse
 import json
 
-from backend.conn import get_db_connection
-from backend.utils.defaults import PROTECTED_ROW1_IDS
+from conn import get_db_connection
+from utils.defaults import PROTECTED_ROW1_IDS
 
 
 def main(hospital_id: str, date: str, r1_id: str) -> dict:

@@ -7,8 +7,8 @@ from uuid import uuid4
 
 from psycopg2.extras import Json
 
-from backend.conn import RealDictCursor, get_db_connection
-from backend.utils.defaults import DEFAULT_ROW1, DEFAULT_ROW2, PROTECTED_ROW1_IDS
+from conn import RealDictCursor, get_db_connection
+from utils.defaults import DEFAULT_ROW1, DEFAULT_ROW2, PROTECTED_ROW1_IDS
 
 
 def _serialize(row: dict) -> dict:

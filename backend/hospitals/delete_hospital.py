@@ -1,5 +1,5 @@
 import argparse
-from backend.conn import RealDictCursor, get_db_connection
+from conn import RealDictCursor, get_db_connection
 
 
 def main(hospital_id: str, current_id: str | None = None) -> dict:

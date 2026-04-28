@@ -1,6 +1,6 @@
 import argparse
 from datetime import date as date_type, datetime
-from backend.conn import RealDictCursor, get_db_connection
+from conn import RealDictCursor, get_db_connection
 
 
 def main() -> list[dict]:

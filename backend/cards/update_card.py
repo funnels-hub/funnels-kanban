@@ -4,8 +4,8 @@ from datetime import date as date_type
 from datetime import datetime
 from pathlib import Path
 
-from backend.conn import RealDictCursor, get_db_connection
-from backend.utils.defaults import SYNC_FIELDS
+from conn import RealDictCursor, get_db_connection
+from utils.defaults import SYNC_FIELDS
 
 
 def main(

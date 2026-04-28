@@ -1,7 +1,7 @@
 import argparse
 from datetime import date as date_type, datetime
 import bcrypt
-from backend.conn import RealDictCursor, get_db_connection
+from conn import RealDictCursor, get_db_connection
 
 
 def main(hospital_id: str, name: str | None = None, password: str | None = None,

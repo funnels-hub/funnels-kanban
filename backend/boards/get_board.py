@@ -3,8 +3,8 @@ import json
 from datetime import datetime
 from pathlib import Path
 
-from backend.cards import list_cards
-from backend.utils.propagation import get_columns_for_date
+from cards import list_cards
+from utils.propagation import get_columns_for_date
 
 
 def main(hospital_id: str, date: str) -> dict:

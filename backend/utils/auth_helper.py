@@ -5,7 +5,7 @@ from typing import TypedDict
 import jwt
 from fastapi import HTTPException, Request
 
-from backend.conn import RealDictCursor, get_db_connection
+from conn import RealDictCursor, get_db_connection
 
 JWT_SECRET = os.getenv("JWT_SECRET", "")
 JWT_ALG = "HS256"

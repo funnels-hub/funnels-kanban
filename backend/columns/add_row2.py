@@ -5,8 +5,8 @@ from datetime import datetime
 from pathlib import Path
 from uuid import uuid4
 
-from backend.conn import RealDictCursor, get_db_connection
-from backend.utils.propagation import ensure_columns_for_date
+from conn import RealDictCursor, get_db_connection
+from utils.propagation import ensure_columns_for_date
 
 
 def _serialize(row: dict) -> dict:

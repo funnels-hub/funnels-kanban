@@ -1,7 +1,7 @@
 import argparse
 import json
 
-from backend.conn import RealDictCursor, get_db_connection
+from conn import RealDictCursor, get_db_connection
 
 
 def main(hospital_id: str, date: str, r1_id: str, label: str | None = None, position: int | None = None) -> dict:

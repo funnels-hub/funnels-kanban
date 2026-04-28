@@ -1,21 +1,21 @@
 from fastapi import APIRouter, Depends, HTTPException
 
-from backend.columns.add_row1 import main as add_row1_main
-from backend.columns.add_row2 import main as add_row2_main
-from backend.columns.delete_row1 import main as delete_row1_main
-from backend.columns.delete_row2 import main as delete_row2_main
-from backend.columns.get_columns import main as get_columns_main
-from backend.columns.model import (
+from columns.add_row1 import main as add_row1_main
+from columns.add_row2 import main as add_row2_main
+from columns.delete_row1 import main as delete_row1_main
+from columns.delete_row2 import main as delete_row2_main
+from columns.get_columns import main as get_columns_main
+from columns.model import (
     ColumnRow1Create,
     ColumnRow1Update,
     ColumnRow2Create,
     ColumnRow2Update,
     ReorderRequest,
 )
-from backend.columns.rename_row1 import main as rename_row1_main
-from backend.columns.rename_row2 import main as rename_row2_main
-from backend.columns.reorder import main as reorder_main
-from backend.utils.auth_helper import CurrentHospital, get_current_hospital
+from columns.rename_row1 import main as rename_row1_main
+from columns.rename_row2 import main as rename_row2_main
+from columns.reorder import main as reorder_main
+from utils.auth_helper import CurrentHospital, get_current_hospital
 
 router = APIRouter(prefix="/api/columns", tags=["columns"])
 

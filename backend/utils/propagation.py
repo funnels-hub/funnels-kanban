@@ -13,8 +13,8 @@
 
 from datetime import date as date_type
 
-from backend.conn import RealDictCursor, get_db_connection
-from backend.utils.defaults import DEFAULT_ROW1, DEFAULT_ROW2
+from conn import RealDictCursor, get_db_connection
+from utils.defaults import DEFAULT_ROW1, DEFAULT_ROW2
 
 
 def _to_date_str(target_date: str | date_type) -> str:
