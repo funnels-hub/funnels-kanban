@@ -5,8 +5,9 @@ import { Input } from "@/components/ui/Input";
 import { Textarea } from "@/components/ui/Textarea";
 import { Button } from "@/components/ui/Button";
 import { ColorPicker } from "./ColorPicker";
-import { COUNSELORS } from "@/lib/constants";
 import { X } from "lucide-react";
+
+const COUNSELOR_ROW1_IDS = ["r1_구환", "r1_신환"];
 
 export function CardSidePanel() {
   const { snapshot, updateCard, deleteCard } = useBoard();
@@ -83,6 +84,14 @@ export function CardSidePanel() {
 
   const handleClose = () => setOpen(false);
 
+  const counselorOptions = Array.from(
+    new Set(
+      (snapshot?.columns.row2 ?? [])
+        .filter((l) => COUNSELOR_ROW1_IDS.includes(l.row1_id))
+        .map((l) => l.label)
+    )
+  );
+
   return (
     <div id="cardPanel" className={open ? "open" : ""}>
       <div className="card-panel-header">
@@ -114,7 +123,7 @@ export function CardSidePanel() {
             onChange={(e) => setForm({ ...form, counselor: e.target.value })}
           >
             <option value="">(선택)</option>
-            {COUNSELORS.map((c) => (
+            {counselorOptions.map((c) => (
               <option key={c} value={c}>
                 {c}
               </option>

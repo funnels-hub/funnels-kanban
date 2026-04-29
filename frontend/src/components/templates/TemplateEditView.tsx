@@ -5,9 +5,27 @@ import type {
   TemplateLeafItem,
 } from "@/types/templates";
 import { useTemplates } from "@/contexts/TemplateContext";
-import { useBoard } from "@/contexts/BoardContext";
-import { useCurrentDate } from "@/contexts/DateContext";
+import { useDialog } from "@/contexts/DialogContext";
 import { useAlert } from "@/hooks/useAlert";
+import {
+  DndContext,
+  PointerSensor,
+  KeyboardSensor,
+  useSensor,
+  useSensors,
+  closestCenter,
+  type DragEndEvent,
+} from "@dnd-kit/core";
+import {
+  SortableContext,
+  useSortable,
+  arrayMove,
+  verticalListSortingStrategy,
+  horizontalListSortingStrategy,
+  sortableKeyboardCoordinates,
+} from "@dnd-kit/sortable";
+import { CSS } from "@dnd-kit/utilities";
+import clsx from "clsx";
 import {
   ArrowLeft,
   GripVertical,
@@ -15,9 +33,10 @@ import {
   X,
   MoreHorizontal,
   Copy,
-  Check,
-  Star,
   Trash2,
+  Save,
+  Undo2,
+  Loader2,
 } from "lucide-react";
 
 const PROTECTED_ROW1_IDS = ["r1_구환", "r1_신환"];
@@ -33,80 +52,115 @@ export function TemplateEditView({
   onBack: () => void;
 }) {
   const { updateTemplate, duplicateTemplate, deleteTemplate } = useTemplates();
-  const { applyTemplate } = useBoard();
-  const { date } = useCurrentDate();
+  const { openDialog, closeDialog } = useDialog();
   const showAlert = useAlert();
 
   const [row1, setRow1] = useState<TemplateColumnItem[]>(template.row1);
   const [row2, setRow2] = useState<TemplateLeafItem[]>(template.row2);
   const [name, setName] = useState(template.name);
   const [editingTitle, setEditingTitle] = useState(false);
+  const [busy, setBusy] = useState<null | "save" | "duplicate" | "delete">(null);
 
-  // 외부 변경(refetch 후) sync
   useEffect(() => {
     setRow1(template.row1);
     setRow2(template.row2);
     setName(template.name);
   }, [template.id, template.updated_at, template.row1, template.row2, template.name]);
 
-  const persist = async (
-    next1?: TemplateColumnItem[],
-    next2?: TemplateLeafItem[],
-    nextName?: string,
-  ) => {
-    const r1 = next1 ?? row1;
-    const r2 = next2 ?? row2;
-    const n = nextName ?? name;
-    if (next1) setRow1(next1);
-    if (next2) setRow2(next2);
-    if (nextName !== undefined) setName(nextName);
-    try {
-      await updateTemplate(template.id, { name: n, row1: r1, row2: r2 });
-    } catch (e) {
-      showAlert(e instanceof Error ? e.message : "저장 실패", "error");
+  const dirty =
+    JSON.stringify({ name, row1, row2 }) !==
+    JSON.stringify({ name: template.name, row1: template.row1, row2: template.row2 });
+
+  useEffect(() => {
+    if (!dirty) return;
+    const handler = (e: BeforeUnloadEvent) => {
+      e.preventDefault();
+      e.returnValue = "";
+    };
+    window.addEventListener("beforeunload", handler);
+    return () => window.removeEventListener("beforeunload", handler);
+  }, [dirty]);
+
+  const sensors = useSensors(
+    useSensor(PointerSensor, { activationConstraint: { distance: 5 } }),
+    useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates }),
+  );
+
+  const handleDragEnd = (event: DragEndEvent) => {
+    const { active, over } = event;
+    if (!over || active.id === over.id) return;
+    const aData = active.data.current;
+    const oData = over.data.current;
+    if (aData?.kind === "r1" && oData?.kind === "r1") {
+      const oldIdx = row1.findIndex((r) => r.id === active.id);
+      const newIdx = row1.findIndex((r) => r.id === over.id);
+      if (oldIdx < 0 || newIdx < 0) return;
+      setRow1(arrayMove(row1, oldIdx, newIdx));
+      return;
+    }
+    if (
+      aData?.kind === "leaf" &&
+      oData?.kind === "leaf" &&
+      aData.row1_id === oData.row1_id
+    ) {
+      const oldIdx = row2.findIndex((l) => l.id === active.id);
+      const newIdx = row2.findIndex((l) => l.id === over.id);
+      if (oldIdx < 0 || newIdx < 0) return;
+      setRow2(arrayMove(row2, oldIdx, newIdx));
+      return;
     }
   };
 
-  const handleTitleCommit = async () => {
+  const handleTitleCommit = () => {
     const trimmed = name.trim();
     if (!trimmed) {
       setName(template.name);
       setEditingTitle(false);
       return;
     }
-    if (trimmed !== template.name) {
-      await persist(undefined, undefined, trimmed);
-    }
+    setName(trimmed);
     setEditingTitle(false);
   };
 
+  const handleSave = async () => {
+    if (busy) return;
+    setBusy("save");
+    try {
+      await updateTemplate(template.id, { name, row1, row2 });
+      showAlert("저장 완료", "success");
+    } catch (e) {
+      showAlert(e instanceof Error ? e.message : "저장 실패", "error");
+    } finally {
+      setBusy(null);
+    }
+  };
+
+  const handleRevert = () => {
+    setRow1(template.row1);
+    setRow2(template.row2);
+    setName(template.name);
+  };
+
   const handleDuplicate = async () => {
+    if (busy) return;
+    if (dirty) {
+      showAlert("저장되지 않은 변경사항은 복제본에 반영되지 않습니다.", "info");
+    }
+    setBusy("duplicate");
     try {
       const dup = await duplicateTemplate(template.id);
       showAlert(`"${dup.name}" 복제됨`, "success");
     } catch (e) {
       showAlert(e instanceof Error ? e.message : "복제 실패", "error");
-    }
-  };
-
-  const handleApply = async () => {
-    if (
-      !window.confirm(
-        `"${name}" 을(를) ${date}에 적용할까요? 현재 카드와 컬럼이 모두 삭제됩니다.`,
-      )
-    )
-      return;
-    try {
-      await applyTemplate(template.id);
-      showAlert("템플릿 적용 완료", "success");
-      onBack();
-    } catch (e) {
-      showAlert(e instanceof Error ? e.message : "적용 실패", "error");
+    } finally {
+      setBusy(null);
     }
   };
 
   const handleDelete = async () => {
+    if (busy) return;
     if (!window.confirm(`"${name}" 삭제?`)) return;
+    setBusy("delete");
     try {
       await deleteTemplate(template.id);
       onBack();
@@ -118,159 +172,214 @@ export function TemplateEditView({
           : msg,
         "error",
       );
+    } finally {
+      setBusy(null);
     }
   };
 
-  const handleSetDefault = async () => {
-    if (template.is_default) return;
-    if (!window.confirm(`"${name}"을(를) 기본 템플릿으로 설정할까요?`)) return;
-    try {
-      await updateTemplate(template.id, { is_default: true });
-    } catch (e) {
-      showAlert(e instanceof Error ? e.message : "오류", "error");
-    }
-  };
-
-  const handleAddRow1 = async () => {
+  const handleAddRow1 = () => {
     const label = window.prompt("새 대분류 이름");
     if (!label?.trim()) return;
     const r1Id = newId("r1");
-    const nextR1 = [...row1, { id: r1Id, label: label.trim() }];
-    const nextR2 = [
+    setRow1([...row1, { id: r1Id, label: label.trim() }]);
+    setRow2([
       ...row2,
       { id: newId("r2"), row1_id: r1Id, label: "컬럼1" },
-    ];
-    await persist(nextR1, nextR2);
+    ]);
+  };
+
+  const handleBack = () => {
+    if (!dirty) {
+      onBack();
+      return;
+    }
+    openDialog(
+      <ConfirmLeaveDialog
+        onConfirm={() => {
+          closeDialog();
+          onBack();
+        }}
+        onCancel={closeDialog}
+      />,
+    );
   };
 
   return (
-    <div>
-      <div className="edit-header">
-        <button type="button" className="edit-back" onClick={onBack}>
-          <ArrowLeft className="w-3.5 h-3.5" />
-          <span>목록으로</span>
-        </button>
-        <div className="edit-title">
-          {editingTitle ? (
-            <input
-              className="edit-title-input"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              onBlur={handleTitleCommit}
-              onKeyDown={(e) => {
-                if (e.key === "Enter") {
-                  (e.target as HTMLInputElement).blur();
-                }
-                if (e.key === "Escape") {
-                  setName(template.name);
-                  setEditingTitle(false);
-                }
-              }}
-              autoFocus
-            />
-          ) : (
-            <>
-              <span
-                onClick={() => setEditingTitle(true)}
-                className="cursor-pointer"
-              >
-                {name}
-              </span>
-              {template.is_default && (
-                <span className="text-muted-foreground"> · 기본</span>
+    <DndContext
+      sensors={sensors}
+      collisionDetection={closestCenter}
+      onDragEnd={handleDragEnd}
+    >
+      <div>
+        <div className="edit-header">
+          <button type="button" className="edit-back" onClick={handleBack}>
+            <ArrowLeft className="w-3.5 h-3.5" />
+            <span>목록으로</span>
+          </button>
+          <div className="edit-title">
+            {editingTitle ? (
+              <input
+                className="edit-title-input"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                onBlur={handleTitleCommit}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") {
+                    (e.target as HTMLInputElement).blur();
+                  }
+                  if (e.key === "Escape") {
+                    setName(template.name);
+                    setEditingTitle(false);
+                  }
+                }}
+                autoFocus
+              />
+            ) : (
+              <>
+                <span
+                  onClick={() => setEditingTitle(true)}
+                  className="cursor-pointer"
+                >
+                  {name}
+                </span>
+                {template.is_default && (
+                  <span className="text-muted-foreground"> · 기본</span>
+                )}
+              </>
+            )}
+          </div>
+          <div className="edit-actions">
+            <button
+              type="button"
+              className="tpl-btn tpl-btn-primary"
+              onClick={handleSave}
+              disabled={!dirty || busy !== null}
+            >
+              {busy === "save" ? (
+                <Loader2 className="w-3.5 h-3.5 animate-spin" />
+              ) : (
+                <Save className="w-3.5 h-3.5" />
               )}
-            </>
-          )}
+              <span>저장</span>
+            </button>
+            <button
+              type="button"
+              className="tpl-btn"
+              onClick={handleRevert}
+              disabled={!dirty || busy !== null}
+            >
+              <Undo2 className="w-3.5 h-3.5" />
+              <span>되돌리기</span>
+            </button>
+            <button
+              type="button"
+              className="tpl-btn"
+              onClick={handleDuplicate}
+              disabled={busy !== null}
+            >
+              {busy === "duplicate" ? (
+                <Loader2 className="w-3.5 h-3.5 animate-spin" />
+              ) : (
+                <Copy className="w-3.5 h-3.5" />
+              )}
+              <span>복제</span>
+            </button>
+            <button
+              type="button"
+              className="tpl-btn tpl-btn-destructive"
+              disabled={template.is_default || busy !== null}
+              onClick={handleDelete}
+            >
+              {busy === "delete" ? (
+                <Loader2 className="w-3.5 h-3.5 animate-spin" />
+              ) : (
+                <Trash2 className="w-3.5 h-3.5" />
+              )}
+              <span>삭제</span>
+            </button>
+          </div>
         </div>
-        <div className="edit-actions">
-          <button type="button" className="tpl-btn" onClick={handleDuplicate}>
-            <Copy className="w-3.5 h-3.5" />
-            <span>복제</span>
-          </button>
-          <button
-            type="button"
-            className="tpl-btn tpl-btn-primary"
-            onClick={handleApply}
-          >
-            <Check className="w-3.5 h-3.5" />
-            <span>적용</span>
-          </button>
-          <button
-            type="button"
-            className="tpl-btn"
-            onClick={handleSetDefault}
-            disabled={template.is_default}
-            title={template.is_default ? "이미 기본 템플릿" : "기본 템플릿으로 설정"}
-          >
-            <Star
-              className="w-3.5 h-3.5"
-              fill={template.is_default ? "currentColor" : "none"}
-            />
-            <span>{template.is_default ? "기본" : "기본 설정"}</span>
-          </button>
-          <button
-            type="button"
-            className="tpl-btn tpl-btn-destructive"
-            disabled={template.is_default}
-            onClick={handleDelete}
-          >
-            <Trash2 className="w-3.5 h-3.5" />
-            <span>삭제</span>
-          </button>
+        <div className="edit-meta">
+          대분류 {row1.length}개 / 컬럼 {row2.length}개
         </div>
-      </div>
-      <div className="edit-meta">
-        대분류 {row1.length}개 / 컬럼 {row2.length}개
-      </div>
 
-      {row1.map((r1) => {
-        const leaves = row2.filter((r) => r.row1_id === r1.id);
-        return (
-          <Row1Section
-            key={r1.id}
-            r1={r1}
-            leaves={leaves}
-            protected={PROTECTED_ROW1_IDS.includes(r1.id)}
-            onRenameR1={async (label) =>
-              persist(
-                row1.map((x) => (x.id === r1.id ? { ...x, label } : x)),
-              )
-            }
-            onDeleteR1={async () => {
-              if (!window.confirm(`"${r1.label}" 삭제?`)) return;
-              await persist(
-                row1.filter((x) => x.id !== r1.id),
-                row2.filter((x) => x.row1_id !== r1.id),
-              );
-            }}
-            onAddLeaf={async () => {
-              const label = window.prompt("새 컬럼 이름");
-              if (!label?.trim()) return;
-              await persist(undefined, [
-                ...row2,
-                { id: newId("r2"), row1_id: r1.id, label: label.trim() },
-              ]);
-            }}
-            onRenameLeaf={async (id, label) =>
-              persist(
-                undefined,
-                row2.map((x) => (x.id === id ? { ...x, label } : x)),
-              )
-            }
-            onDeleteLeaf={async (id) =>
-              persist(
-                undefined,
-                row2.filter((x) => x.id !== id),
-              )
-            }
-          />
-        );
-      })}
+        <SortableContext
+          items={row1.map((r) => r.id)}
+          strategy={verticalListSortingStrategy}
+        >
+          {row1.map((r1) => {
+            const leaves = row2.filter((r) => r.row1_id === r1.id);
+            return (
+              <Row1Section
+                key={r1.id}
+                r1={r1}
+                leaves={leaves}
+                protected={PROTECTED_ROW1_IDS.includes(r1.id)}
+                onRenameR1={(label) =>
+                  setRow1(
+                    row1.map((x) => (x.id === r1.id ? { ...x, label } : x)),
+                  )
+                }
+                onDeleteR1={() => {
+                  if (!window.confirm(`"${r1.label}" 삭제?`)) return;
+                  setRow1(row1.filter((x) => x.id !== r1.id));
+                  setRow2(row2.filter((x) => x.row1_id !== r1.id));
+                }}
+                onAddLeaf={() => {
+                  const label = window.prompt("새 컬럼 이름");
+                  if (!label?.trim()) return;
+                  setRow2([
+                    ...row2,
+                    { id: newId("r2"), row1_id: r1.id, label: label.trim() },
+                  ]);
+                }}
+                onRenameLeaf={(id, label) =>
+                  setRow2(
+                    row2.map((x) => (x.id === id ? { ...x, label } : x)),
+                  )
+                }
+                onDeleteLeaf={(id) =>
+                  setRow2(row2.filter((x) => x.id !== id))
+                }
+              />
+            );
+          })}
+        </SortableContext>
 
-      <button type="button" className="add-r1-btn" onClick={handleAddRow1}>
-        <Plus className="w-3.5 h-3.5" />
-        <span>대분류 추가</span>
-      </button>
+        <button type="button" className="add-r1-btn" onClick={handleAddRow1}>
+          <Plus className="w-3.5 h-3.5" />
+          <span>대분류 추가</span>
+        </button>
+      </div>
+    </DndContext>
+  );
+}
+
+function ConfirmLeaveDialog({
+  onConfirm,
+  onCancel,
+}: {
+  onConfirm: () => void;
+  onCancel: () => void;
+}) {
+  return (
+    <div className="dlg" style={{ minWidth: 320, maxWidth: 480 }}>
+      <h2>변경사항 확인</h2>
+      <div style={{ padding: "12px 0", fontSize: 13.5, lineHeight: 1.5 }}>
+        저장되지 않은 변경사항이 있습니다. 정말 나가시겠습니까?
+      </div>
+      <div className="dlg-actions">
+        <button type="button" className="dlg-btn" onClick={onCancel} autoFocus>
+          취소
+        </button>
+        <button
+          type="button"
+          className="dlg-btn dlg-btn-destructive"
+          onClick={onConfirm}
+        >
+          변경사항 버리고 나가기
+        </button>
+      </div>
     </div>
   );
 }
@@ -299,6 +408,15 @@ function Row1Section({
   const [menuOpen, setMenuOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
 
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({ id: r1.id, data: { kind: "r1" } });
+
   useEffect(() => {
     if (!menuOpen) return;
     const onDocClick = (e: MouseEvent) => {
@@ -321,10 +439,19 @@ function Row1Section({
   };
 
   return (
-    <div className="r1-section">
+    <div
+      ref={setNodeRef}
+      className={clsx("r1-section", isDragging && "dragging")}
+      style={{ transform: CSS.Transform.toString(transform), transition }}
+    >
       <div className="r1-head">
         <div className="r1-head-left">
-          <span className="r1-drag-handle" title="드래그로 순서 변경">
+          <span
+            className="r1-drag-handle"
+            title="드래그로 순서 변경"
+            {...attributes}
+            {...listeners}
+          >
             <GripVertical className="w-3 h-3" />
           </span>
           {editing ? (
@@ -398,14 +525,19 @@ function Row1Section({
         </div>
       </div>
       <div className="r1-leaves">
-        {leaves.map((l) => (
-          <LeafTag
-            key={l.id}
-            leaf={l}
-            onRename={(label) => onRenameLeaf(l.id, label)}
-            onDelete={() => onDeleteLeaf(l.id)}
-          />
-        ))}
+        <SortableContext
+          items={leaves.map((l) => l.id)}
+          strategy={horizontalListSortingStrategy}
+        >
+          {leaves.map((l) => (
+            <LeafTag
+              key={l.id}
+              leaf={l}
+              onRename={(label) => onRenameLeaf(l.id, label)}
+              onDelete={() => onDeleteLeaf(l.id)}
+            />
+          ))}
+        </SortableContext>
         <button
           type="button"
           className="leaf-add"
@@ -431,6 +563,18 @@ function LeafTag({
   const [editing, setEditing] = useState(false);
   const [draft, setDraft] = useState(leaf.label);
 
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({
+    id: leaf.id,
+    data: { kind: "leaf", row1_id: leaf.row1_id },
+  });
+
   const commit = () => {
     const trimmed = draft.trim();
     if (trimmed && trimmed !== leaf.label) {
@@ -442,7 +586,14 @@ function LeafTag({
   };
 
   return (
-    <span className="leaf-tag" title="더블클릭으로 이름 변경">
+    <span
+      ref={setNodeRef}
+      className={clsx("leaf-tag", isDragging && "dragging")}
+      style={{ transform: CSS.Transform.toString(transform), transition }}
+      title="더블클릭으로 이름 변경"
+      {...attributes}
+      {...listeners}
+    >
       {editing ? (
         <input
           className="leaf-label-input"
@@ -474,6 +625,7 @@ function LeafTag({
           <button
             type="button"
             className="leaf-remove"
+            onPointerDown={(e) => e.stopPropagation()}
             onClick={onDelete}
             title="삭제"
           >
