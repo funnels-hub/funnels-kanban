@@ -41,8 +41,8 @@ def main(
             cur.execute(
                 "SELECT 1 FROM cards "
                 "WHERE hospital_id = %s AND date = %s AND chart = %s "
-                "AND row1_id = %s AND id != %s LIMIT 1",
-                (hospital_id, card_date, chart, new_row1, card_id),
+                "AND row1_id = ANY(%s) AND id != %s LIMIT 1",
+                (hospital_id, card_date, chart, SINGLE_CARD_R1, card_id),
             )
             if cur.fetchone():
                 raise ValueError("CHART_ALREADY_EXISTS")

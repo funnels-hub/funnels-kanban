@@ -43,7 +43,7 @@ export function isChartTakenByOther(
   if (!chart) return false;
   if (!SINGLE_CARD_R1.has(row1_id)) return false;
   return cards.some(
-    (c) => c.id !== excludeId && c.chart === chart && c.row1_id === row1_id
+    (c) => c.id !== excludeId && c.chart === chart && SINGLE_CARD_R1.has(c.row1_id)
     // single-card 그룹은 그룹 안에서 1개만 허용
   );
 }

@@ -33,8 +33,8 @@ def main(
         # 2. chart 중복 검사: SINGLE_CARD_R1 내부 한정 (같은 row1_id 안에서만 unique)
         if chart and row1_id in SINGLE_CARD_R1:
             cur.execute(
-                "SELECT 1 FROM cards WHERE hospital_id = %s AND date = %s AND chart = %s AND row1_id = %s LIMIT 1",
-                (hospital_id, date, chart, row1_id),
+                "SELECT 1 FROM cards WHERE hospital_id = %s AND date = %s AND chart = %s AND row1_id = ANY(%s) LIMIT 1",
+                (hospital_id, date, chart, SINGLE_CARD_R1),
             )
             if cur.fetchone():
                 raise ValueError("CHART_ALREADY_EXISTS")

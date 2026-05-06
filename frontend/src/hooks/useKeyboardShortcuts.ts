@@ -2,7 +2,6 @@ import { useEffect } from "react";
 import { useBoard } from "@/contexts/BoardContext";
 import { useSelection } from "@/contexts/SelectionContext";
 import { useAlert } from "@/hooks/useAlert";
-import { SINGLE_CARD_R1 } from "@/lib/constants";
 import { formatNowHHMM, isTimeEditableGroup } from "@/lib/business-rules";
 
 function isTyping(target: EventTarget | null): boolean {
@@ -42,10 +41,6 @@ export function useKeyboardShortcuts() {
       if (isCtrl && e.key.toLowerCase() === "c" && selectedCardId) {
         const card = snapshot?.cards.find((c) => c.id === selectedCardId);
         if (!card) return;
-        if (!SINGLE_CARD_R1.has(card.row1_id)) {
-          showAlert("구환/신환 카드만 복사할 수 있습니다", "error");
-          return;
-        }
         e.preventDefault();
         copyCard(selectedCardId);
         return;
@@ -54,10 +49,6 @@ export function useKeyboardShortcuts() {
       // Ctrl+V
       if (isCtrl && e.key.toLowerCase() === "v" && copiedCardId && selectedCell) {
         e.preventDefault();
-        if (SINGLE_CARD_R1.has(selectedCell.row1_id)) {
-          showAlert("구환/신환 셀에는 붙여넣기 불가", "error");
-          return;
-        }
         const source = snapshot?.cards.find((c) => c.id === copiedCardId);
         if (!source) { showAlert("복사 원본을 찾을 수 없음", "error"); return; }
 
