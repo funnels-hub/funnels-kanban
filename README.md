@@ -139,12 +139,10 @@ npm run dev
 
 | 변수명 | 설명 | 예시 |
 |--------|------|------|
-| `ENV` | 실행 환경 | `local` / `production` |
 | `DATABASE_URL` | Supabase Postgres 연결 문자열 | `postgresql://...supabase.co:5432/postgres` |
 | `DB_SCHEMA` | 사용 스키마 (v0.2.0 전용) | `kanban_v2` |
 | `BACKEND_HOST` | Uvicorn 호스트 | `0.0.0.0` |
 | `BACKEND_PORT` | Uvicorn 포트 | `9000` |
-| `CORS_ORIGINS` | 허용 origin 목록 (콤마 구분) | `http://localhost:5173` |
 | `JWT_SECRET` | JWT 서명 비밀키 (충분히 긴 랜덤 문자열) | `change-me-please` |
 | `JWT_ALGORITHM` | JWT 알고리즘 | `HS256` |
 | `JWT_EXPIRES_MIN` | 액세스 토큰 만료(분) | `1440` (24h) |
