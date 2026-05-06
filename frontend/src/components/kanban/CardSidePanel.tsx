@@ -5,6 +5,7 @@ import { Input } from "@/components/ui/Input";
 import { Textarea } from "@/components/ui/Textarea";
 import { Button } from "@/components/ui/Button";
 import { ColorPicker } from "./ColorPicker";
+import { useConfirm } from "@/hooks/useConfirm";
 import { X } from "lucide-react";
 
 const COUNSELOR_ROW1_IDS = ["r1_구환", "r1_신환"];
@@ -12,6 +13,7 @@ const COUNSELOR_ROW1_IDS = ["r1_구환", "r1_신환"];
 export function CardSidePanel() {
   const { snapshot, updateCard, deleteCard } = useBoard();
   const { selectedCardId, selectCard } = useSelection();
+  const confirm = useConfirm();
   const [open, setOpen] = useState(false);
 
   const card = snapshot?.cards.find((c) => c.id === selectedCardId) ?? null;
@@ -76,7 +78,8 @@ export function CardSidePanel() {
   };
 
   const handleDelete = async () => {
-    if (!window.confirm(`"${card.name || card.chart || "(빈 카드)"}" 카드를 삭제할까요?`)) return;
+    const ok = await confirm({ message: `"${card.name || card.chart || "(빈 카드)"}" 카드를 삭제할까요?`, danger: true });
+    if (!ok) return;
     await deleteCard(card.id);
     selectCard(null);
     setOpen(false);

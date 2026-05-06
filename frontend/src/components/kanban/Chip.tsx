@@ -5,10 +5,12 @@ import { useBoard } from "@/contexts/BoardContext";
 import { ContextMenu, type ContextMenuItem } from "@/components/ui/ContextMenu";
 import { isCopyable, hexToRgba } from "@/lib/business-rules";
 import { openCardPanel } from "@/hooks/useChipPanelOpener";
+import { useConfirm } from "@/hooks/useConfirm";
 
 export function Chip({ card }: { card: Card }) {
   const { selectedCardId, selectCard, copyCard } = useSelection();
   const { deleteCard } = useBoard();
+  const confirm = useConfirm();
   const [ctxMenu, setCtxMenu] = useState<{ x: number; y: number } | null>(null);
 
   const selected = selectedCardId === card.id;
@@ -42,7 +44,8 @@ export function Chip({ card }: { card: Card }) {
     { label: "편집", onClick: () => openCardPanel() },
     { label: "복사 (Ctrl+C)", onClick: () => copyCard(card.id), disabled: !isCopyable(card) },
     { label: "삭제 (Del)", destructive: true, onClick: async () => {
-      if (window.confirm(`"${card.name || card.chart || "(빈 카드)"}" 카드를 삭제할까요?`)) {
+      const ok = await confirm({ message: `"${card.name || card.chart || "(빈 카드)"}" 카드를 삭제할까요?`, danger: true });
+      if (ok) {
         await deleteCard(card.id);
       }
     } },

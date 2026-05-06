@@ -2,6 +2,7 @@ import { useTemplates } from "@/contexts/TemplateContext";
 import { useBoard } from "@/contexts/BoardContext";
 import { useCurrentDate } from "@/contexts/DateContext";
 import { useAlert } from "@/hooks/useAlert";
+import { useConfirm } from "@/hooks/useConfirm";
 import { TemplateCard } from "./TemplateCard";
 import { Plus } from "lucide-react";
 import type { Template } from "@/types/templates";
@@ -11,6 +12,7 @@ export function TemplateListView({ onSelectEdit }: { onSelectEdit: (tpl: Templat
   const { applyTemplate } = useBoard();
   const { date } = useCurrentDate();
   const showAlert = useAlert();
+  const confirm = useConfirm();
 
   const handleNew = async () => {
     const name = window.prompt("새 템플릿 이름");
@@ -20,7 +22,8 @@ export function TemplateListView({ onSelectEdit }: { onSelectEdit: (tpl: Templat
   };
 
   const handleApply = async (tpl: Template) => {
-    if (!window.confirm(`"${tpl.name}"을(를) ${date} 보드에 적용할까요? 현재 카드와 컬럼이 모두 삭제됩니다.`)) return;
+    const ok = await confirm({ message: `"${tpl.name}"을(를) ${date} 보드에 적용할까요? 현재 카드와 컬럼이 모두 삭제됩니다.`, danger: true });
+    if (!ok) return;
     try {
       await applyTemplate(tpl.id);
       showAlert("템플릿 적용 완료", "success");
@@ -31,7 +34,8 @@ export function TemplateListView({ onSelectEdit }: { onSelectEdit: (tpl: Templat
   };
 
   const handleDelete = async (tpl: Template) => {
-    if (!window.confirm(`"${tpl.name}" 삭제?`)) return;
+    const ok = await confirm({ message: `"${tpl.name}" 삭제?`, danger: true });
+    if (!ok) return;
     try {
       await deleteTemplate(tpl.id);
       showAlert("삭제됨", "success");
@@ -44,7 +48,8 @@ export function TemplateListView({ onSelectEdit }: { onSelectEdit: (tpl: Templat
 
   const handleSetDefault = async (tpl: Template) => {
     if (tpl.is_default) return;
-    if (!window.confirm(`"${tpl.name}"을(를) 기본 템플릿으로 설정할까요?`)) return;
+    const ok = await confirm({ message: `"${tpl.name}"을(를) 기본 템플릿으로 설정할까요?`, danger: false });
+    if (!ok) return;
     try {
       await updateTemplate(tpl.id, { is_default: true });
     } catch (e) {

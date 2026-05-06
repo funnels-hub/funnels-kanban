@@ -2,6 +2,7 @@ import { useState, useRef, useEffect } from "react";
 import type { ColumnRow1 } from "@/types/columns";
 import { useBoard } from "@/contexts/BoardContext";
 import { Input } from "@/components/ui/Input";
+import { useConfirm } from "@/hooks/useConfirm";
 import { MoreHorizontal } from "lucide-react";
 
 const PROTECTED_ROW1_IDS = ["r1_구환", "r1_신환"];
@@ -16,6 +17,7 @@ export function HeaderRow1({
   groupIndex: number;
 }) {
   const { renameRow1, deleteRow1 } = useBoard();
+  const confirm = useConfirm();
   const [editing, setEditing] = useState(false);
   const [draft, setDraft] = useState(row1.label);
   const [menuOpen, setMenuOpen] = useState(false);
@@ -36,7 +38,8 @@ export function HeaderRow1({
   };
   const handleDelete = async () => {
     setMenuOpen(false);
-    if (window.confirm(`"${row1.label}" 그룹과 모든 카드를 삭제할까요?`)) {
+    const ok = await confirm({ message: `"${row1.label}" 그룹과 모든 카드를 삭제할까요?`, danger: true });
+    if (ok) {
       await deleteRow1(row1.id);
     }
   };

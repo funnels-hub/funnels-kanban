@@ -7,6 +7,7 @@ import type {
 import { useTemplates } from "@/contexts/TemplateContext";
 import { useDialog } from "@/contexts/DialogContext";
 import { useAlert } from "@/hooks/useAlert";
+import { useConfirm } from "@/hooks/useConfirm";
 import {
   DndContext,
   PointerSensor,
@@ -54,6 +55,7 @@ export function TemplateEditView({
   const { updateTemplate, duplicateTemplate, deleteTemplate } = useTemplates();
   const { openDialog, closeDialog } = useDialog();
   const showAlert = useAlert();
+  const confirm = useConfirm();
 
   const [row1, setRow1] = useState<TemplateColumnItem[]>(template.row1);
   const [row2, setRow2] = useState<TemplateLeafItem[]>(template.row2);
@@ -159,7 +161,8 @@ export function TemplateEditView({
 
   const handleDelete = async () => {
     if (busy) return;
-    if (!window.confirm(`"${name}" 삭제?`)) return;
+    const ok = await confirm({ message: `"${name}" 삭제?`, danger: true });
+    if (!ok) return;
     setBusy("delete");
     try {
       await deleteTemplate(template.id);
@@ -320,8 +323,9 @@ export function TemplateEditView({
                     row1.map((x) => (x.id === r1.id ? { ...x, label } : x)),
                   )
                 }
-                onDeleteR1={() => {
-                  if (!window.confirm(`"${r1.label}" 삭제?`)) return;
+                onDeleteR1={async () => {
+                  const ok = await confirm({ message: `"${r1.label}" 삭제?`, danger: true });
+                  if (!ok) return;
                   setRow1(row1.filter((x) => x.id !== r1.id));
                   setRow2(row2.filter((x) => x.row1_id !== r1.id));
                 }}

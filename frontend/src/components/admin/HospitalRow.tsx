@@ -1,22 +1,26 @@
 import type { Hospital } from "@/types/hospitals";
 import { useHospitals } from "@/contexts/HospitalContext";
 import { useDialog } from "@/contexts/DialogContext";
+import { useConfirm } from "@/hooks/useConfirm";
 import { HospitalEditDialog } from "./HospitalEditDialog";
 
 export function HospitalRow({ hospital }: { hospital: Hospital }) {
   const { updateHospital, deleteHospital, fetchHospitals } = useHospitals();
   const { openDialog } = useDialog();
+  const confirm = useConfirm();
 
   const handleToggleActive = async () => {
     if (hospital.is_admin) return;
     if (!hospital.is_active) {
       // 재활성화
-      if (window.confirm(`"${hospital.name}"을(를) 활성화할까요?`)) {
+      const ok = await confirm({ message: `"${hospital.name}"을(를) 활성화할까요?`, danger: false });
+      if (ok) {
         await updateHospital(hospital.id, { is_active: true });
       }
     } else {
       // 비활성화 (soft delete)
-      if (window.confirm(`"${hospital.name}"을(를) 비활성화할까요?`)) {
+      const ok = await confirm({ message: `"${hospital.name}"을(를) 비활성화할까요?`, danger: false });
+      if (ok) {
         await deleteHospital(hospital.id);
       }
     }

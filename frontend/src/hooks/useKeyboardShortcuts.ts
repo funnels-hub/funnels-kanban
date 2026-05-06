@@ -2,6 +2,7 @@ import { useEffect } from "react";
 import { useBoard } from "@/contexts/BoardContext";
 import { useSelection } from "@/contexts/SelectionContext";
 import { useAlert } from "@/hooks/useAlert";
+import { useConfirm } from "@/hooks/useConfirm";
 import { formatNowHHMM, isTimeEditableGroup } from "@/lib/business-rules";
 
 function isTyping(target: EventTarget | null): boolean {
@@ -13,6 +14,7 @@ export function useKeyboardShortcuts() {
   const { snapshot, deleteCard, createCard, getCardsByChart } = useBoard();
   const { selectedCardId, selectedCell, copiedCardId, selectCard, copyCard, clearSelection } = useSelection();
   const showAlert = useAlert();
+  const confirm = useConfirm();
 
   useEffect(() => {
     const handler = async (e: KeyboardEvent) => {
@@ -30,9 +32,12 @@ export function useKeyboardShortcuts() {
       if ((e.key === "Delete" || e.key === "Backspace") && selectedCardId) {
         e.preventDefault();
         const card = snapshot?.cards.find((c) => c.id === selectedCardId);
-        if (card && window.confirm(`"${card.name || card.chart || "(빈 카드)"}" 삭제?`)) {
-          await deleteCard(selectedCardId);
-          selectCard(null);
+        if (card) {
+          const ok = await confirm({ message: `"${card.name || card.chart || "(빈 카드)"}" 삭제?`, danger: true });
+          if (ok) {
+            await deleteCard(selectedCardId);
+            selectCard(null);
+          }
         }
         return;
       }
@@ -88,5 +93,5 @@ export function useKeyboardShortcuts() {
 
     window.addEventListener("keydown", handler);
     return () => window.removeEventListener("keydown", handler);
-  }, [snapshot, selectedCardId, selectedCell, copiedCardId, deleteCard, createCard, getCardsByChart, selectCard, copyCard, clearSelection, showAlert]);
+  }, [snapshot, selectedCardId, selectedCell, copiedCardId, deleteCard, createCard, getCardsByChart, selectCard, copyCard, clearSelection, showAlert, confirm]);
 }

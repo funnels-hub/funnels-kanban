@@ -2,6 +2,8 @@ import { useState } from "react";
 import type { ColumnRow2 } from "@/types/columns";
 import { useBoard } from "@/contexts/BoardContext";
 import { Input } from "@/components/ui/Input";
+import { useConfirm } from "@/hooks/useConfirm";
+import { useAlert } from "@/hooks/useAlert";
 import { X } from "lucide-react";
 
 export function HeaderRow2({
@@ -14,6 +16,8 @@ export function HeaderRow2({
   isFirstLeaf: boolean;
 }) {
   const { renameRow2, deleteRow2 } = useBoard();
+  const confirm = useConfirm();
+  const showAlert = useAlert();
   const [editing, setEditing] = useState(false);
   const [draft, setDraft] = useState(row2.label);
 
@@ -24,12 +28,13 @@ export function HeaderRow2({
     setEditing(false);
   };
   const handleDelete = async () => {
-    if (window.confirm(`"${row2.label}" 컬럼과 카드를 삭제할까요?`)) {
+    const ok = await confirm({ message: `"${row2.label}" 컬럼과 카드를 삭제할까요?`, danger: true });
+    if (ok) {
       try {
         await deleteRow2(row2.id);
       } catch (e) {
         if (e instanceof Error && e.message.includes("LAST_LEAF")) {
-          window.alert("마지막 leaf는 삭제할 수 없습니다.");
+          showAlert("마지막 leaf는 삭제할 수 없습니다", "error");
         } else {
           throw e;
         }
