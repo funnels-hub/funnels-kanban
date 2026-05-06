@@ -1,7 +1,6 @@
 import { useState } from "react";
 import type { Card } from "@/types/cards";
 import { useSelection } from "@/contexts/SelectionContext";
-import { SINGLE_CARD_R1 } from "@/lib/constants";
 import { Chip } from "./Chip";
 import { InlineAddInput } from "./InlineAddInput";
 
@@ -28,7 +27,7 @@ export function Cell({
     selectedCell?.row2_id === row2Id &&
     selectedCell?.time === time;
   const empty = cards.length === 0;
-  const canAddInline = SINGLE_CARD_R1.has(row1Id);
+  const canAddInline = true;
 
   return (
     <div

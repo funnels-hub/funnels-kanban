@@ -1,4 +1,3 @@
-import os
 from dotenv import load_dotenv
 load_dotenv(".env")
 
@@ -13,10 +12,9 @@ from hospitals.router import router as hospitals_router
 
 app = FastAPI(title="치과 상담 예약 칸반 API", version="0.1.0")
 
-cors_origins = [o.strip() for o in os.getenv("CORS_ORIGINS", "").split(",") if o.strip()]
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=cors_origins or ["*"],
+    allow_origins=["*"],
     allow_credentials=False,
     allow_methods=["*"],
     allow_headers=["*"],
