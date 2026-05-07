@@ -33,6 +33,7 @@ def main(
             raise ValueError("NOT_FOUND")
         existing_chart = existing["chart"]
         existing_date = existing["date"]
+        existing_name = existing["name"]
 
         # 2. 변경할 필드만 수집 (None 아닌 것)
         incoming = {
@@ -59,18 +60,20 @@ def main(
 
         # 4. sibling sync
         chart_changed = chart is not None and chart != existing_chart
+        name_changed = name is not None and name != existing_name
         sync_changed = {k: v for k, v in changed.items() if k in SYNC_FIELDS and k != "chart"}
-        if sync_siblings and not chart_changed and sync_changed and existing_chart:
+        if sync_siblings and not chart_changed and not name_changed and sync_changed and existing_chart:
             sib_set_clauses = [f"{k} = %s" for k in sync_changed.keys()]
             sib_set_clauses.append("updated_at = now()")
             sib_sql = (
                 f"UPDATE cards SET {', '.join(sib_set_clauses)} "
-                f"WHERE hospital_id = %s AND date = %s AND chart = %s AND id <> %s"
+                f"WHERE hospital_id = %s AND date = %s AND chart = %s AND name = %s AND id <> %s"
             )
             sib_params = list(sync_changed.values()) + [
                 hospital_id,
                 existing_date,
                 existing_chart,
+                existing_name,
                 card_id,
             ]
             cur.execute(sib_sql, sib_params)
