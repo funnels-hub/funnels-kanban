@@ -3,7 +3,7 @@ import type { Card } from "@/types/cards";
 import { useSelection } from "@/contexts/SelectionContext";
 import { useBoard } from "@/contexts/BoardContext";
 import { ContextMenu, type ContextMenuItem } from "@/components/ui/ContextMenu";
-import { isCopyable, hexToRgba } from "@/lib/business-rules";
+import { isCopyable } from "@/lib/business-rules";
 import { openCardPanel } from "@/hooks/useChipPanelOpener";
 import { useConfirm } from "@/hooks/useConfirm";
 
@@ -16,7 +16,7 @@ export function Chip({ card }: { card: Card }) {
   const selected = selectedCardId === card.id;
 
   const style: React.CSSProperties = card.color
-    ? { borderLeftColor: card.color, background: hexToRgba(card.color, 0.15) }
+    ? { background: card.color }
     : {};
 
   const handleClick = (e: React.MouseEvent) => {

@@ -202,7 +202,6 @@
 .chip {
   border-radius: 3px;
   border: 1px solid var(--border);
-  border-left-width: 3px;
   padding: 4px 6px;
   font-size: 11px;
   line-height: 1.25;
