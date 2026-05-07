@@ -23,6 +23,10 @@ credentials.json
 .DS_Store
 *.log
 
+# Excluded folders
+demo/
+docs/
+
 # Frontend build artifacts
 *.tsbuildinfo
 vite.config.d.ts
