@@ -26,7 +26,7 @@ interface BoardContextValue {
   snapshot: BoardSnapshot | null;
   status: BoardStatus;
   error: string | null;
-  refetch: () => Promise<void>;
+  refetch: (opts?: { silent?: boolean }) => Promise<void>;
   // columns
   addRow1: (input: ColumnRow1Create) => Promise<ColumnRow1>;
   renameRow1: (r1Id: string, input: ColumnRow1Update) => Promise<ColumnRow1>;
@@ -54,18 +54,24 @@ export function BoardProvider({ children }: { children: ReactNode }) {
   const [status, setStatus] = useState<BoardStatus>("idle");
   const [error, setError] = useState<string | null>(null);
 
-  const refetch = useCallback(async () => {
-    setStatus("loading");
-    setError(null);
-    try {
-      const data = await api.get<BoardSnapshot>(`/api/boards/${date}`);
-      setSnapshot(data);
-      setStatus("done");
-    } catch (e) {
-      setError(e instanceof Error ? e.message : "Unknown");
-      setStatus("error");
-    }
-  }, [date]);
+  const refetch = useCallback(
+    async (opts?: { silent?: boolean }) => {
+      const silent = opts?.silent ?? false;
+      if (!silent) {
+        setStatus("loading");
+        setError(null);
+      }
+      try {
+        const data = await api.get<BoardSnapshot>(`/api/boards/${date}`);
+        setSnapshot(data);
+        if (!silent) setStatus("done");
+      } catch (e) {
+        setError(e instanceof Error ? e.message : "Unknown");
+        if (!silent) setStatus("error");
+      }
+    },
+    [date],
+  );
 
   useEffect(() => {
     refetch();
