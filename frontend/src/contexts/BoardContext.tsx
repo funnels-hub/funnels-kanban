@@ -150,20 +150,44 @@ export function BoardProvider({ children }: { children: ReactNode }) {
     [date, refetch],
   );
 
-  // ---------- cards ----------
+  // ---------- cards (optimistic + response-merge, no refetch) ----------
   const createCard = useCallback(
     async (input: CardCreate) => {
       const card = await api.post<Card>("/api/cards", { ...input, date });
-      await refetch();
+      setSnapshot((prev) =>
+        prev ? { ...prev, cards: [...prev.cards.filter((c) => c.id !== card.id), card] } : prev,
+      );
       return card;
     },
-    [date, refetch],
+    [date],
   );
 
   const updateCard = useCallback(
     async (cardId: string, input: CardUpdate) => {
+      // 낙관적 업데이트: 서버 응답을 기다리지 않고 로컬 즉시 반영
+      setSnapshot((prev) =>
+        prev
+          ? {
+              ...prev,
+              cards: prev.cards.map((c) =>
+                c.id === cardId ? { ...c, ...input } : c,
+              ),
+            }
+          : prev,
+      );
       const card = await api.patch<Card>(`/api/cards/${cardId}`, input);
-      await refetch();
+      // 서버 정답으로 최종 머지 (sync_siblings 등 서버측 부수효과 반영)
+      setSnapshot((prev) => {
+        if (!prev) return prev;
+        const cards = prev.cards.map((c) => (c.id === card.id ? card : c));
+        // sync_siblings=true 인 경우 같은 chart 형제도 서버가 갱신했을 수 있으니
+        // 형제 카드에만 국한된 필드는 백그라운드 refetch로 보정
+        return { ...prev, cards };
+      });
+      if (input.sync_siblings) {
+        // 형제 동기화가 필요한 경우에만 조용히 뒷정리 (UI 블로킹 안 함)
+        void refetch({ silent: true });
+      }
       return card;
     },
     [refetch],
@@ -171,19 +195,32 @@ export function BoardProvider({ children }: { children: ReactNode }) {
 
   const moveCard = useCallback(
     async (cardId: string, input: CardMove) => {
+      // 낙관적 이동만 반영. 서버 응답 후 재머지는 하지 않음
+      // (위치 필드는 낙관적 값이 이미 정답이며, 재머지는 뒤늦은 리렌더로 카드가 다시 튀는 착시를 유발함)
+      setSnapshot((prev) =>
+        prev
+          ? {
+              ...prev,
+              cards: prev.cards.map((c) =>
+                c.id === cardId ? { ...c, ...input } : c,
+              ),
+            }
+          : prev,
+      );
       const card = await api.patch<Card>(`/api/cards/${cardId}/move`, input);
-      await refetch();
       return card;
     },
-    [refetch],
+    [],
   );
 
   const deleteCard = useCallback(
     async (cardId: string) => {
+      setSnapshot((prev) =>
+        prev ? { ...prev, cards: prev.cards.filter((c) => c.id !== cardId) } : prev,
+      );
       await api.delete(`/api/cards/${cardId}`);
-      await refetch();
     },
-    [refetch],
+    [],
   );
 
   // ---------- template ----------

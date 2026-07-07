@@ -73,8 +73,12 @@ export function CardSidePanel() {
   if (!card) return null;
 
   const handleSave = async () => {
-    await updateCard(card.id, { ...form, sync_siblings: true });
+    // 형제(같은 chart) 동기화가 실제 필요한 필드가 바뀐 경우에만 sync_siblings 활성화.
+    // 색상/메모/시간만 바뀌면 형제 refetch 불필요 → UI 즉시 종료.
+    const siblingFields: (keyof typeof form)[] = ["name", "chart", "counselor"];
+    const needSync = siblingFields.some((k) => form[k] !== (card as any)[k]);
     setOpen(false);
+    await updateCard(card.id, { ...form, sync_siblings: needSync });
   };
 
   const handleDelete = async () => {
@@ -167,7 +171,14 @@ export function CardSidePanel() {
         </div>
         <div className="card-panel-field">
           <label>색상</label>
-          <ColorPicker value={form.color} onChange={(v) => setForm({ ...form, color: v })} />
+          <ColorPicker
+            value={form.color}
+            onChange={(v) => {
+              setForm({ ...form, color: v });
+              // 색상은 즉시 저장 (다른 필드는 저장 버튼 클릭 시 반영)
+              void updateCard(card.id, { color: v, sync_siblings: false });
+            }}
+          />
         </div>
       </div>
       <div className="card-panel-actions flex gap-2 px-4 py-3 border-t">

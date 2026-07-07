@@ -23,13 +23,37 @@ export function useDragDrop() {
     }
     if (!el) return;
 
+    // 현재 드롭 타겟 하이라이트 상태
+    let currentTarget: HTMLElement | null = null;
+    const clearTarget = () => {
+      if (currentTarget) currentTarget.classList.remove("is-drop-target");
+      currentTarget = null;
+    };
+    const setTarget = (cell: HTMLElement | null) => {
+      if (cell === currentTarget) return;
+      clearTarget();
+      if (cell) {
+        cell.classList.add("is-drop-target");
+        currentTarget = cell;
+      }
+    };
+
     const onDragOver = (e: DragEvent) => {
       e.preventDefault();
       if (e.dataTransfer) e.dataTransfer.dropEffect = "move";
+      const cell = (e.target as HTMLElement).closest?.("[data-row1][data-row2][data-time]") as HTMLElement | null;
+      setTarget(cell);
+    };
+
+    const onDragLeave = (e: DragEvent) => {
+      // 그리드 밖으로 벗어난 경우에만 하이라이트 제거
+      const related = e.relatedTarget as HTMLElement | null;
+      if (!related || !el.contains(related)) clearTarget();
     };
 
     const onDrop = async (e: DragEvent) => {
       e.preventDefault();
+      clearTarget();
       const cardId = e.dataTransfer?.getData("text/plain");
       if (!cardId) return;
       const target = (e.target as HTMLElement).closest("[data-row1][data-row2][data-time]") as HTMLElement | null;
@@ -48,9 +72,12 @@ export function useDragDrop() {
     };
 
     el.addEventListener("dragover", onDragOver);
+    el.addEventListener("dragleave", onDragLeave);
     el.addEventListener("drop", onDrop);
     cleanupRef.current = () => {
+      clearTarget();
       el.removeEventListener("dragover", onDragOver);
+      el.removeEventListener("dragleave", onDragLeave);
       el.removeEventListener("drop", onDrop);
     };
   }, []);
